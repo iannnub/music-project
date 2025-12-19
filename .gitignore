@@ -1,0 +1,13 @@
+# Database configuration (Sangat sensitif!)
+config/database.php
+
+# OS and IDE junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+
+# Temp files
+/temp/
+/cache/
