@@ -1,5 +1,6 @@
 # Database configuration (Sangat sensitif!)
 config/database.php
+config/db_les_musik (1).php
 
 # OS and IDE junk
 .DS_Store
