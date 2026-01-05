@@ -82,8 +82,8 @@ class SiswaController {
         $absensiModel = new AbsensiModel($this->db);
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $lat_sekolah = -8.28994280771604; 
-            $long_sekolah = 113.52795518004542;
+            $lat_sekolah = -8.2850494; 
+            $long_sekolah = 113.5258744;
             $radius_max = 500; // jarak radius dari tempat sekolah
 
             $student_id = $_SESSION['user']['id'];
