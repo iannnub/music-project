@@ -1,7 +1,7 @@
 <div class="container-fluid">
 
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Manajemen Kelas / Band</h1>
+        <h1 class="h3 mb-0 text-gray-800">Manajemen Kelas</h1>
         <button type="button" class="btn btn-primary shadow-sm" data-toggle="modal" data-target="#modalTambahKelas">
             <i class="fas fa-plus fa-sm text-white-50"></i> Buat Kelas Baru
         </button>
@@ -92,7 +92,7 @@
                     
                     <div class="form-group">
                         <label>Nama Kelas / Band <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="name" placeholder="Contoh: Piano Dasar Budi / Band The Rockers" required>
+                        <input type="text" class="form-control" name="name" placeholder="Masukkan Nama Kelas" required>
                     </div>
 
                     <div class="row">
@@ -100,8 +100,8 @@
                             <div class="form-group">
                                 <label>Tipe Kelas</label>
                                 <select class="form-control" name="type">
-                                    <option value="private">Private (1 Siswa)</option>
-                                    <option value="group">Group / Band (>1 Siswa)</option>
+                                    <option value="private">Private</option>
+                                    <option value="group">Group / Band</option>
                                 </select>
                             </div>
                         </div>
@@ -113,7 +113,7 @@
                                     <option value="Gitar">Gitar Akustik/Elektrik</option>
                                     <option value="Drum">Drum</option>
                                     <option value="Vokal">Vokal</option>
-                                    <option value="Band Combo">Band Combo (Campur)</option>
+                                    <option value="Band Combo">Band</option>
                                     <option value="Biola">Biola</option>
                                 </select>
                             </div>
@@ -123,7 +123,7 @@
                     <div class="form-group">
                         <label>Pilih Guru Pengajar <span class="text-danger">*</span></label>
                         <select class="form-control" name="teacher_id" required>
-                            <option value="">-- Pilih Guru --</option>
+                            <option value="">Pilih Guru</option>
                             <?php foreach ($dataGuru as $g): ?>
                                 <option value="<?= $g['id']; ?>">
                                     <?= $g['name']; ?> (<?= $g['instrument'] ?? 'Umum'; ?>)
@@ -134,8 +134,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Deskripsi (Opsional)</label>
-                        <textarea class="form-control" name="description" rows="2"></textarea>
+                        <label>Deskripsi</label>
+                        <textarea class="form-control" name="description" placeholder="Boleh Kosong" rows="2"></textarea>
                     </div>
 
                 </div>

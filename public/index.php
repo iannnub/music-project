@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('Asia/Jakarta');
 session_start();
 
 require_once '../config/database.php';
@@ -64,18 +65,23 @@ switch ($page) {
 // --------------------------- guru ---------------------------
 
     case 'guru':
-        // ... cek login ...
-        require_once '../controllers/UserController.php';
-        $controller = new UserController($db);
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'admin') {
+            header("Location: index.php?page=auth");
+            exit;
+        }
+        // UBAH: Gunakan GuruController, bukan UserController
+        require_once '../controllers/GuruController.php';
+        $controller = new GuruController($db);
 
         if ($action == 'store') {
             $controller->store();
-        } elseif ($action == 'update') {  // <--- BARU
+        } elseif ($action == 'update') {
             $controller->update();
-        } elseif ($action == 'delete') {  // <--- BARU
+        } elseif ($action == 'delete') {
             $controller->delete();
         } else {
-            $controller->indexGuru();
+            // Pastikan di GuruController lo ada method index() untuk list guru
+            $controller->indexGuruAdmin(); 
         }
         break;
         
@@ -83,23 +89,39 @@ switch ($page) {
 
 // --------------------------- siswa ---------------------------
 
-        case 'siswa':
+       case 'siswa':
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'admin') {
             header("Location: index.php?page=auth");
             exit;
         }
-        require_once '../controllers/UserController.php';
-        $controller = new UserController($db);
+        require_once '../controllers/SiswaController.php';
+        $controller = new SiswaController($db);
         
-        if ($action == 'store') {
+            if ($action == 'store') {
             $controller->store();
-        } elseif ($action == 'update') {  
-            $controller->update();
-        } elseif ($action == 'delete') { 
-            $controller->delete();
-        } else {
-            $controller->indexSiswa(); 
+            } elseif ($action == 'update') {
+                $controller->update();
+            } elseif ($action == 'delete') {
+                $controller->delete();
+            } elseif ($action == 'update_jadwal') {
+                $controller->update_jadwal();
+            } elseif ($action == 'add_schedule_item') { // <--- TAMBAH INI
+                $controller->add_schedule_item();
+            } elseif ($action == 'delete_schedule_item') { // <--- TAMBAH INI
+                $controller->delete_schedule_item();
+            } else {
+                $controller->index();
+            }
+            break;
+
+    case 'siswa_manage_jadwal': // <--- TAMBAHAN: Biar halaman kalender gak blank
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'admin') {
+            header("Location: index.php?page=auth");
+            exit;
         }
+        require_once '../controllers/SiswaController.php';
+        $controller = new SiswaController($db);
+        $controller->manage_jadwal();
         break;
 
 
@@ -151,6 +173,7 @@ switch ($page) {
     } else {
         $controller->index();
     }
+    break;
 
     // --------------------------- pembayaran ---------------------------
 
@@ -214,9 +237,11 @@ switch ($page) {
         
         // Cek aksi: Apakah mau upload atau cuma lihat?
         if ($action == 'upload') {
-            $controller->upload_tugas(); // Eksekusi upload
+        $controller->upload_tugas();
+        } elseif ($action == 'delete_submission') {
+            $controller->hapus_setoran();
         } else {
-            $controller->tugas(); // Tampilkan halaman
+            $controller->tugas();
         }
         break;
 
@@ -243,7 +268,10 @@ switch ($page) {
 
         // --------------------------- siswa_bayar ---------------------------
         case 'siswa_bayar':
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'siswa') { header("Location: index.php"); exit; }
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'siswa') { 
+        header("Location: index.php"); 
+        exit; 
+        }
         require_once '../controllers/SiswaController.php';
         $controller = new SiswaController($db);
         $controller->pembayaran();
@@ -281,6 +309,25 @@ switch ($page) {
 
         // ... case guru_validasi selesai ...
 
+        
+        case 'guru_riwayat':
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'guru') { 
+            header("Location: index.php?page=auth"); exit; 
+        }
+        require_once '../controllers/GuruController.php';
+        $controller = new GuruController($db);
+        $controller->riwayat_absen(); // Memanggil daftar siswa unik
+        break;
+
+    case 'guru_riwayat_detail':
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'guru') { 
+            header("Location: index.php?page=auth"); exit; 
+        }
+        require_once '../controllers/GuruController.php';
+        $controller = new GuruController($db);
+        $controller->riwayat_detail(); 
+        break;
+
     case 'guru_progress':
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'guru') { header("Location: index.php"); exit; }
         require_once '../controllers/GuruController.php';
@@ -295,13 +342,6 @@ switch ($page) {
         $controller->input_progress_detail();
         break;
 
-    case 'guru_progress_store':
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'guru') { header("Location: index.php"); exit; }
-        require_once '../controllers/GuruController.php';
-        $controller = new GuruController($db);
-        $controller->store_progress();
-        break;
-
 
         // ... case guru_progress_store selesai ...
 
@@ -310,34 +350,78 @@ switch ($page) {
         if ($_SESSION['user']['role'] != 'guru') { header("Location: index.php"); exit; }
         require_once '../controllers/GuruController.php';
         $controller = new GuruController($db);
-        if ($action == 'store') $controller->materi_store();
-        elseif ($action == 'delete') $controller->materi_delete();
-        else $controller->materi();
+        
+        if ($action == 'store') {
+            $controller->materi_store();
+        } elseif ($action == 'update') { // <--- TAMBAHKAN INI
+            $controller->materi_update();
+        } elseif ($action == 'delete') {
+            $controller->materi_delete();
+        } else {
+            $controller->materi();
+        }
         break;
 
     case 'guru_tugas':
-        if ($_SESSION['user']['role'] != 'guru') { header("Location: index.php"); exit; }
-        require_once '../controllers/GuruController.php';
-        $controller = new GuruController($db);
-        if ($action == 'store') $controller->tugas_store();
-        elseif ($action == 'delete') $controller->tugas_delete();
-        else $controller->tugas();
-        break;
+    if ($_SESSION['user']['role'] != 'guru') { header("Location: index.php"); exit; }
+    require_once '../controllers/GuruController.php';
+    $controller = new GuruController($db);
+    
+    if ($action == 'store') {
+        $controller->tugas_store();
+    } elseif ($action == 'update') {
+        $controller->tugas_update();
+    } elseif ($action == 'delete') {
+        $controller->tugas_delete();
+    } else {
+        $controller->tugas();
+    }
+    break;
 
         // ... case guru_tugas selesai ...
 
     case 'guru_tugas_detail':
-        if ($_SESSION['user']['role'] != 'guru') { header("Location: index.php"); exit; }
-        require_once '../controllers/GuruController.php';
-        $controller = new GuruController($db);
-        $controller->tugas_detail();
-        break;
+    if ($_SESSION['user']['role'] != 'guru') { header("Location: index.php"); exit; }
+    require_once '../controllers/GuruController.php';
+    $controller = new GuruController($db);
+    $controller->tugas_detail();
+    break;
+
+    case 'guru_tugas_acc':
+    if ($_SESSION['user']['role'] != 'guru') { header("Location: index.php"); exit; }
+    require_once '../controllers/GuruController.php';
+    $controller = new GuruController($db);
+    $controller->tugas_acc(); // Memanggil method baru di controller
+    break;
 
     case 'guru_tugas_nilai':
         if ($_SESSION['user']['role'] != 'guru') { header("Location: index.php"); exit; }
         require_once '../controllers/GuruController.php';
         $controller = new GuruController($db);
         $controller->tugas_nilai();
+        break;
+
+        // --- PENAMBAHAN ROUTE UNTUK EDIT & DELETE PROGRESS ---
+
+    case 'guru_progress_store':
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'guru') { header("Location: index.php"); exit; }
+        require_once '../controllers/GuruController.php';
+        $controller = new GuruController($db);
+        $controller->store_progress();
+        break;
+
+    case 'guru_progress_update': // <--- TAMBAHAN UNTUK EDIT
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'guru') { header("Location: index.php"); exit; }
+        require_once '../controllers/GuruController.php';
+        $controller = new GuruController($db);
+        $controller->progress_update();
+        break;
+
+    case 'guru_progress_delete': // <--- TAMBAHAN UNTUK DELETE
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'guru') { header("Location: index.php"); exit; }
+        require_once '../controllers/GuruController.php';
+        $controller = new GuruController($db);
+        $controller->progress_delete();
         break;
 
 

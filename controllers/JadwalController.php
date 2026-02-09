@@ -3,22 +3,41 @@ require_once '../models/JadwalModel.php';
 require_once '../models/KelasModel.php';
 
 class JadwalController {
+    private $db; // 1. WAJIB: Deklarasikan property db
     private $jadwalModel;
     private $kelasModel;
 
     public function __construct($db) {
+        $this->db = $db; // 2. WAJIB: Simpan kiriman db ke property
         $this->jadwalModel = new JadwalModel($db);
         $this->kelasModel = new KelasModel($db);
     }
 
     public function index() {
-        $jadwal = $this->jadwalModel->getAll();
-        $dataKelas = $this->kelasModel->getAll();
+        // Query sakti join 4 tabel (class_members, users as student, classes, users as teacher)
+        $query = "SELECT 
+                    cm.day, 
+                    cm.start_time, 
+                    cm.end_time, 
+                    u_student.name as student_name, 
+                    c.name as class_name, 
+                    u_teacher.name as teacher_name
+                  FROM class_members cm
+                  JOIN users u_student ON cm.student_id = u_student.id
+                  JOIN classes c ON cm.class_id = c.id
+                  JOIN users u_teacher ON c.teacher_id = u_teacher.id
+                  ORDER BY FIELD(cm.day, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'), cm.start_time ASC";
 
+        $stmt = $this->db->prepare($query); // Sekarang $this->db sudah dikenali
+        $stmt->execute();
+        
+        $all_schedules = $stmt->fetchAll();
+
+        // Load Views
         require_once '../views/layouts/header.php';
         require_once '../views/layouts/sidebar.php';
         require_once '../views/layouts/topbar.php';
-        require_once '../views/admin/jadwal/index.php';
+        require_once '../views/admin/jadwal/index.php'; 
         require_once '../views/layouts/footer.php';
     }
 

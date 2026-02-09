@@ -89,6 +89,15 @@ class PembayaranModel {
         return $stmt->fetch();
     }
 
+    public function checkStatusSiswa($student_id, $month, $year) {
+    // Mengecek apakah sudah ada record pembayaran yang LUNAS untuk bulan & tahun ini
+    $query = "SELECT status FROM payments 
+              WHERE student_id = ? AND month = ? AND year = ? AND status = 'Lunas'";
+    $stmt = $this->db->prepare($query);
+    $stmt->execute([$student_id, $month, $year]);
+    return $stmt->rowCount() > 0; // Mengembalikan true jika lunas
+}
+
     public function delete($id) {
         $stmt = $this->db->prepare("DELETE FROM payments WHERE id = :id");
         return $stmt->execute([':id' => $id]);

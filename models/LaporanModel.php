@@ -24,18 +24,18 @@ class LaporanModel {
 
     // 2. REKAP ABSENSI PER KELAS
     public function getLaporanAbsensi($class_id, $bulan, $tahun) {
-        // Ambil absensi berdasarkan kelas, bulan, dan tahun
-        $query = "SELECT attendances.*, users.name as student_name
-                  FROM attendances
-                  JOIN users ON attendances.student_id = users.id
-                  JOIN schedules ON attendances.schedule_id = schedules.id
-                  WHERE schedules.class_id = ? 
-                  AND MONTH(attendances.date) = ? 
-                  AND YEAR(attendances.date) = ?
-                  ORDER BY attendances.date ASC, users.name ASC";
+        // KOREKSI: Kita JOIN ke class_members (cm), karena di sana class_id tersimpan
+        $query = "SELECT a.*, u.name as student_name
+                  FROM attendances a
+                  JOIN users u ON a.student_id = u.id
+                  JOIN class_members cm ON a.schedule_id = cm.id
+                  WHERE cm.class_id = ? 
+                  AND MONTH(a.date) = ? 
+                  AND YEAR(a.date) = ?
+                  ORDER BY a.date ASC, u.name ASC";
 
         $stmt = $this->db->prepare($query);
-        $stmt->execute([$class_id, $bulan, $tahun]);
+        $stmt->execute([$class_id, (int)$bulan, $tahun]); // Cast ke int buat jaga-jaga leading zero
         return $stmt->fetchAll();
     }
 

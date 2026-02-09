@@ -1,5 +1,4 @@
 <div class="container-fluid">
-
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Manajemen Siswa</h1>
         <button type="button" class="btn btn-primary shadow-sm" data-toggle="modal" data-target="#modalTambahSiswa">
@@ -13,15 +12,15 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <table class="table table-bordered text-dark" id="dataTable" width="100%" cellspacing="0">
                     <thead>
                         <tr>
-                            <th>No</th>
+                            <th width="5%">No</th>
                             <th>Nama Siswa</th>
                             <th>Username</th>
                             <th>Email</th>
                             <th>No. HP (Ortu)</th>
-                            <th>Aksi</th>
+                            <th width="15%">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -32,11 +31,17 @@
                                 <span class="font-weight-bold text-primary"><?= htmlspecialchars($s['name']); ?></span>
                             </td>
                             <td><?= htmlspecialchars($s['username']); ?></td>
-                            <td><?= htmlspecialchars($s['email']); ?></td>
+                            <td><?= htmlspecialchars($s['email'] ?? '-'); ?></td>
                             <td><?= htmlspecialchars($s['phone']); ?></td>
-                            <td>
+                            <td class="text-center">
+                                <a href="index.php?page=siswa_manage_jadwal&id=<?= $s['id']; ?>" 
+                                   class="btn btn-info btn-sm btn-circle" 
+                                   title="Atur Kelas & Jadwal">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </a>
+
                                 <button class="btn btn-warning btn-sm btn-circle btn-edit" 
-                                   title="Edit"
+                                   title="Edit Profil"
                                    data-id="<?= $s['id']; ?>"
                                    data-name="<?= htmlspecialchars($s['name']); ?>"
                                    data-username="<?= htmlspecialchars($s['username']); ?>"
@@ -48,7 +53,7 @@
                                 
                                 <a href="index.php?page=siswa&action=delete&id=<?= $s['id']; ?>" 
                                     class="btn btn-danger btn-sm btn-circle btn-delete" 
-                                    title="Hapus">
+                                    title="Hapus" onclick="return confirm('Yakin ingin menghapus siswa ini?')">
                                     <i class="fas fa-trash"></i>
                                 </a>
                             </td>
@@ -62,51 +67,88 @@
 </div>
 
 <div class="modal fade" id="modalTambahSiswa" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document"> 
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title"><i class="fas fa-user-graduate"></i> Tambah Siswa</h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-user-plus mr-2"></i> Tambah Siswa & Plotting Jadwal</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <form action="index.php?page=siswa&action=store" method="POST">
                 <div class="modal-body">
-                    <input type="hidden" name="role" value="siswa">
-
-                    <div class="form-group">
-                        <label>Nama Lengkap Siswa <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="name" required>
-                    </div>
-
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-5 border-right">
+                            <h6 class="font-weight-bold text-primary mb-3">Identitas Akun</h6>
                             <div class="form-group">
-                                <label>Username <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="username" placeholder="siswa01" required>
+                                <label class="small font-weight-bold">Nama Lengkap <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="name" placeholder="Masukkan Nama Lengkap" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="small font-weight-bold">Username <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="username" placeholder="Masukkan Username" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="small font-weight-bold">Password <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" name="password" placeholder="Masukkan Password" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="small font-weight-bold">Nomor WhatsApp <span class="text-danger"></span></label>
+                                <input type="text" class="form-control" name="phone" placeholder="Boleh Kosong">
+                            </div>
+                            <div class="form-group">
+                                <label class="small font-weight-bold">Email</label>
+                                <input type="email" class="form-control" name="email" placeholder="Boleh Kosong">
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Password <span class="text-danger">*</span></label>
-                                <input type="password" class="form-control" name="password" placeholder="******" required>
+
+                        <div class="col-md-7">
+                            <h6 class="font-weight-bold text-success mb-3">Plotting Jadwal Latihan</h6>
+                            <div id="container-jadwal">
+                                <div class="card border-left-success shadow-sm mb-3 item-jadwal">
+                                    <div class="card-body p-3">
+                                        <div class="form-group mb-2">
+                                            <label class="small font-weight-bold">Pilih Instrumen/Kelas</label>
+                                            <select class="form-control form-control-sm" name="class_id[]" required>
+                                                <option value="">Pilih Kelas</option>
+                                                <?php foreach ($classes as $c): ?>
+                                                    <option value="<?= $c['id']; ?>">
+                                                        <?= htmlspecialchars($c['name']); ?> (<?= htmlspecialchars($c['teacher_name'] ?? 'Guru Belum Set'); ?>)
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-12 mb-2">
+                                                <select class="form-control form-control-sm" name="day[]" required>
+                                                    <option value="Senin">Senin</option>
+                                                    <option value="Selasa">Selasa</option>
+                                                    <option value="Rabu">Rabu</option>
+                                                    <option value="Kamis">Kamis</option>
+                                                    <option value="Jumat">Jumat</option>
+                                                    <option value="Sabtu">Sabtu</option>
+                                                    <option value="Minggu">Minggu</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="text-xs">Jam Mulai</label>
+                                                <input type="time" class="form-control form-control-sm" name="start_time[]" required>
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="text-xs">Jam Selesai</label>
+                                                <input type="time" class="form-control form-control-sm" name="end_time[]" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                            <button type="button" class="btn btn-outline-success btn-sm btn-block shadow-sm" id="add-row-jadwal">
+                                <i class="fas fa-plus-circle"></i> Tambah Jadwal Latihan Lainnya
+                            </button>
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Email <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control" name="email" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>No. WhatsApp (Ortu/Siswa)</label>
-                        <input type="text" class="form-control" name="phone" placeholder="Masukkan no whatsapp aktif">
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Simpan Data</button>
+                    <button type="submit" class="btn btn-primary font-weight-bold">Simpan</button>
                 </div>
             </form>
         </div>
@@ -115,46 +157,39 @@
 
 <div class="modal fade" id="modalEditSiswa" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content text-dark">
             <div class="modal-header bg-warning text-white">
-                <h5 class="modal-title"><i class="fas fa-edit"></i> Edit Siswa</h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-user-edit mr-2"></i> Edit Profil Siswa</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <form action="index.php?page=siswa&action=update" method="POST">
                 <div class="modal-body">
                     <input type="hidden" name="id" id="edit_id">
-                    <input type="hidden" name="role" value="siswa">
-
                     <div class="form-group">
-                        <label>Nama Lengkap Siswa</label>
-                        <input type="text" class="form-control" name="name" id="edit_name" required>
+                        <label class="small font-weight-bold">Nama Lengkap</label>
+                        <input type="text" class="form-control font-weight-bold" name="name" id="edit_name" required>
                     </div>
-
                     <div class="form-group">
-                        <label>Username</label>
+                        <label class="small font-weight-bold">Username</label>
                         <input type="text" class="form-control" name="username" id="edit_username" required>
                     </div>
-
                     <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" class="form-control" name="email" id="edit_email" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>No. WhatsApp</label>
+                        <label class="small font-weight-bold">No. WhatsApp</label>
                         <input type="text" class="form-control" name="phone" id="edit_phone">
                     </div>
-
                     <div class="form-group">
-                        <label>Password Baru (Isi jika ingin mengganti)</label>
+                        <label class="small font-weight-bold">Email</label>
+                        <input type="email" class="form-control" name="email" id="edit_email">
+                    </div>
+                    <div class="form-group">
+                        <label class="small font-weight-bold text-danger">Password Baru</label>
                         <input type="password" class="form-control" name="password" placeholder="Kosongkan jika tidak diganti">
+                        <small class="form-text text-muted">Hanya isi jika ingin merubah password login siswa.</small>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-warning">Update Data</button>
+                    <button type="submit" class="btn btn-warning font-weight-bold">Update Profil</button>
                 </div>
             </form>
         </div>
@@ -165,22 +200,58 @@
 <script src="assets/sb-admin-2/vendor/datatables/dataTables.bootstrap4.min.js"></script>
 <script>
     $(document).ready(function() {
-        // Aktifkan DataTables
         $('#dataTable').DataTable();
 
-        // LOGIC TOMBOL EDIT (Transfer data ke Modal)
-        $('body').on('click', '.btn-edit', function() {
-            const id = $(this).data('id');
-            const name = $(this).data('name');
-            const username = $(this).data('username');
-            const email = $(this).data('email');
-            const phone = $(this).data('phone');
+        // LOGIKA DINAMIS TAMBAH BARIS JADWAL
+        $('#add-row-jadwal').click(function() {
+            let html = `
+            <div class="card border-left-success shadow-sm mb-3 item-jadwal animate__animated animate__fadeIn">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="small font-weight-bold mb-0">Jadwal Tambahan</label>
+                        <button type="button" class="btn btn-sm btn-danger btn-circle btn-remove-jadwal"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="form-group mb-2">
+                        <select class="form-control form-control-sm" name="class_id[]" required>
+                            <option value="">-- Pilih Kelas --</option>
+                            <?php foreach ($classes as $c): ?>
+                                <option value="<?= $c['id']; ?>"><?= htmlspecialchars($c['name']); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 mb-2">
+                            <select class="form-control form-control-sm" name="day[]" required>
+                                <option value="Senin">Senin</option><option value="Selasa">Selasa</option><option value="Rabu">Rabu</option>
+                                <option value="Kamis">Kamis</option><option value="Jumat">Jumat</option><option value="Sabtu">Sabtu</option><option value="Minggu">Minggu</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <input type="time" class="form-control form-control-sm" name="start_time[]" required>
+                        </div>
+                        <div class="col-6">
+                            <input type="time" class="form-control form-control-sm" name="end_time[]" required>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+            $('#container-jadwal').append(html);
+        });
 
-            $('#edit_id').val(id);
-            $('#edit_name').val(name);
-            $('#edit_username').val(username);
-            $('#edit_email').val(email);
-            $('#edit_phone').val(phone);
+        // HAPUS BARIS JADWAL
+        $(document).on('click', '.btn-remove-jadwal', function() {
+            $(this).closest('.item-jadwal').fadeOut(300, function() {
+                $(this).remove();
+            });
+        });
+
+        // PASS DATA KE MODAL EDIT PROFIL
+        $('body').on('click', '.btn-edit', function() {
+            $('#edit_id').val($(this).data('id'));
+            $('#edit_name').val($(this).data('name'));
+            $('#edit_username').val($(this).data('username'));
+            $('#edit_email').val($(this).data('email'));
+            $('#edit_phone').val($(this).data('phone'));
         });
     });
 </script>

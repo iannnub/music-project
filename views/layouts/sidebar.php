@@ -87,17 +87,25 @@
         <div class="sidebar-heading">Kegiatan Belajar</div>
 
         <li class="nav-item <?php echo ($page == 'guru_validasi') ? 'active' : ''; ?>">
-    <a class="nav-link" href="index.php?page=guru_validasi">
-        <i class="fas fa-fw fa-user-check"></i>
-        <span>Validasi Absensi</span></a>
-</li>
+            <a class="nav-link" href="index.php?page=guru_validasi">
+                <i class="fas fa-fw fa-user-check"></i>
+                <span>Validasi Absensi</span></a>
+        </li>
 
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseGuruAkad">
+        <li class="nav-item <?php echo ($page == 'guru_riwayat' || $page == 'guru_riwayat_detail') ? 'active' : ''; ?>">
+            <a class="nav-link" href="index.php?page=guru_riwayat">
+                <i class="fas fa-fw fa-history"></i>
+                <span>Riwayat Absensi</span></a>
+        </li>
+
+        <li class="nav-item <?php echo in_array($page, ['guru_progress', 'guru_materi', 'guru_tugas']) ? 'active' : ''; ?>">
+            <a class="nav-link <?php echo in_array($page, ['guru_progress', 'guru_materi', 'guru_tugas']) ? '' : 'collapsed'; ?>" 
+               href="#" data-toggle="collapse" data-target="#collapseGuruAkad"
+               aria-expanded="true" aria-controls="collapseGuruAkad">
                 <i class="fas fa-fw fa-book"></i>
                 <span>Materi & Tugas</span>
             </a>
-            <div id="collapseGuruAkad" class="collapse" data-parent="#accordionSidebar">
+            <div id="collapseGuruAkad" class="collapse <?php echo in_array($page, ['guru_progress', 'guru_materi', 'guru_tugas']) ? 'show' : ''; ?>" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <a class="collapse-item <?php echo ($page == 'guru_progress' || $page == 'guru_progress_detail') ? 'active' : ''; ?>" 
                        href="index.php?page=guru_progress">Input Progress</a>

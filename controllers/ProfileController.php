@@ -4,8 +4,10 @@ require_once '../helpers/ImageHelper.php';
 
 class ProfileController {
     private $userModel;
+    private $db;
 
     public function __construct($db) {
+        $this->db = $db;
         $this->userModel = new UserModel($db);
     }
 
@@ -25,46 +27,56 @@ class ProfileController {
             if (!CsrfHelper::verifyToken($_POST['csrf_token'])) {
                 die("Akses Ditolak: Token Security Tidak Valid!");
             }
-            $id = $_SESSION['user']['id'];
             
+            $id = $_SESSION['user']['id'];
+            $userOld = $this->userModel->getById($id);
+
+            // --- PERBAIKAN FASE 2: TAMBAHKAN gdrive_link ---
             $data = [
-                'name'  => $_POST['name'],
-                'email' => $_POST['email'],
-                'phone' => $_POST['phone'],
-                'photo' => ''
+                'name'        => $_POST['name'],
+                'email'       => $_POST['email'],
+                'phone'       => $_POST['phone'],
+                'photo'       => $userOld['photo_profile'], // Default pake foto lama
+                'gdrive_link' => $_POST['gdrive_link'] ?? $userOld['gdrive_link'] 
             ];
 
-            // --- UPGRADE: PAKAI IMAGE HELPER ---
-            if (!empty($_FILES['photo']['name'])) {
-                $targetDir = "../public/uploads/profil/";
-                $prefix = "profil_" . $id;
+            // --- LOGIKA PROSES FOTO BASE64 (Sama seperti sebelumnya) ---
+            if (!empty($_POST['photo_base64'])) {
+                $base64Data = $_POST['photo_base64'];
+                list($type, $base64Data) = explode(';', $base64Data);
+                list(, $base64Data)      = explode(',', $base64Data);
+                $imageData = base64_decode($base64Data);
 
-                $uploadResult = ImageHelper::uploadAndCompress($_FILES['photo'], $targetDir, $prefix);
+                $fileName = "profil_" . $id . "_" . time() . ".jpg";
+                $targetPath = "../public/uploads/profil/" . $fileName;
 
-                if ($uploadResult['status']) {
-                    $data['photo'] = $uploadResult['fileName'];
-                } else {
-                    $_SESSION['flash'] = [
-                        'status' => 'error',
-                        'title'  => 'Upload Gagal',
-                        'msg'    => $uploadResult['msg']
-                    ];
-                    header("Location: index.php?page=profile");
-                    exit;
+                if (file_put_contents($targetPath, $imageData)) {
+                    $data['photo'] = $fileName;
+
+                    if (!empty($userOld['photo_profile']) && $userOld['photo_profile'] != 'default.svg') {
+                        $oldPath = "../public/uploads/profil/" . $userOld['photo_profile'];
+                        if (file_exists($oldPath)) {
+                            unlink($oldPath);
+                        }
+                    }
                 }
             }
 
+            // Eksekusi Update ke Database
             if ($this->userModel->updateProfile($id, $data)) {
+                // REFRESH SESSION: Penting agar link GDrive terbaru langsung terbaca di seluruh sistem
+                $_SESSION['user'] = $this->userModel->getById($id);
+
                 $_SESSION['flash'] = [
                     'status' => 'success',
-                    'title'  => 'Profil Update!',
-                    'msg'    => 'Data profil kamu berhasil diperbarui.'
+                    'title'  => 'Update Berhasil!',
+                    'msg'    => 'Profil dan Link GDrive Anda telah diperbarui.'
                 ];
             } else {
                 $_SESSION['flash'] = [
                     'status' => 'error',
                     'title'  => 'Gagal Update',
-                    'msg'    => 'Terjadi kesalahan saat menyimpan perubahan profil.'
+                    'msg'    => 'Terjadi kesalahan saat menyimpan data.'
                 ];
             }
             header("Location: index.php?page=profile");

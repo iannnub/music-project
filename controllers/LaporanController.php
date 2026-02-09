@@ -34,18 +34,18 @@ class LaporanController {
 
     // --- HALAMAN LAPORAN ABSENSI ---
     public function absensi() {
-        // Ambil Data Kelas untuk Filter
         $dataKelas = $this->kelasModel->getAll();
 
-        // Default Filter
+        // Pake date('n') biar dapet angka bulan 1-12 tanpa leading zero
         $class_id = isset($_GET['class_id']) ? $_GET['class_id'] : '';
-        $bulan = isset($_GET['bulan']) ? $_GET['bulan'] : date('m');
+        $bulan = isset($_GET['bulan']) ? $_GET['bulan'] : date('n'); 
         $tahun = isset($_GET['tahun']) ? $_GET['tahun'] : date('Y');
 
         $laporan = [];
         $nama_kelas = "";
 
         if ($class_id) {
+            // Pastikan LaporanModel.php sudah lo update JOIN-nya ke class_members!
             $laporan = $this->laporanModel->getLaporanAbsensi($class_id, $bulan, $tahun);
             $nama_kelas = $this->laporanModel->getNamaKelas($class_id);
         }
@@ -53,7 +53,7 @@ class LaporanController {
         require_once '../views/layouts/header.php';
         require_once '../views/layouts/sidebar.php';
         require_once '../views/layouts/topbar.php';
-        require_once '../views/admin/laporan/absensi.php'; // View
+        require_once '../views/admin/laporan/absensi.php'; 
         require_once '../views/layouts/footer.php';
     }
 }

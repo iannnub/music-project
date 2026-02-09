@@ -156,8 +156,8 @@
                     <div class="form-group">
                         <label>Status</label>
                         <select class="form-control" name="status">
-                            <option value="Belum Lunas">Belum Lunas (Tagihan)</option>
-                            <option value="Lunas">Lunas (Cash)</option>
+                            <option value="Belum Lunas">Belum Lunas</option>
+                            <option value="Lunas">Lunas</option>
                         </select>
                     </div>
                 </div>
@@ -243,13 +243,13 @@ $(document).ready(function() {
         digitGroupSeparator        : '.',
         decimalCharacter           : ',',
         decimalPlaces              : 0,
-        unformatOnSubmit           : true // Sangat penting buat dikirim ke PHP
+        unformatOnSubmit           : true
     };
     new AutoNumeric.multiple('.rupiah', autoNumericOptions);
 
     $('.select-siswa').select2({
         dropdownParent: $('#modalTambahBayar'),
-        placeholder: "Ketik nama siswa...",
+        placeholder: "",
         allowClear: true,
         width: '100%'
     });

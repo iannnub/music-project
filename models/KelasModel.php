@@ -76,37 +76,80 @@ class KelasModel {
         $stmt->execute([':id' => $id]);
         return $stmt->fetch();
     }
+    
 
     // 2. Ambil Daftar Siswa yang SUDAH masuk kelas ini
     public function getMembers($class_id) {
-        $query = "SELECT class_members.id as member_id, users.name, users.photo_profile, class_members.joined_at 
-                  FROM class_members 
-                  JOIN users ON class_members.student_id = users.id 
-                  WHERE class_members.class_id = :class_id";
+        $query = "SELECT 
+                    u.name, 
+                    u.photo_profile,
+                    cm.id as member_id, 
+                    cm.joined_at,
+                    cm.day, 
+                    cm.start_time, 
+                    cm.end_time
+                  FROM class_members cm
+                  JOIN users u ON cm.student_id = u.id
+                  WHERE cm.class_id = ?
+                  ORDER BY cm.day ASC, cm.start_time ASC";
+        
         $stmt = $this->db->prepare($query);
-        $stmt->execute([':class_id' => $class_id]);
+        $stmt->execute([$class_id]);
         return $stmt->fetchAll();
     }
 
     // 3. Masukkan Siswa ke Kelas (Enroll)
-    public function addMember($class_id, $student_id) {
+    public function addMember($data) {
         try {
-            // Cek dulu biar gak duplikat (Satu siswa masuk kelas yang sama 2x)
-            $cek = $this->db->prepare("SELECT id FROM class_members WHERE class_id = ? AND student_id = ?");
-            $cek->execute([$class_id, $student_id]);
-            if ($cek->rowCount() > 0) return false; // Sudah ada
-
-            $stmt = $this->db->prepare("INSERT INTO class_members (class_id, student_id) VALUES (?, ?)");
-            return $stmt->execute([$class_id, $student_id]);
+            $query = "INSERT INTO class_members (student_id, class_id, day, start_time, end_time) 
+                      VALUES (:student_id, :class_id, :day, :start_time, :end_time)";
+            
+            $stmt = $this->db->prepare($query);
+            return $stmt->execute([
+                ':student_id' => $data['student_id'],
+                ':class_id'   => $data['class_id'],
+                ':day'        => $data['day'],
+                ':start_time' => $data['start_time'],
+                ':end_time'   => $data['end_time']
+            ]);
         } catch (PDOException $e) {
             return false;
         }
     }
 
+    public function isConflict($teacher_id, $day, $start_time, $end_time, $ignore_id = null) {
+    // Logika: Cek apakah guru sudah punya jadwal di hari dan jam yang bersinggungan
+    $query = "SELECT COUNT(*) as total 
+              FROM class_members cm
+              JOIN classes c ON cm.class_id = c.id
+              WHERE c.teacher_id = :teacher_id 
+              AND cm.day = :day
+              AND (:start_new < cm.end_time AND :end_new > cm.start_time)";
+    
+    // Jika sedang edit, jangan bandingkan dengan jadwal dirinya sendiri
+    if ($ignore_id) {
+        $query .= " AND cm.id != :ignore_id";
+    }
+
+    $stmt = $this->db->prepare($query);
+    $params = [
+        ':teacher_id' => $teacher_id,
+        ':day'        => $day,
+        ':start_new'  => $start_time,
+        ':end_new'    => $end_time
+    ];
+    if ($ignore_id) $params[':ignore_id'] = $ignore_id;
+
+    $stmt->execute($params);
+    $result = $stmt->fetch();
+    
+    return $result['total'] > 0; // True jika ada bentrok
+}
+
     // 4. Keluarkan Siswa dari Kelas (Kick)
     public function removeMember($member_id) {
-        $stmt = $this->db->prepare("DELETE FROM class_members WHERE id = :id");
-        return $stmt->execute([':id' => $member_id]);
+        $stmt = $this->db->prepare("DELETE FROM class_members WHERE id = ?");
+        return $stmt->execute([$member_id]);
     }
 }
 ?>

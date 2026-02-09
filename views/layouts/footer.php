@@ -5,7 +5,7 @@
                     <br>
                     <div class="mt-2">
                         <small class="text-muted">
-                            Crafted by <strong>Septian Putra (iannnub)</strong>
+                            Crafted by <strong>iannnub</strong>
                         </small>
                     </div>
                 </div>

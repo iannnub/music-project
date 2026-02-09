@@ -24,7 +24,7 @@ body {
     overflow: hidden;
     /* Gunakan foto KHUSUS PROMO (misal: mbak-gitar.png) */
     background-image: linear-gradient(135deg, rgba(105, 105, 105, 0.6) 0%, rgba(0, 13, 62, 0.85) 100%), 
-                      url('../img/bg-login.png') !important; 
+                      url('../img/bg-login.webp') !important; 
     background-size: cover !important;
     background-position: center center !important;
 }
@@ -40,7 +40,7 @@ body {
     z-index: 1;
     /* Gunakan foto KHUSUS LOGIN (misal: bg-login.png) */
     background-image: linear-gradient(135deg, rgba(105, 105, 105, 0.2) 0%, rgba(0, 13, 62, 0.85) 100%), 
-                      url('../img/login.png') !important; 
+                      url('../img/login.webp') !important; 
     background-size: cover !important;
     background-position: center center !important;
 }

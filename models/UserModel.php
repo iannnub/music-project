@@ -22,50 +22,48 @@ class UserModel {
     }
 
     public function create($data) {
-        try {
-            $query = "INSERT INTO users (username, name, email, password, role, phone) 
-                      VALUES (:username, :name, :email, :password, :role, :phone)";
-            
-            $stmt = $this->db->prepare($query);
-            return $stmt->execute([
-                ':username' => $data['username'],
-                ':name'     => $data['name'],
-                ':email'    => $data['email'],
-                ':password' => $data['password'],
-                ':role'     => $data['role'],
-                ':phone'    => $data['phone']
-            ]);
-        } catch (PDOException $e) {
-            return false;
-        }
+    try {
+        $query = "INSERT INTO users (username, name, email, password, role, phone) 
+                  VALUES (:username, :name, :email, :password, :role, :phone)";
+        
+        $stmt = $this->db->prepare($query);
+        $email = !empty($data['email']) ? $data['email'] : null;
+
+        $result = $stmt->execute([
+            ':username' => $data['username'],
+            ':name'     => $data['name'],
+            ':email'    => $email,
+            ':password' => $data['password'],
+            ':role'     => $data['role'],
+            ':phone'    => $data['phone']
+        ]);
+
+        return $result ? $this->db->lastInsertId() : false;
+
+    } catch (PDOException $e) {
+        // TAMBAHKAN BARIS INI UNTUK DEBUGGING:
+        die("Waduh, Error MySQL: " . $e->getMessage()); 
     }
+}
 
     // UPDATE USER (OLEH ADMIN) - PERBAIKAN DI SINI
     public function update($id, $data) {
         try {
+            $email = !empty($data['email']) ? $data['email'] : null;
+
             if (!empty($data['password'])) {
-                // Update dengan Password
                 $query = "UPDATE users SET username=:u, name=:n, email=:e, phone=:p, password=:pass WHERE id=:id";
                 $params = [
-                    ':u' => $data['username'],
-                    ':n' => $data['name'],
-                    ':e' => $data['email'],
-                    ':p' => $data['phone'],
-                    ':pass' => $data['password'], 
-                    ':id' => $id
+                    ':u' => $data['username'], ':n' => $data['name'], ':e' => $email, 
+                    ':p' => $data['phone'], ':pass' => $data['password'], ':id' => $id
                 ];
             } else {
-                // Update TANPA Password
                 $query = "UPDATE users SET username=:u, name=:n, email=:e, phone=:p WHERE id=:id";
                 $params = [
-                    ':u' => $data['username'],
-                    ':n' => $data['name'],
-                    ':e' => $data['email'],
-                    ':p' => $data['phone'],
-                    ':id' => $id
+                    ':u' => $data['username'], ':n' => $data['name'], ':e' => $email, 
+                    ':p' => $data['phone'], ':id' => $id
                 ];
             }
-            // Eksekusi di luar if-else aman karena query & params pasti terisi salah satunya
             $stmt = $this->db->prepare($query);
             return $stmt->execute($params);
         } catch (PDOException $e) {
@@ -77,34 +75,22 @@ class UserModel {
 
     public function delete($id) {
         try {
-            $this->db->beginTransaction(); // Mulai Transaksi biar aman
+            $this->db->beginTransaction();
 
-            // 1. Hapus data di tabel pembayaran
+            // Cascade delete manual (Hapus relasi data sebelum hapus user)
             $this->db->prepare("DELETE FROM payments WHERE student_id = ?")->execute([$id]);
-
-            // 2. Hapus data di tabel absensi
             $this->db->prepare("DELETE FROM attendances WHERE student_id = ?")->execute([$id]);
-
-            // 3. Hapus data di tabel pengumpulan tugas
             $this->db->prepare("DELETE FROM submissions WHERE student_id = ?")->execute([$id]);
-
-            // 4. Hapus data di tabel anggota kelas
             $this->db->prepare("DELETE FROM class_members WHERE student_id = ?")->execute([$id]);
-
-            // 5. Hapus data di tabel progress logs
             $this->db->prepare("DELETE FROM progress_logs WHERE student_id = ?")->execute([$id]);
 
-            // 6. TERAKHIR: Hapus User Siswa-nya
             $stmt = $this->db->prepare("DELETE FROM users WHERE id = ?");
             $stmt->execute([$id]);
 
-            $this->db->commit(); // Simpan perubahan
+            $this->db->commit();
             return true;
-
         } catch (PDOException $e) {
-            $this->db->rollBack(); // Batalkan jika ada error
-            // Uncomment baris bawah ini untuk melihat pesan errornya di layar (Debugging)
-            // die("Gagal hapus: " . $e->getMessage()); 
+            $this->db->rollBack();
             return false;
         }
     }
@@ -120,31 +106,71 @@ class UserModel {
 
     // UPDATE PROFILE SENDIRI
     public function updateProfile($id, $data) {
-        try {
-            if (!empty($data['photo'])) {
-                $query = "UPDATE users SET name=:n, email=:e, phone=:p, photo_profile=:f WHERE id=:id";
-                $params = [
-                    ':n' => $data['name'], 
-                    ':e' => $data['email'], 
-                    ':p' => $data['phone'], 
-                    ':f' => $data['photo'], 
-                    ':id' => $id
-                ];
-            } else {
-                $query = "UPDATE users SET name=:n, email=:e, phone=:p WHERE id=:id";
-                $params = [
-                    ':n' => $data['name'], 
-                    ':e' => $data['email'], 
-                    ':p' => $data['phone'], 
-                    ':id' => $id
-                ];
-            }
-            $stmt = $this->db->prepare($query);
-            return $stmt->execute($params);
-        } catch (PDOException $e) {
-            return false;
-        }
+    try {
+        // 1. Standarisasi data nullable agar database tetap bersih (Data Integrity)
+        $email = !empty($data['email']) ? $data['email'] : null;
+        $gdrive = !empty($data['gdrive_link']) ? $data['gdrive_link'] : null;
+
+        // 2. Gunakan query universal. 
+        // Karena di Controller kita sudah menjamin $data['photo'] selalu ada (foto baru atau lama), 
+        // kita tidak perlu lagi memisah query pakai if-else. Ini lebih Best Practice di SI!
+        $query = "UPDATE users SET 
+                    name = :n, 
+                    email = :e, 
+                    phone = :p, 
+                    photo_profile = :f, 
+                    gdrive_link = :g 
+                  WHERE id = :id";
+
+        $params = [
+            ':n'  => $data['name'],
+            ':e'  => $email,
+            ':p'  => $data['phone'],
+            ':f'  => $data['photo'], // Mengambil hasil dari Cropper/Base64 atau foto lama
+            ':g'  => $gdrive,       // Kolom sakti GDrive kita
+            ':id' => $id
+        ];
+
+        $stmt = $this->db->prepare($query);
+        return $stmt->execute($params);
+
+    } catch (PDOException $e) {
+        // Logging error bisa ditambahkan di sini untuk debugging yang lebih pro
+        error_log("Update Profile Error: " . $e->getMessage());
+        return false;
     }
+}
+
+    // Ambil jadwal spesifik yang dimiliki oleh seorang siswa
+public function getStudentSchedule($student_id) {
+    $query = "SELECT cm.*, c.name as class_name 
+              FROM class_members cm
+              JOIN classes c ON cm.class_id = c.id
+              WHERE cm.student_id = :id";
+    $stmt = $this->db->prepare($query);
+    $stmt->execute([':id' => $student_id]);
+    // Kita pake fetch() kalau satu siswa cuma boleh punya 1 jadwal aktif, 
+    // atau fetchAll() kalau mereka boleh ambil banyak kelas.
+    return $stmt->fetchAll(); 
+}
+
+// Update data plotting di tabel class_members
+public function updateJadwalSiswa($id_member, $data) {
+    $query = "UPDATE class_members SET 
+                class_id = :class_id,
+                day = :day,
+                start_time = :start_time,
+                end_time = :end_time
+              WHERE id = :id_member";
+    $stmt = $this->db->prepare($query);
+    return $stmt->execute([
+        ':class_id'   => $data['class_id'],
+        ':day'        => $data['day'],
+        ':start_time' => $data['start_time'],
+        ':end_time'   => $data['end_time'],
+        ':id_member'  => $id_member
+    ]);
+}
 
     public function changePassword($id, $old_pass, $new_pass) {
         $stmt = $this->db->prepare("SELECT password FROM users WHERE id = ?");
@@ -155,9 +181,8 @@ class UserModel {
             $new_hash = password_hash($new_pass, PASSWORD_DEFAULT);
             $upd = $this->db->prepare("UPDATE users SET password = ? WHERE id = ?");
             return $upd->execute([$new_hash, $id]);
-        } else {
-            return false;
         }
+        return false;
     }
 }
 ?>

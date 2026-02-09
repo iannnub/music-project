@@ -10,17 +10,17 @@ class GuruModel {
     
     // Hitung Absensi Masuk Hari Ini (INI YANG TADI HILANG)
     public function countTodayAttendance($teacher_id) {
-        $query = "SELECT COUNT(*) as total 
-                  FROM attendances 
-                  JOIN schedules ON attendances.schedule_id = schedules.id
-                  JOIN classes ON schedules.class_id = classes.id
-                  WHERE classes.teacher_id = ? 
-                  AND attendances.date = CURRENT_DATE";
-        
+        $query = "SELECT COUNT(a.id) as total 
+                  FROM attendances a
+                  JOIN class_members cm ON a.schedule_id = cm.id
+                  JOIN classes c ON cm.class_id = c.id
+                  WHERE c.teacher_id = :tid 
+                  AND a.status = 'Menunggu'"; 
+                  
         $stmt = $this->db->prepare($query);
-        $stmt->execute([$teacher_id]);
-        $result = $stmt->fetch();
-        return $result['total'];
+        $stmt->execute([':tid' => $teacher_id]);
+        $res = $stmt->fetch();
+        return $res['total'] ?? 0;
     }
 
     // Ambil daftar kelas yang diampu oleh Guru ini
@@ -32,37 +32,46 @@ class GuruModel {
 
     // --- 2. PROGRESS & JURNAL ---
 
-    // Ambil daftar siswa di dalam kelas tertentu
+    // Ambil daftar siswa di dalam kelas tertentu (Versi FIX: No Duplicate)
     public function getStudentsInClass($class_id) {
-        $query = "SELECT users.id, users.name, users.photo_profile, class_members.joined_at
+        $query = "SELECT users.id, users.name, users.photo_profile, MIN(class_members.joined_at) as joined_at
                   FROM class_members
                   JOIN users ON class_members.student_id = users.id
                   WHERE class_members.class_id = :class_id
-                  ORDER BY users.name ASC";
+                  GROUP BY users.id ORDER BY users.name ASC";
         $stmt = $this->db->prepare($query);
         $stmt->execute([':class_id' => $class_id]);
         return $stmt->fetchAll();
     }
+
+    public function getMyStudents($teacher_id) {
+        $query = "SELECT u.id, u.name, cm.class_id 
+                  FROM users u
+                  JOIN class_members cm ON u.id = cm.student_id
+                  JOIN classes c ON cm.class_id = c.id
+                  WHERE c.teacher_id = ?
+                  GROUP BY u.id, cm.class_id
+                  ORDER BY u.name ASC";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$teacher_id]);
+        return $stmt->fetchAll();
+    }
+
 
     // Simpan Catatan Progress (TANPA STATUS)
     public function saveProgress($data) {
         try {
             $query = "INSERT INTO progress_logs (class_id, student_id, teacher_id, date, topic, notes) 
                       VALUES (:cid, :sid, :tid, :date, :topic, :notes)";
-            
             $stmt = $this->db->prepare($query);
             return $stmt->execute([
-                ':cid'   => $data['class_id'],
-                ':sid'   => $data['student_id'],
-                ':tid'   => $data['teacher_id'],
-                ':date'  => $data['date'],
-                ':topic' => $data['topic'],
-                ':notes' => $data['notes']
+                ':cid' => $data['class_id'], ':sid' => $data['student_id'],
+                ':tid' => $data['teacher_id'], ':date' => $data['date'],
+                ':topic' => $data['topic'], ':notes' => $data['notes']
             ]);
-        } catch (PDOException $e) {
-            return false;
-        }
+        } catch (PDOException $e) { return false; }
     }
+    
     
     // Ambil History Progress
     public function getProgressHistory($class_id, $teacher_id) {
@@ -76,26 +85,63 @@ class GuruModel {
         return $stmt->fetchAll();
     }
 
+    public function updateProgress($id, $data) {
+        try {
+            $query = "UPDATE progress_logs SET 
+                        date = :date, 
+                        topic = :topic, 
+                        notes = :notes 
+                      WHERE id = :id";
+            
+            $stmt = $this->db->prepare($query);
+            return $stmt->execute([
+                ':date'  => $data['date'],
+                ':topic' => $data['topic'],
+                ':notes' => $data['notes'],
+                ':id'    => $id
+            ]);
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    // 2. Hapus data progress berdasarkan ID
+    public function deleteProgress($id) {
+        try {
+            $query = "DELETE FROM progress_logs WHERE id = ?";
+            $stmt = $this->db->prepare($query);
+            return $stmt->execute([$id]);
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
 
     // --- 3. MATERI ---
 
     // Ambil Materi
     public function getMaterials($teacher_id) {
-        $query = "SELECT materials.*, classes.name as class_name 
-                  FROM materials 
-                  JOIN classes ON materials.class_id = classes.id
-                  WHERE classes.teacher_id = ? 
-                  ORDER BY materials.created_at DESC";
+        $query = "SELECT m.*, c.name as class_name, u.name as student_name 
+                  FROM materials m
+                  JOIN classes c ON m.class_id = c.id
+                  LEFT JOIN users u ON m.student_id = u.id
+                  WHERE c.teacher_id = ? ORDER BY m.created_at DESC";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$teacher_id]);
         return $stmt->fetchAll();
     }
 
+public function updateMaterial($id, $data) {
+        $query = "UPDATE materials SET class_id = ?, student_id = ?, title = ?, description = ?, video_url = ? WHERE id = ?";
+        $stmt = $this->db->prepare($query);
+        return $stmt->execute([$data['class_id'], $data['student_id'], $data['title'], $data['description'], $data['video_url'], $id]);
+    }
+
     // Simpan Materi Baru
     public function saveMaterial($data) {
-        $query = "INSERT INTO materials (class_id, title, description, video_url) VALUES (?, ?, ?, ?)";
+        $query = "INSERT INTO materials (class_id, student_id, title, description, video_url) VALUES (?, ?, ?, ?, ?)";
         $stmt = $this->db->prepare($query);
-        return $stmt->execute([$data['class_id'], $data['title'], $data['description'], $data['video_url']]);
+        return $stmt->execute([$data['class_id'], $data['student_id'], $data['title'], $data['description'], $data['video_url']]);
     }
 
     // Hapus Materi
@@ -108,22 +154,52 @@ class GuruModel {
 
     // Ambil Daftar Tugas
     public function getAssignments($teacher_id) {
-        $query = "SELECT assignments.*, classes.name as class_name,
-                  (SELECT COUNT(*) FROM submissions WHERE submissions.assignment_id = assignments.id) as total_collected
-                  FROM assignments 
-                  JOIN classes ON assignments.class_id = classes.id
-                  WHERE classes.teacher_id = ? 
-                  ORDER BY assignments.deadline DESC";
+       $query = "SELECT a.*, c.name as class_name, u.name as student_name,
+                (SELECT COUNT(*) FROM submissions s WHERE s.assignment_id = a.id AND s.status != 'Belum Mengerjakan') as total_collected,
+                (CASE 
+                    WHEN a.student_id IS NOT NULL THEN 1 
+                    ELSE (SELECT COUNT(*) FROM class_members cm WHERE cm.class_id = a.class_id) 
+                END) as total_expected
+                FROM assignments a
+                JOIN classes c ON a.class_id = c.id
+                LEFT JOIN users u ON a.student_id = u.id
+                WHERE c.teacher_id = ? ORDER BY a.deadline DESC";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$teacher_id]);
         return $stmt->fetchAll();
     }
 
+public function updateAssignment($id, $data) {
+        // TAMBAHKAN link_referensi di sini
+        $query = "UPDATE assignments SET 
+                    class_id = ?, 
+                    student_id = ?, 
+                    title = ?, 
+                    description = ?, 
+                    deadline = ?,
+                    link_referensi = ? 
+                  WHERE id = ?";
+        $stmt = $this->db->prepare($query);
+        return $stmt->execute([
+            $data['class_id'], 
+            $data['student_id'], 
+            $data['title'], 
+            $data['description'], 
+            $data['deadline'], 
+            $data['link_referensi'], // <--- Sync data
+            $id
+        ]);
+    }
+
     // Buat Tugas Baru
     public function saveAssignment($data) {
-        $query = "INSERT INTO assignments (class_id, title, description, deadline) VALUES (?, ?, ?, ?)";
+        $query = "INSERT INTO assignments (class_id, student_id, title, description, deadline, link_referensi) 
+                  VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $this->db->prepare($query);
-        return $stmt->execute([$data['class_id'], $data['title'], $data['description'], $data['deadline']]);
+        return $stmt->execute([
+            $data['class_id'], $data['student_id'], $data['title'], 
+            $data['description'], $data['deadline'], $data['link_referensi']
+        ]);
     }
 
     // Hapus Tugas
@@ -136,29 +212,121 @@ class GuruModel {
 
     // Ambil Detail Satu Tugas
     public function getAssignmentById($id) {
-        $stmt = $this->db->prepare("SELECT * FROM assignments WHERE id = ?");
+        $query = "SELECT a.*, c.name as class_name FROM assignments a 
+                  JOIN classes c ON a.class_id = c.id WHERE a.id = ?";
+        $stmt = $this->db->prepare($query);
         $stmt->execute([$id]);
         return $stmt->fetch();
     }
 
+// 1. Ambil Tugas yang Mepet Deadline atau Telat (Urgent)
+    public function getUrgentTasks($teacher_id) {
+        $query = "SELECT a.*, c.name as class_name, 
+                  (SELECT COUNT(*) FROM submissions s WHERE s.assignment_id = a.id) as total_collected,
+                  (CASE 
+                      WHEN a.student_id IS NOT NULL THEN 1 
+                      ELSE (SELECT COUNT(*) FROM class_members cm WHERE cm.class_id = a.class_id) 
+                  END) as total_expected
+                  FROM assignments a
+                  JOIN classes c ON a.class_id = c.id
+                  WHERE c.teacher_id = ? 
+                  AND (
+                      (a.deadline BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 48 HOUR)) -- Mepet (48 Jam)
+                      OR (a.deadline < NOW()) -- Sudah lewat tapi nanti difilter di logic if belum lengkap
+                  )
+                  ORDER BY a.deadline ASC";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$teacher_id]);
+        return $stmt->fetchAll();
+    }
+
+    // 2. Ambil Statistik Global Pengumpulan Tugas
+    public function getGlobalTaskStats($teacher_id) {
+        $query = "SELECT 
+                    COUNT(a.id) as total_tugas,
+                    SUM((SELECT COUNT(*) FROM submissions s WHERE s.assignment_id = a.id)) as total_setoran,
+                    SUM(CASE 
+                        WHEN a.student_id IS NOT NULL THEN 1 
+                        ELSE (SELECT COUNT(*) FROM class_members cm WHERE cm.class_id = a.class_id) 
+                    END) as total_target
+                  FROM assignments a
+                  JOIN classes c ON a.class_id = c.id
+                  WHERE c.teacher_id = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$teacher_id]);
+        return $stmt->fetch();
+    }
+
+    public function getTotalKelas($teacher_id) {
+        $stmt = $this->db->prepare("SELECT COUNT(*) as total FROM classes WHERE teacher_id = ?");
+        $stmt->execute([$teacher_id]);
+        $res = $stmt->fetch();
+        return $res['total'] ?? 0;
+    }
+
+    public function getTotalSiswa($teacher_id) {
+        $query = "SELECT COUNT(DISTINCT cm.student_id) as total 
+                  FROM class_members cm 
+                  JOIN classes c ON cm.class_id = c.id 
+                  WHERE c.teacher_id = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$teacher_id]);
+        $res = $stmt->fetch();
+        return $res['total'] ?? 0;
+    }
+
+    // 3. Tadi di Controller lo manggil getTotalPendingAbsen
+    // Method ini mirip dengan countTodayAttendance lo, tapi namanya harus sama dengan di Controller
+    public function getTotalPendingAbsen($teacher_id) {
+        return $this->countTodayAttendance($teacher_id);
+    }
+    // 4. Tadi di Controller lo manggil getJadwalByGuru
+    public function getJadwalByGuru($teacher_id) {
+        $query = "SELECT 
+                    cm.day, cm.start_time, cm.end_time, c.name as class_name, 
+                    c.type, c.id as class_id, COUNT(cm.student_id) as total_murid,
+                    GROUP_CONCAT(u.name SEPARATOR ', ') as student_names 
+                  FROM class_members cm
+                  JOIN classes c ON cm.class_id = c.id
+                  JOIN users u ON cm.student_id = u.id
+                  WHERE c.teacher_id = ?
+                  GROUP BY cm.day, cm.start_time, cm.end_time, c.name, c.type, c.id
+                  ORDER BY FIELD(cm.day, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'), 
+                           cm.start_time ASC";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$teacher_id]);
+        return $stmt->fetchAll();
+    }
+
     // Ambil Daftar Pengumpulan Siswa
     public function getSubmissions($assignment_id) {
-        $query = "SELECT submissions.*, users.name as student_name, users.photo_profile 
-                  FROM submissions 
-                  JOIN users ON submissions.student_id = users.id 
-                  WHERE submissions.assignment_id = ? 
-                  ORDER BY submissions.submitted_at DESC";
-        
+        $query = "SELECT s.*, u.name as student_name, u.photo_profile 
+                  FROM submissions s
+                  JOIN users u ON s.student_id = u.id 
+                  WHERE s.assignment_id = ? 
+                  ORDER BY FIELD(s.status, 'Menunggu Verifikasi', 'Selesai', 'Belum Mengerjakan'), s.submitted_at DESC";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$assignment_id]);
         return $stmt->fetchAll();
     }
 
-    // Simpan Nilai & Feedback
-    public function saveGrade($submission_id, $grade, $feedback) {
-        $stmt = $this->db->prepare("UPDATE submissions SET grade = ?, teacher_feedback = ? WHERE id = ?");
-        return $stmt->execute([$grade, $feedback, $submission_id]);
+    public function accSubmission($submission_id) {
+        $query = "UPDATE submissions SET status = 'Selesai' WHERE id = ?";
+        $stmt = $this->db->prepare($query);
+        return $stmt->execute([$submission_id]);
     }
 
+    public function saveGrade($submission_id, $grade, $feedback) {
+        /** * LOGIKA SI: MEMBERI NILAI = ACC (VERIFIKASI)
+         * Kita mengupdate status menjadi 'Selesai' secara otomatis.
+         */
+        $query = "UPDATE submissions SET 
+                    grade = ?, 
+                    teacher_feedback = ?, 
+                    status = 'Selesai' 
+                  WHERE id = ?";
+        $stmt = $this->db->prepare($query);
+        return $stmt->execute([$grade, $feedback, $submission_id]);
+    }
 }
 ?>
