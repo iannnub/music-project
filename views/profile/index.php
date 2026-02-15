@@ -63,7 +63,7 @@
                         <?php if ($user['role'] == 'guru'): ?>
                         <div class="form-group mt-4 p-3 bg-primary-soft rounded border-left-primary shadow-xs">
                             <label class="small font-weight-bold text-primary text-uppercase">
-                                <i class="fab fa-google-drive mr-1"></i> Master Link GDrive Pengumpulan
+                                <i class="fab fa-google-drive mr-1"></i>Link GDrive
                             </label>
                             <div class="input-group shadow-sm rounded overflow-hidden">
                                 <input type="url" name="gdrive_link" class="form-control border-0 bg-white" 

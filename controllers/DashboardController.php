@@ -9,7 +9,7 @@ class DashboardController {
     }
 
     public function index() {
-        // Keamanan: Pastikan user sudah login
+        // Keamanan: Pastikan user sudah login (Cek Integritas Sesi)
         if (!isset($_SESSION['user'])) {
             header("Location: index.php?page=login");
             exit();
@@ -18,14 +18,14 @@ class DashboardController {
         $user = $_SESSION['user'];
         $role = $user['role'];
 
-        // 1. Persiapan Layout (Header, Sidebar, Topbar dipanggil sekali di sini)
+        // FASE 4: CROSS-ROLE ALIGNMENT (Standardisasi Layout & Timezone)
         require_once '../views/layouts/header.php';
         require_once '../views/layouts/sidebar.php';
         require_once '../views/layouts/topbar.php';
 
-        // 2. LOGIKA DISTRIBUSI DATA (ORCHESTRATION)
+        // FASE 3: DATA INTEGRITY CHECK (Pipa Data Berdasarkan Role)
         if ($role == 'admin') {
-            // Data untuk Admin (Fase 1)
+            // Data Admin (Sudah Fix Bug Payment Status di Fase 1 & 2)
             $counts = $this->dashboardModel->getCounts();
             $incomeData = $this->dashboardModel->getIncomeChart(date('Y'));
             $pieData = $this->dashboardModel->getAttendancePie();
@@ -34,15 +34,20 @@ class DashboardController {
             require_once '../views/admin/dashboard.php';
 
         } elseif ($role == 'guru') {
-            // Data untuk Guru (Fase 2)
+            // Data Guru (Memastikan semua variabel di View terisi)
             $total_validasi = $this->dashboardModel->getPendingValidation($user['id']);
             $jadwal_mengajar = $this->dashboardModel->getJadwalGuru($user['id']);
             
-            // Catatan SI: Variabel lain (total_siswa, dll) bisa ditambahkan di Model dulu jika ingin ditampilkan
+            // Tambahkan default value atau panggil model untuk stats guru agar tidak error di View
+            $total_kelas = count($jadwal_mengajar); 
+            $total_siswa = 0; // Bisa dikembangkan dengan method getTotalSiswaGuru di Model
+            $global_percent = 0; // Placeholder progres tugas
+            $urgent_tasks = [];  // Placeholder notifikasi tugas
+
             require_once '../views/guru/dashboard.php';
 
         } elseif ($role == 'siswa') {
-            // Data untuk Siswa (Fase 3 & Countdown)
+            // Data Siswa (Alignment untuk Countdown & Status Bayar)
             $map_hari = [
                 'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu', 
                 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu', 'Sunday' => 'Minggu'
@@ -53,12 +58,12 @@ class DashboardController {
             $next_class = $this->dashboardModel->getNextClass($user['id'], $hari_ini);
             $jadwal_saya = $this->dashboardModel->getJadwalSiswa($user['id']);
             $last_progress = $this->dashboardModel->getLastProgress($user['id']);
+            $tugas_pending = []; // Siapkan variabel ini agar view siswa tidak error
 
             require_once '../views/siswa/dashboard.php';
         }
 
-        // 3. Penutup Layout
+        // Penutup Layout
         require_once '../views/layouts/footer.php';
     }
 }
-?>

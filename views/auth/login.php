@@ -50,7 +50,7 @@
                 </div>
 
                 <div class="cta-wrapper mt-5 text-center text-lg-left">
-                    <a href="https://wa.me/6285646690615" target="_blank" class="btn-modern-wa shadow-lg">
+                    <a href="https://wa.me/6285179861126" target="_blank" class="btn-modern-wa shadow-lg">
                         <i class="fab fa-whatsapp"></i> Daftar Segera
                     </a>
                 </div>
@@ -76,7 +76,7 @@
                         <h2 class="font-weight-bold text-dark">Selamat Datang!</h2>
                         <div class="social-login-icons">
                             <a href="https://www.tiktok.com/@yosearmando98?_r=1&_t=ZS-92KvhQMN8kf"><i class="fab fa-tiktok"></i></a>
-                            <a href="https://wa.me/6285646690615"><i class="fab fa-whatsapp"></i></a>
+                            <a href="https://wa.me/6285179861126"><i class="fab fa-whatsapp" target="_blank"></i></a>
                             <a href="https://www.instagram.com/kakyo_lesson?igsh=MTRwd2J2ZjFrb2VtaA=="><i class="fab fa-instagram"></i></a>
                         </div>
                         <p class="text-muted small">Masuk untuk mengelola kursus anda</p>
@@ -103,7 +103,7 @@
                     </button>
 
                     <p class="text-center mt-4 small">
-                        Lupa password? <a href="https://wa.me/6285646690615" class="text-primary font-weight-bold">Hubungi Admin</a>
+                        Lupa password? <a href="https://wa.me/6285179861126" class="text-primary font-weight-bold">Hubungi Admin</a>
                     </p>
                 </form>
             </div>

@@ -16,22 +16,25 @@ class AbsensiModel {
 
     // Simpan Data Absensi Baru
     public function create($data) {
-        // Kita modifikasi query agar photo_proof bisa menerima NULL secara eksplisit
         $query = "INSERT INTO attendances (schedule_id, student_id, date, photo_proof, location_lat, location_long) 
                   VALUES (:sid, :stud_id, :date, :photo, :lat, :long)";
         
         $stmt = $this->db->prepare($query);
         
-        // Cek apakah ada data foto, jika tidak ada (Metode 3), set ke NULL
+        // 1. Cek foto proof (Tetap NULL jika tidak ada)
         $photo = !empty($data['photo']) ? $data['photo'] : null;
+
+        // 2. Cek koordinat (Fase 3: Gunakan 0 jika data tidak dikirim/kosong)
+        $lat = isset($data['lat']) ? $data['lat'] : 0;
+        $long = isset($data['long']) ? $data['long'] : 0;
 
         return $stmt->execute([
             ':sid'     => $data['schedule_id'],
             ':stud_id' => $data['student_id'],
             ':date'    => $data['date'],
             ':photo'   => $photo,
-            ':lat'     => $data['lat'],
-            ':long'    => $data['long']
+            ':lat'     => $lat,
+            ':long'    => $long
         ]);
     }
 

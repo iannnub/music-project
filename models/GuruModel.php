@@ -153,17 +153,31 @@ public function updateMaterial($id, $data) {
     // --- 4. TUGAS (PR) ---
 
     // Ambil Daftar Tugas
+    // Ambil Daftar Tugas dengan Breakdown Status (Fase 1)
     public function getAssignments($teacher_id) {
-       $query = "SELECT a.*, c.name as class_name, u.name as student_name,
-                (SELECT COUNT(*) FROM submissions s WHERE s.assignment_id = a.id AND s.status != 'Belum Mengerjakan') as total_collected,
-                (CASE 
-                    WHEN a.student_id IS NOT NULL THEN 1 
-                    ELSE (SELECT COUNT(*) FROM class_members cm WHERE cm.class_id = a.class_id) 
-                END) as total_expected
-                FROM assignments a
-                JOIN classes c ON a.class_id = c.id
-                LEFT JOIN users u ON a.student_id = u.id
-                WHERE c.teacher_id = ? ORDER BY a.deadline DESC";
+        $query = "SELECT a.*, c.name as class_name, u.name as student_name,
+                 -- Menghitung yang baru masuk tapi belum di-ACC
+                 (SELECT COUNT(*) FROM submissions s 
+                  WHERE s.assignment_id = a.id 
+                  AND s.status = 'Menunggu Verifikasi') as total_pending,
+                 
+                 -- Menghitung yang sudah resmi dinilai/selesai
+                 (SELECT COUNT(*) FROM submissions s 
+                  WHERE s.assignment_id = a.id 
+                  AND s.status = 'Selesai') as total_finished,
+                 
+                 -- Target jumlah murid
+                 (CASE 
+                     WHEN a.student_id IS NOT NULL THEN 1 
+                     ELSE (SELECT COUNT(*) FROM class_members cm WHERE cm.class_id = a.class_id) 
+                 END) as total_expected
+                 
+                 FROM assignments a
+                 JOIN classes c ON a.class_id = c.id
+                 LEFT JOIN users u ON a.student_id = u.id
+                 WHERE c.teacher_id = ? 
+                 ORDER BY a.deadline DESC";
+                 
         $stmt = $this->db->prepare($query);
         $stmt->execute([$teacher_id]);
         return $stmt->fetchAll();

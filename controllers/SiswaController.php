@@ -368,52 +368,64 @@ public function update_jadwal() {
     public function proses_absen() {
         $absensiModel = new AbsensiModel($this->db);
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $lat_sekolah = -8.2850494; 
-            $long_sekolah = 113.5258744;
-            $radius_max = 10000000000000000000000000000000; // 100 Meter
-
+            
             $student_id = $_SESSION['user']['id'];
             $schedule_id = $_POST['schedule_id'];
             $foto_base64 = $_POST['foto_base64']; 
-            $lat_siswa = $_POST['lat'];
-            $long_siswa = $_POST['long'];
+            
+            // Koordinat tetap ditangkap sebagai 0 agar tidak merusak struktur database
+            $lat_siswa = $_POST['lat'] ?? 0;
+            $long_siswa = $_POST['long'] ?? 0;
             $tanggal_hari_ini = date('Y-m-d');
 
-            // Validasi GPS
-            if (empty($lat_siswa) || empty($long_siswa)) {
-                $_SESSION['flash'] = ['status' => 'error', 'title' => 'GPS Error', 'msg' => 'Gagal mendeteksi lokasi.'];
-                header("Location: index.php?page=dashboard_siswa"); exit;
-            }
-
-            // Validasi Jarak
-            $jarak = $this->hitungJarak($lat_sekolah, $long_sekolah, $lat_siswa, $long_siswa);
-            if ($jarak > $radius_max) {
-                $_SESSION['flash'] = ['status' => 'error', 'title' => 'Terlalu Jauh', 'msg' => 'Kamu harus berada di lokasi sekolah!'];
-                header("Location: index.php?page=dashboard_siswa"); exit;
-            }
-
-            // Validasi Double Absen
+            // 1. Validasi Double Absen (Tetap Dipertahankan demi Integritas Data)
             if ($absensiModel->cekSudahAbsen($student_id, $schedule_id, $tanggal_hari_ini)) {
-                $_SESSION['flash'] = ['status' => 'warning', 'title' => 'Sudah Absen', 'msg' => 'Kamu sudah absen hari ini.'];
+                $_SESSION['flash'] = [
+                    'status' => 'warning', 
+                    'title' => 'Sudah Absen', 
+                    'msg' => 'Kamu sudah melakukan presensi hari ini.'
+                ];
                 header("Location: index.php?page=dashboard_siswa"); exit;
             }
 
-            // Proses Gambar
-            $img_parts = explode(";base64,", $foto_base64);
-            $image_base64 = base64_decode($img_parts[1]);
-            $nama_file = 'absen_' . $schedule_id . '_' . $student_id . '_' . time() . '.jpg';
-            $folder_tujuan = '../public/uploads/absensi/';
-            if (!is_dir($folder_tujuan)) mkdir($folder_tujuan, 0777, true);
-            file_put_contents($folder_tujuan . $nama_file, $image_base64);
+            // 2. Proses Penyimpanan Gambar (Photo Proof)
+            try {
+                $img_parts = explode(";base64,", $foto_base64);
+                $image_base64 = base64_decode($img_parts[1]);
+                $nama_file = 'absen_' . $schedule_id . '_' . $student_id . '_' . time() . '.jpg';
+                $folder_tujuan = '../public/uploads/absensi/';
+                
+                if (!is_dir($folder_tujuan)) mkdir($folder_tujuan, 0777, true);
+                file_put_contents($folder_tujuan . $nama_file, $image_base64);
 
-            $data = [
-                'schedule_id' => $schedule_id, 'student_id' => $student_id, 'date' => $tanggal_hari_ini,
-                'photo' => $nama_file, 'lat' => $lat_siswa, 'long' => $long_siswa
-            ];
+                // 3. Eksekusi Simpan Data ke Database
+                $data = [
+                    'schedule_id' => $schedule_id, 
+                    'student_id'  => $student_id, 
+                    'date'         => $tanggal_hari_ini,
+                    'photo'        => $nama_file, 
+                    'lat'          => $lat_siswa, 
+                    'long'         => $long_siswa
+                ];
 
-            if ($absensiModel->create($data)) {
-                $_SESSION['flash'] = ['status' => 'success', 'title' => 'Berhasil', 'msg' => 'Absen tercatat!'];
+                if ($absensiModel->create($data)) {
+                    $_SESSION['flash'] = [
+                        'status' => 'success', 
+                        'title' => 'Berhasil!', 
+                        'msg' => 'Presensi kamu telah tercatat di sistem.'
+                    ];
+                } else {
+                    throw new Exception("Gagal menyimpan data ke database.");
+                }
+
+            } catch (Exception $e) {
+                $_SESSION['flash'] = [
+                    'status' => 'error', 
+                    'title' => 'Gagal Absen', 
+                    'msg' => 'Terjadi kesalahan teknis saat memproses foto.'
+                ];
             }
+
             header("Location: index.php?page=dashboard_siswa"); exit;
         }
     }

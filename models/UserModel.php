@@ -22,29 +22,29 @@ class UserModel {
     }
 
     public function create($data) {
-    try {
-        $query = "INSERT INTO users (username, name, email, password, role, phone) 
-                  VALUES (:username, :name, :email, :password, :role, :phone)";
-        
-        $stmt = $this->db->prepare($query);
-        $email = !empty($data['email']) ? $data['email'] : null;
+        try {
+            $query = "INSERT INTO users (username, name, email, password, role, phone) 
+                      VALUES (:username, :name, :email, :password, :role, :phone)";
+            
+            $stmt = $this->db->prepare($query);
+            $email = !empty($data['email']) ? $data['email'] : null;
 
-        $result = $stmt->execute([
-            ':username' => $data['username'],
-            ':name'     => $data['name'],
-            ':email'    => $email,
-            ':password' => $data['password'],
-            ':role'     => $data['role'],
-            ':phone'    => $data['phone']
-        ]);
+            $result = $stmt->execute([
+                ':username' => $data['username'],
+                ':name'     => $data['name'],
+                ':email'    => $email,
+                ':password' => $data['password'],
+                ':role'     => $data['role'],
+                ':phone'    => $data['phone']
+            ]);
 
-        return $result ? $this->db->lastInsertId() : false;
+            return $result ? $this->db->lastInsertId() : false;
 
-    } catch (PDOException $e) {
-        // TAMBAHKAN BARIS INI UNTUK DEBUGGING:
-        die("Waduh, Error MySQL: " . $e->getMessage()); 
+        } catch (PDOException $e) {
+            error_log("Gagal Create User: " . $e->getMessage()); 
+            return false; 
+        }
     }
-}
 
     // UPDATE USER (OLEH ADMIN) - PERBAIKAN DI SINI
     public function update($id, $data) {
@@ -67,6 +67,7 @@ class UserModel {
             $stmt = $this->db->prepare($query);
             return $stmt->execute($params);
         } catch (PDOException $e) {
+            error_log("Gagal Update User: " . $e->getMessage());
             return false;
         }
     }
@@ -77,7 +78,6 @@ class UserModel {
         try {
             $this->db->beginTransaction();
 
-            // Cascade delete manual (Hapus relasi data sebelum hapus user)
             $this->db->prepare("DELETE FROM payments WHERE student_id = ?")->execute([$id]);
             $this->db->prepare("DELETE FROM attendances WHERE student_id = ?")->execute([$id]);
             $this->db->prepare("DELETE FROM submissions WHERE student_id = ?")->execute([$id]);
@@ -91,6 +91,7 @@ class UserModel {
             return true;
         } catch (PDOException $e) {
             $this->db->rollBack();
+            error_log("Gagal Delete User (Cascade): " . $e->getMessage());
             return false;
         }
     }
@@ -106,71 +107,64 @@ class UserModel {
 
     // UPDATE PROFILE SENDIRI
     public function updateProfile($id, $data) {
-    try {
-        // 1. Standarisasi data nullable agar database tetap bersih (Data Integrity)
-        $email = !empty($data['email']) ? $data['email'] : null;
-        $gdrive = !empty($data['gdrive_link']) ? $data['gdrive_link'] : null;
+        try {
+            $email = !empty($data['email']) ? $data['email'] : null;
+            $gdrive = !empty($data['gdrive_link']) ? $data['gdrive_link'] : null;
 
-        // 2. Gunakan query universal. 
-        // Karena di Controller kita sudah menjamin $data['photo'] selalu ada (foto baru atau lama), 
-        // kita tidak perlu lagi memisah query pakai if-else. Ini lebih Best Practice di SI!
-        $query = "UPDATE users SET 
-                    name = :n, 
-                    email = :e, 
-                    phone = :p, 
-                    photo_profile = :f, 
-                    gdrive_link = :g 
-                  WHERE id = :id";
+            $query = "UPDATE users SET 
+                        name = :n, 
+                        email = :e, 
+                        phone = :p, 
+                        photo_profile = :f, 
+                        gdrive_link = :g 
+                      WHERE id = :id";
 
-        $params = [
-            ':n'  => $data['name'],
-            ':e'  => $email,
-            ':p'  => $data['phone'],
-            ':f'  => $data['photo'], // Mengambil hasil dari Cropper/Base64 atau foto lama
-            ':g'  => $gdrive,       // Kolom sakti GDrive kita
-            ':id' => $id
-        ];
+            $params = [
+                ':n'  => $data['name'],
+                ':e'  => $email,
+                ':p'  => $data['phone'],
+                ':f'  => $data['photo'], 
+                ':g'  => $gdrive,       
+                ':id' => $id
+            ];
 
-        $stmt = $this->db->prepare($query);
-        return $stmt->execute($params);
+            $stmt = $this->db->prepare($query);
+            return $stmt->execute($params);
 
-    } catch (PDOException $e) {
-        // Logging error bisa ditambahkan di sini untuk debugging yang lebih pro
-        error_log("Update Profile Error: " . $e->getMessage());
-        return false;
+        } catch (PDOException $e) {
+            error_log("Update Profile Error: " . $e->getMessage());
+            return false;
+        }
     }
-}
 
     // Ambil jadwal spesifik yang dimiliki oleh seorang siswa
 public function getStudentSchedule($student_id) {
-    $query = "SELECT cm.*, c.name as class_name 
-              FROM class_members cm
-              JOIN classes c ON cm.class_id = c.id
-              WHERE cm.student_id = :id";
-    $stmt = $this->db->prepare($query);
-    $stmt->execute([':id' => $student_id]);
-    // Kita pake fetch() kalau satu siswa cuma boleh punya 1 jadwal aktif, 
-    // atau fetchAll() kalau mereka boleh ambil banyak kelas.
-    return $stmt->fetchAll(); 
-}
+        $query = "SELECT cm.*, c.name as class_name 
+                  FROM class_members cm
+                  JOIN classes c ON cm.class_id = c.id
+                  WHERE cm.student_id = :id";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([':id' => $student_id]);
+        return $stmt->fetchAll(); 
+    }
 
 // Update data plotting di tabel class_members
 public function updateJadwalSiswa($id_member, $data) {
-    $query = "UPDATE class_members SET 
-                class_id = :class_id,
-                day = :day,
-                start_time = :start_time,
-                end_time = :end_time
-              WHERE id = :id_member";
-    $stmt = $this->db->prepare($query);
-    return $stmt->execute([
-        ':class_id'   => $data['class_id'],
-        ':day'        => $data['day'],
-        ':start_time' => $data['start_time'],
-        ':end_time'   => $data['end_time'],
-        ':id_member'  => $id_member
-    ]);
-}
+        $query = "UPDATE class_members SET 
+                    class_id = :class_id,
+                    day = :day,
+                    start_time = :start_time,
+                    end_time = :end_time
+                  WHERE id = :id_member";
+        $stmt = $this->db->prepare($query);
+        return $stmt->execute([
+            ':class_id'   => $data['class_id'],
+            ':day'        => $data['day'],
+            ':start_time' => $data['start_time'],
+            ':end_time'   => $data['end_time'],
+            ':id_member'  => $id_member
+        ]);
+    }
 
     public function changePassword($id, $old_pass, $new_pass) {
         $stmt = $this->db->prepare("SELECT password FROM users WHERE id = ?");

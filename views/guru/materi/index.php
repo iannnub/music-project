@@ -1,4 +1,13 @@
 <div class="container-fluid text-dark">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        /* Custom styling agar Select2 serasi dengan SB Admin 2 */
+        .select2-container .select2-selection--single { height: 38px !important; border: 1px solid #d1d3e2 !important; }
+        .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 38px !important; color: #6e707e !important; }
+        .select2-container--default .select2-selection--single .select2-selection__arrow { height: 36px !important; }
+        .select2-dropdown { border: 1px solid #d1d3e2 !important; }
+    </style>
+
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800 font-weight-bold">Manajemen Materi Belajar</h1>
         <button type="button" class="btn btn-primary shadow-sm px-4" data-toggle="modal" data-target="#modalTambahMateri">
@@ -23,7 +32,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($materials as $m): ?>
+                        <?php foreach (($materials ?? []) as $m): ?>
                         <tr>
                             <td class="align-middle">
                                 <div class="font-weight-bold text-primary"><?= htmlspecialchars($m['title']); ?></div>
@@ -41,20 +50,15 @@
                             </td>
                             <td class="align-middle text-center">
                                 <?php 
-                                    // LOGIKA DETEKSI IKON OTOMATIS
                                     $url = $m['video_url'];
                                     $icon = 'fas fa-link';
                                     $btn_color = 'btn-outline-secondary';
                                     $platform = 'Buka Link';
 
                                     if (strpos($url, 'youtube.com') !== false || strpos($url, 'youtu.be') !== false) {
-                                        $icon = 'fab fa-youtube';
-                                        $btn_color = 'btn-outline-danger';
-                                        $platform = 'YouTube';
+                                        $icon = 'fab fa-youtube'; $btn_color = 'btn-outline-danger'; $platform = 'YouTube';
                                     } elseif (strpos($url, 'drive.google.com') !== false) {
-                                        $icon = 'fab fa-google-drive';
-                                        $btn_color = 'btn-outline-primary';
-                                        $platform = 'G-Drive';
+                                        $icon = 'fab fa-google-drive'; $btn_color = 'btn-outline-primary'; $platform = 'G-Drive';
                                     }
                                 ?>
                                 <a href="<?= $url; ?>" target="_blank" class="btn btn-sm <?= $btn_color; ?> btn-block shadow-sm font-weight-bold">
@@ -64,7 +68,6 @@
                             <td class="text-center align-middle">
                                 <div class="btn-group">
                                     <button class="btn btn-warning btn-sm btn-circle btn-edit-materi shadow-sm" 
-                                            title="Edit Materi"
                                             data-toggle="modal" data-target="#modalEditMateri"
                                             data-id="<?= $m['id']; ?>"
                                             data-class="<?= $m['class_id']; ?>"
@@ -76,7 +79,7 @@
                                     </button>
                                     <a href="index.php?page=guru_materi&action=delete&id=<?= $m['id']; ?>" 
                                        class="btn btn-danger btn-sm btn-circle shadow-sm" 
-                                       onclick="return confirm('Hapus materi ini?')" title="Hapus">
+                                       onclick="return confirm('Hapus materi ini?')">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </div>
@@ -91,7 +94,7 @@
 </div>
 
 <div class="modal fade" id="modalTambahMateri" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-primary text-white border-0">
                 <h5 class="modal-title font-weight-bold"><i class="fas fa-plus-circle mr-2"></i> Tambah Materi Baru</h5>
@@ -109,8 +112,8 @@
                         </select>
                     </div>
                     <div class="form-group mb-3">
-                        <label class="small font-weight-bold">PENERIMA MATERI</label>
-                        <select class="form-control select-murid" name="student_id" required disabled>
+                        <label class="small font-weight-bold">PENERIMA MATERI (Ketik Nama untuk Cari)</label>
+                        <select class="form-control select-murid searchable-select" id="select-murid-tambah" name="student_id" required disabled>
                             <option value="all">Semua Murid di Kelas Ini</option>
                             <?php foreach ($my_students as $std): ?>
                                 <option value="<?= $std['id']; ?>" data-class="<?= $std['class_id']; ?>" class="student-option">
@@ -142,7 +145,7 @@
 </div>
 
 <div class="modal fade" id="modalEditMateri" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-warning text-dark border-0">
                 <h5 class="modal-title font-weight-bold"><i class="fas fa-edit mr-2"></i> Edit Materi Belajar</h5>
@@ -161,7 +164,7 @@
                     </div>
                     <div class="form-group mb-3">
                         <label class="small font-weight-bold text-uppercase">Kirim Kepada</label>
-                        <select class="form-control select-murid" name="student_id" id="edit-student" required>
+                        <select class="form-control select-murid searchable-select" id="select-murid-edit" name="student_id" required>
                             <option value="all">Semua Murid di Kelas Ini</option>
                             <?php foreach ($my_students as $std): ?>
                                 <option value="<?= $std['id']; ?>" data-class="<?= $std['class_id']; ?>" class="student-option">
@@ -195,29 +198,52 @@
 <script src="assets/sb-admin-2/vendor/jquery/jquery.min.js"></script>
 <script src="assets/sb-admin-2/vendor/datatables/jquery.dataTables.min.js"></script>
 <script src="assets/sb-admin-2/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script> 
     $(document).ready(function() { 
         $('#dataTable').DataTable({ "language": { "search": "Cari Materi:" } }); 
 
-        // LOGIKA FILTER SISWA (REUSABLE)
+        // Inisialisasi Select2 untuk pencarian nama murid
+        function initSelect2(modalId) {
+            $(modalId + ' .searchable-select').select2({
+                dropdownParent: $(modalId), // Penting agar box search bisa diklik di dalam modal
+                placeholder: "Pilih Siswa atau Ketik Nama...",
+                width: '100%',
+                allowClear: false
+            });
+        }
+
+        initSelect2('#modalTambahMateri');
+        initSelect2('#modalEditMateri');
+
+        // LOGIKA FILTER SISWA (Disesuaikan untuk Select2)
         function filterSiswaByKelas(classId, container) {
             let $selectMurid = container.find('.select-murid');
+            
             if (classId === "") {
-                $selectMurid.prop('disabled', true).val('all');
+                $selectMurid.prop('disabled', true).val('all').trigger('change');
             } else {
                 $selectMurid.prop('disabled', false);
-                $selectMurid.find('.student-option').hide();
-                $selectMurid.find('.student-option[data-class="' + classId + '"]').show();
+                
+                // Logika Filter: Hapus data Select2, filter opsi native, lalu refresh Select2
+                $selectMurid.find('option').each(function() {
+                    let studentClass = $(this).data('class');
+                    if (studentClass == classId || $(this).val() == 'all') {
+                        $(this).prop('disabled', false).show();
+                    } else {
+                        $(this).prop('disabled', true).hide();
+                    }
+                });
+                
+                $selectMurid.val('all').trigger('change'); // Reset ke "Semua Murid"
             }
         }
 
-        // Event saat Kelas dipilih di modal mana pun
         $('.select-kelas').on('change', function() {
             filterSiswaByKelas($(this).val(), $(this).closest('.modal'));
         });
 
-        // POPULATE DATA KE MODAL EDIT
         $('.btn-edit-materi').on('click', function() {
             let btn = $(this);
             let modal = $('#modalEditMateri');
@@ -229,9 +255,9 @@
             $('#edit-video').val(btn.data('video'));
             $('#edit-desc').val(btn.data('desc'));
 
-            // Jalankan filter sebelum set value student
+            // Jalankan filter dan set value Select2
             filterSiswaByKelas(classId, modal);
-            $('#edit-student').val(btn.data('student'));
+            $('#edit-student').val(btn.data('student')).trigger('change');
         });
     }); 
 </script>

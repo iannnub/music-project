@@ -2,6 +2,11 @@
 date_default_timezone_set('Asia/Jakarta');
 session_start();
 
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
+$host = $_SERVER['HTTP_HOST'];
+$baseDir = str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME']);
+define('BASE_URL', $protocol . $host . $baseDir);
+
 require_once '../config/database.php';
 require_once '../helpers/CsrfHelper.php';
 
@@ -179,15 +184,26 @@ switch ($page) {
 
     case 'pembayaran':
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'admin') { header("Location: index.php?page=auth"); exit; }
-        
         require_once '../controllers/PembayaranController.php';
         $controller = new PembayaranController($db);
 
         if ($action == 'store') $controller->store();
         elseif ($action == 'update') $controller->update();
         elseif ($action == 'delete') $controller->delete();
+        elseif ($action == 'delete_all') $controller->delete_all_by_student();
         elseif ($action == 'cetak') $controller->cetak();
         else $controller->index();
+        break;
+
+        case 'pembayaran_detail':
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'admin') { header("Location: index.php?page=auth"); exit; }
+        require_once '../controllers/PembayaranController.php';
+        $controller = new PembayaranController($db);
+        $controller->detail(); // Memanggil tampilan Kartu SPP Digital
+        break;
+
+        default:
+        header("Location: index.php?page=dashboard");
         break;
 
 // --------------------------- dashboard_siswa ---------------------------

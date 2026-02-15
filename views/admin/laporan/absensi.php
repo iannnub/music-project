@@ -81,7 +81,7 @@
                 <div class="d-none d-print-block text-center mb-4">
                     <h2 class="font-weight-bold mb-0" style="letter-spacing: 2px; color: #000 !important;">KAKYO LESSON</h2>
                     <p class="mb-0 small">Krajan Lor, Balung Kulon, Kec. Balung, Kabupaten Jember, Jawa Timur 68161</p>
-                    <p class="small italic">WhatsApp: 0856-4669-0615 | Program: Piano, Vocal, Gitar, Bass, Drum</p>
+                    <p class="small italic">WhatsApp: 0851-7986-1126 | Program: Piano, Vocal, Gitar, Bass, Drum</p>
                     <hr style="border: 2px solid #000; margin-top: 10px;">
                 </div>
 

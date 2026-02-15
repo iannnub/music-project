@@ -80,23 +80,23 @@ class KelasModel {
 
     // 2. Ambil Daftar Siswa yang SUDAH masuk kelas ini
     public function getMembers($class_id) {
-        $query = "SELECT 
-                    u.name, 
-                    u.photo_profile,
-                    cm.id as member_id, 
-                    cm.joined_at,
-                    cm.day, 
-                    cm.start_time, 
-                    cm.end_time
-                  FROM class_members cm
-                  JOIN users u ON cm.student_id = u.id
-                  WHERE cm.class_id = ?
-                  ORDER BY cm.day ASC, cm.start_time ASC";
-        
-        $stmt = $this->db->prepare($query);
-        $stmt->execute([$class_id]);
-        return $stmt->fetchAll();
-    }
+    // Kita tambahkan GROUP BY agar baris dengan student_id yang sama digabung jadi satu
+    $query = "SELECT 
+                u.name, 
+                u.photo_profile,
+                MIN(cm.id) as member_id, -- Mengambil ID terkecil sebagai representasi
+                MIN(cm.joined_at) as joined_at,
+                GROUP_CONCAT(CONCAT(cm.day, ' (', cm.start_time, '-', cm.end_time, ')') SEPARATOR ', ') as jadwal_lengkap
+              FROM class_members cm
+              JOIN users u ON cm.student_id = u.id
+              WHERE cm.class_id = ?
+              GROUP BY u.id -- KUNCI PERBAIKAN: Kelompokkan berdasarkan ID Siswa
+              ORDER BY u.name ASC";
+    
+    $stmt = $this->db->prepare($query);
+    $stmt->execute([$class_id]);
+    return $stmt->fetchAll();
+}
 
     // 3. Masukkan Siswa ke Kelas (Enroll)
     public function addMember($data) {

@@ -34,18 +34,34 @@ class DashboardModel {
     }
 
     public function getRecentActivities($limit = 5) {
-        $query = "
-            (SELECT p.created_at, u.name as user_name, CONCAT('Membayar SPP: Rp ', FORMAT(p.amount, 0, 'id_ID')) as description, 'payment' as type 
-             FROM payments p JOIN users u ON p.student_id = u.id)
-            UNION
-            (SELECT a.created_at, u.name as user_name, CONCAT('Absensi di kelas: ', c.name) as description, 'attendance' as type 
-             FROM attendances a JOIN users u ON a.student_id = u.id JOIN schedules s ON a.schedule_id = s.id JOIN classes c ON s.class_id = c.id)
-            ORDER BY created_at DESC LIMIT :limit";
-        $stmt = $this->db->prepare($query);
-        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+    // Kita tambahkan kolom p.status agar data asli dari DB terbawa
+    $query = "
+        (SELECT 
+            p.created_at, 
+            u.name as user_name, 
+            CONCAT('Membayar SPP: Rp ', FORMAT(p.amount, 0, 'id_ID')) as description, 
+            p.status as payment_status, -- Tambahan: Mengambil status asli (Lunas/Belum Lunas)
+            'payment' as type 
+         FROM payments p 
+         JOIN users u ON p.student_id = u.id)
+        UNION
+        (SELECT 
+            a.created_at, 
+            u.name as user_name, 
+            CONCAT('Absensi di kelas: ', c.name) as description, 
+            NULL as payment_status, -- Attendance tidak punya status bayar, jadi kita kasih NULL agar kolom sinkron
+            'attendance' as type 
+         FROM attendances a 
+         JOIN users u ON a.student_id = u.id 
+         JOIN schedules s ON a.schedule_id = s.id 
+         JOIN classes c ON s.class_id = c.id)
+        ORDER BY created_at DESC LIMIT :limit";
+
+    $stmt = $this->db->prepare($query);
+    $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
     // 3. DATA GRAFIK ABSENSI (PIE CHART)
     public function getAttendancePie() {

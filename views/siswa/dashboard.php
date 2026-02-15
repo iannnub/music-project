@@ -223,15 +223,12 @@
                         <p class="text-muted" id="label_konfirmasi_kelas"></p>
                     </div>
                     <input type="hidden" name="schedule_id" id="input_schedule_id">
-                    <input type="hidden" name="lat" id="input_lat" value="0">
-                    <input type="hidden" name="long" id="input_long" value="0">
-                    <div id="gps_status" class="alert alert-light small border py-1 mb-0">
-                        <i class="fas fa-map-marker-alt text-primary"></i> <span id="status-lokasi">Mendeteksi Lokasi...</span>
-                    </div>
+                    <input type="hidden" name="lat" value="0">
+                    <input type="hidden" name="long" value="0">
                 </div>
-                <div class="modal-footer border-0 pt-0">
+                <div class="modal-footer border-0 pt-0 justify-content-center">
                     <button type="button" class="btn btn-light rounded-pill px-4" data-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow font-weight-bold">Ya, Saya Hadir!</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 shadow font-weight-bold">Ya, Saya Hadir!</button>
                 </div>
             </form>
         </div>
@@ -240,63 +237,35 @@
 
 <script>
 $(document).ready(function() {
-    // ⏰ LOGIKA REAL-TIME COUNTDOWN TIMER
+    // 1. COUNTDOWN TIMER
     const countdownElement = document.getElementById('class-countdown');
     if (countdownElement) {
-        // Ambil waktu target dari atribut data
         const targetDate = new Date(countdownElement.getAttribute('data-start')).getTime();
-
         const updateTimer = setInterval(function() {
             const now = new Date().getTime();
             const distance = targetDate - now;
 
-            // Jika waktu sudah sampai atau lewat
             if (distance < 0) {
                 clearInterval(updateTimer);
                 countdownElement.innerHTML = "Kelas Dimulai! 🎹";
                 countdownElement.classList.replace('badge-primary', 'badge-success');
-                countdownElement.classList.add('animate__animated', 'animate__flash', 'animate__infinite');
             } else {
-                // Hitung Jam, Menit, Detik
                 const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 const s = Math.floor((distance % (1000 * 60)) / 1000);
-                
-                let display = "Mulai dlm: ";
-                if (h > 0) display += h + "j ";
-                display += m + "m " + s + "s";
-                
-                countdownElement.innerHTML = display;
+                countdownElement.innerHTML = "Mulai dlm: " + (h > 0 ? h + "j " : "") + m + "m " + s + "s";
             }
         }, 1000);
     }
 
-    // 2. Geolocation (Tetap)
+    // 2. LOGIKA KLIK ABSEN (FIX: Tanpa Geolocation)
     $('.btn-absen').on('click', function() {
         const id = $(this).data('id');
         const kelas = $(this).data('kelas');
         $('#input_schedule_id').val(id);
         $('#label_konfirmasi_kelas').text("Kelas: " + kelas);
-        getLocation(); 
+        // Langsung tampilkan modal tanpa memanggil fungsi getLocation()
     });
-
-    function getLocation() {
-        const statusLokasi = document.getElementById('status-lokasi');
-        statusLokasi.innerHTML = "Mendeteksi Lokasi... ⏳";
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    document.getElementById('input_lat').value = pos.coords.latitude;
-                    document.getElementById('input_long').value = pos.coords.longitude;
-                    statusLokasi.innerHTML = "Lokasi Terdeteksi ✅";
-                },
-                (err) => {
-                    statusLokasi.innerHTML = "<span class='text-danger'>GPS Gagal</span>";
-                },
-                { timeout: 8000 }
-            );
-        }
-    }
 });
 </script>
 

@@ -8,7 +8,6 @@ class PembayaranModel {
 
     // Ambil Semua Data Pembayaran (Join ke Siswa & Admin + Ambil Nomor HP)
     public function getAll() {
-        // Kita tambahin siswa.phone supaya bisa kirim WA nanti
         $query = "SELECT payments.*, 
                          siswa.name as student_name, 
                          siswa.username as student_nis,
@@ -27,7 +26,6 @@ class PembayaranModel {
     // Input Pembayaran Baru
     public function create($data) {
         try {
-            // Tambahin start_date dan end_date ke query
             $query = "INSERT INTO payments (student_id, admin_id, month, year, start_date, end_date, amount, status, notes, payment_date) 
                       VALUES (:sid, :aid, :m, :y, :s_date, :e_date, :amt, :stat, :notes, :pdate)";
             
@@ -37,8 +35,8 @@ class PembayaranModel {
                 ':aid'    => $data['admin_id'],
                 ':m'      => $data['month'],
                 ':y'      => $data['year'],
-                ':s_date' => $data['start_date'], // Kolom baru
-                ':e_date' => $data['end_date'],   // Kolom baru
+                ':s_date' => $data['start_date'],
+                ':e_date' => $data['end_date'],
                 ':amt'    => $data['amount'],
                 ':stat'   => $data['status'],
                 ':notes'  => $data['notes'],
@@ -47,6 +45,59 @@ class PembayaranModel {
         } catch (PDOException $e) {
             return false;
         }
+    }
+
+    // Ambil Semua Riwayat Pembayaran khusus 1 Siswa
+public function getAllByStudent($student_id) {
+    $query = "SELECT payments.*, 
+                     siswa.name as student_name, 
+                     siswa.phone as student_phone, 
+                     admin.name as admin_name
+              FROM payments
+              JOIN users as siswa ON payments.student_id = siswa.id
+              LEFT JOIN users as admin ON payments.admin_id = admin.id
+              WHERE payments.student_id = ?
+              ORDER BY payments.year DESC, payments.month DESC";
+    
+    $stmt = $this->db->prepare($query);
+    $stmt->execute([$student_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function deleteAllByStudent($student_id) {
+    try {
+        $query = "DELETE FROM payments WHERE student_id = ?";
+        $stmt = $this->db->prepare($query);
+        return $stmt->execute([$student_id]);
+    } catch (PDOException $e) {
+        return false;
+    }
+}
+
+    public function getAllGrouped() {
+        $query = "SELECT 
+                    u.id AS student_id, 
+                    u.name AS nama_siswa, 
+                    c.name AS nama_kelas,
+                    -- Mengambil range tanggal terakhir sebagai info periode
+                    MAX(CONCAT(DATE_FORMAT(p.start_date, '%d/%m/%y'), ' - ', DATE_FORMAT(p.end_date, '%d/%m/%y'))) AS periode_terakhir,
+                    -- Status Global Siswa
+                    CASE 
+                        WHEN COUNT(CASE WHEN p.status = 'Belum Lunas' THEN 1 END) > 0 THEN 'Ada Tunggakan'
+                        WHEN COUNT(p.id) = 0 THEN 'Belum Ada Tagihan'
+                        ELSE 'Lunas'
+                    END AS status_global
+                FROM users u
+                JOIN class_members cm ON u.id = cm.student_id
+                JOIN classes c ON cm.class_id = c.id
+                LEFT JOIN payments p ON u.id = p.student_id
+                WHERE u.role = 'siswa'
+                GROUP BY u.id, c.name
+                ORDER BY u.name ASC";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     // Update Pembayaran

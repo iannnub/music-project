@@ -5,7 +5,7 @@
         if ($hour >= 5 && $hour < 11) $greeting = "Selamat Pagi";
         elseif ($hour >= 11 && $hour < 15) $greeting = "Selamat Siang";
         elseif ($hour >= 15 && $hour < 18) $greeting = "Selamat Sore";
-        else $greeting = "Selamat Malam";
+        else $greeting = "Selamat Malam ";
     ?>
 
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -142,56 +142,61 @@
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="bg-light text-muted small text-uppercase">
+                    <table class="table table-hover mb-0">
+                        <thead class="bg-light text-muted small text-uppercase">
+                            <tr>
+                                <th class="pl-4 border-0">Waktu</th>
+                                <th class="border-0">User</th>
+                                <th class="border-0">Aktivitas</th>
+                                <th class="border-0">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($recentActivities)): ?>
                                 <tr>
-                                    <th class="pl-4 border-0">Waktu</th>
-                                    <th class="border-0">User</th>
-                                    <th class="border-0">Aktivitas</th>
-                                    <th class="border-0">Status</th>
+                                    <td colspan="4" class="text-center py-4 text-muted italic small">Belum ada aktivitas hari ini.</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                <?php if (empty($recentActivities)): ?>
+                            <?php else: ?>
+                                <?php foreach ($recentActivities as $act): ?>
                                     <tr>
-                                        <td colspan="4" class="text-center py-4 text-muted italic small">Belum ada aktivitas hari ini.</td>
-                                    </tr>
-                                <?php else: ?>
-                                    <?php foreach ($recentActivities as $act): ?>
-                                        <tr>
-                                            <td class="pl-4 align-middle small">
-                                                <span class="text-dark font-weight-bold"><?= date('H:i', strtotime($act['created_at'])); ?></span>
-                                                <div class="text-muted" style="font-size: 10px;"><?= date('d/m/Y', strtotime($act['created_at'])); ?></div>
-                                            </td>
-                                            <td class="align-middle">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="avatar-sm mr-2 bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px; font-size: 12px; font-weight: bold;">
-                                                        <?= strtoupper(substr($act['user_name'], 0, 1)); ?>
-                                                    </div>
-                                                    <span class="font-weight-bold small text-dark"><?= htmlspecialchars($act['user_name']); ?></span>
+                                        <td class="pl-4 align-middle small">
+                                            <span class="text-dark font-weight-bold"><?= date('H:i', strtotime($act['created_at'])); ?></span>
+                                            <div class="text-muted" style="font-size: 10px;"><?= date('d/m/Y', strtotime($act['created_at'])); ?></div>
+                                        </td>
+                                        <td class="align-middle">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm mr-2 bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px; font-size: 12px; font-weight: bold;">
+                                                    <?= strtoupper(substr($act['user_name'], 0, 1)); ?>
                                                 </div>
-                                            </td>
-                                            <td class="align-middle">
-                                                <span class="small text-dark"><?= htmlspecialchars($act['description']); ?></span>
-                                            </td>
-                                            <td class="align-middle">
-                                                <?php if ($act['type'] == 'payment'): ?>
+                                                <span class="font-weight-bold small text-dark"><?= htmlspecialchars($act['user_name']); ?></span>
+                                            </div>
+                                        </td>
+                                        <td class="align-middle">
+                                            <span class="small text-dark"><?= htmlspecialchars($act['description']); ?></span>
+                                        </td>
+                                        <td class="align-middle">
+                                            <?php if ($act['type'] == 'payment'): ?>
+                                                <?php if ($act['payment_status'] == 'Lunas'): ?>
                                                     <span class="badge badge-success-soft text-success px-3 py-1 rounded-pill small">
-                                                        <i class="fas fa-money-bill-wave mr-1"></i> SPP Lunas
+                                                        <i class="fas fa-check-circle mr-1"></i> Lunas
                                                     </span>
                                                 <?php else: ?>
-                                                    <span class="badge badge-primary-soft text-primary px-3 py-1 rounded-pill small">
-                                                        <i class="fas fa-user-check mr-1"></i> Hadir
+                                                    <span class="badge badge-warning-soft text-warning px-3 py-1 rounded-pill small font-weight-bold">
+                                                        <i class="fas fa-clock mr-1"></i> Belum Lunas
                                                     </span>
                                                 <?php endif; ?>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                                            <?php else: ?>
+                                                <span class="badge badge-primary-soft text-primary px-3 py-1 rounded-pill small">
+                                                    <i class="fas fa-user-check mr-1"></i> Hadir
+                                                1</span>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>                </div>
             </div>
         </div>
     </div>
