@@ -1,14 +1,9 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KakYo Lesson | Kursus Musik Terbaik</title>
-
     <?php require_once '../views/layouts/head_meta.php'; ?>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,800&display=swap" rel="stylesheet">
     <link href="assets/sb-admin-2/css/sb-admin-2.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/login.css?v=1.1">
 </head>

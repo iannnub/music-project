@@ -5,7 +5,10 @@ session_start();
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
 $host = $_SERVER['HTTP_HOST'];
 $baseDir = str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME']);
-define('BASE_URL', $protocol . $host . $baseDir);
+
+if (!defined('BASE_URL')) {
+    define('BASE_URL', $protocol . $host . $baseDir);
+}
 
 require_once '../config/database.php';
 require_once '../helpers/CsrfHelper.php';
@@ -14,7 +17,7 @@ $timeout_duration = 1800;
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > $timeout_duration)) {
     session_unset();     
     session_destroy();   
-    header("Location: index.php?page=auth&timeout=true");
+    header("Location: " . BASE_URL . "index.php?page=auth&timeout=true");
     exit;
 }
 $_SESSION['LAST_ACTIVITY'] = time();

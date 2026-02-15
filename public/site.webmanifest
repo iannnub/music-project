@@ -1,0 +1,24 @@
+{
+    "name": "KakYo Lesson Official",
+    "short_name": "KakYoLesson",
+    "description": "Sistem Manajemen Kursus Musik Modern di Jember. Pantau progres latihanmu dengan mudah.",
+    "icons": [
+        {
+            "src": "img/logo-fix.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "img/logo-fix.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        }
+    ],
+    "start_url": "/index.php",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#4e73df",
+    "orientation": "portrait"
+}
