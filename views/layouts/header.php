@@ -12,6 +12,7 @@
 
     <link href="assets/sb-admin-2/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="assets/sb-admin-2/css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="assets/sb-admin-2/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
     
     <script src="assets/sb-admin-2/vendor/jquery/jquery.min.js"></script>
 </head>

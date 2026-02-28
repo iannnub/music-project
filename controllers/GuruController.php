@@ -554,6 +554,35 @@ class GuruController {
         require_once '../views/layouts/footer.php';
     }
 
+    public function proses_update_absensi() {
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') 
+        {
+        // SESUAIKAN: Pakai verifyToken() sesuai Helper kamu
+        if (!CsrfHelper::verifyToken($_POST['csrf_token'])) {
+            die("Invalid CSRF Token");
+        }
+
+
+        $id_absensi = $_POST['id_absensi'];
+        $status_baru = $_POST['status'];
+        $student_id = $_POST['student_id'];
+
+        require_once '../models/AbsensiModel.php';
+        $absensiModel = new AbsensiModel($this->db);
+
+        if ($absensiModel->updateStatus($id_absensi, $status_baru)) {
+            $_SESSION['flash'] = [
+                'status' => 'success',
+                'title'  => 'Berhasil!',
+                'msg'    => 'Status kehadiran telah diperbarui.'
+            ];
+        }
+
+        header("Location: index.php?page=guru_riwayat_detail&student_id=" . $student_id);
+        exit();
+    }
+}
+
     public function proses_validasi() {
         if (isset($_GET['id']) && isset($_GET['status'])) {
             require_once '../models/AbsensiModel.php';

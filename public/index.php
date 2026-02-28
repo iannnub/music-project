@@ -339,13 +339,18 @@ switch ($page) {
         break;
 
     case 'guru_riwayat_detail':
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'guru') { 
-            header("Location: index.php?page=auth"); exit; 
-        }
-        require_once '../controllers/GuruController.php';
-        $controller = new GuruController($db);
+    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'guru') { 
+        header("Location: index.php?page=auth"); exit; 
+    }
+    require_once '../controllers/GuruController.php';
+    $controller = new GuruController($db);
+    
+    if ($action == 'update_status') {
+        $controller->proses_update_absensi(); 
+    } else {
         $controller->riwayat_detail(); 
-        break;
+    }
+    break;
 
     case 'guru_progress':
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'guru') { header("Location: index.php"); exit; }

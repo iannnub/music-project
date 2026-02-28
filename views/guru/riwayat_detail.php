@@ -51,19 +51,19 @@
                                     <th class="border-0">Tanggal & Waktu</th>
                                     <th class="border-0">Kelas</th>
                                     <th class="border-0">Status</th>
+                                    <th class="border-0">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($history as $h): 
+                                    // Penentuan warna badge berdasarkan status asli dari database
                                     $status_class = "badge-success";
                                     $status_label = $h['status'];
                                     
                                     if ($h['status'] == 'Izin' || $h['status'] == 'Sakit') {
                                         $status_class = "badge-info";
-                                        $status_label = "Izin / Sakit";
                                     } elseif ($h['status'] == 'Ditolak' || $h['status'] == 'Alpha') {
                                         $status_class = "badge-danger";
-                                        $status_label = "Alpha / Ditolak";
                                     }
                                 ?>
                                 <tr>
@@ -79,6 +79,16 @@
                                             <?= $status_label; ?>
                                         </span>
                                     </td>
+                                    <td class="align-middle text-center">
+                                        <button type="button" class="btn btn-white btn-sm shadow-sm rounded-circle text-primary btn-edit-absen" 
+                                                data-toggle="modal" 
+                                                data-target="#modalEditAbsen"
+                                                data-id="<?= $h['id']; ?>"
+                                                data-status="<?= $h['status']; ?>"
+                                                data-date="<?= date('d M Y', strtotime($h['date'])); ?>">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </td>
                                 </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -90,6 +100,49 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalEditAbsen" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-lg rounded-lg">
+            <div class="modal-header border-bottom-0">
+                <h5 class="modal-title font-weight-bold text-dark" id="editModalLabel">Koreksi Status Kehadiran</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="index.php?page=guru_riwayat_detail&action=update_status" method="POST">
+                <div class="modal-body py-4">
+                    <?= CsrfHelper::formField(); ?>
+                    <input type="hidden" name="id_absensi" id="edit_id_absensi">
+                    <input type="hidden" name="student_id" value="<?= $student_id; ?>">
+
+                    <div class="text-center mb-4">
+                        <div class="small text-muted text-uppercase mb-1">Sesi Tanggal</div>
+                        <div class="h5 font-weight-bold text-gray-900" id="display_date"></div>
+                    </div>
+
+                    <div class="form-group px-3">
+                        <label class="small font-weight-bold text-uppercase text-muted">Status Baru:</label>
+                        <select name="status" id="edit_status" class="form-control custom-select shadow-none" required>
+                            <option value="Hadir">Hadir</option>
+                            <option value="Izin">Izin</option>
+                            <option value="Sakit">Sakit</option>
+                            <option value="Alpha">Alpha</option>
+                            <option value="Ditolak">Ditolak</option>
+                        </select>
+                        <small class="form-text text-muted mt-2">
+                            Pastikan data sudah benar sebelum menyimpan perubahan.
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 bg-light p-3">
+                    <button type="button" class="btn btn-light rounded-pill px-4 font-weight-bold" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 font-weight-bold shadow">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <style>
     .badge-primary-soft { background-color: rgba(78, 115, 223, 0.1); color: #4e73df; }
     .table thead th { font-size: 11px; letter-spacing: 0.5px; border-bottom: 0; }
@@ -97,16 +150,39 @@
     .rounded-lg { border-radius: 12px !important; }
     .shadow-xs { box-shadow: 0 .125rem .25rem rgba(0,0,0,.075)!important; }
     .breadcrumb-item + .breadcrumb-item::before { content: ">" !important; }
+    .btn-white { background-color: #fff; border: 1px solid #eaecf4; }
+    .btn-white:hover { background-color: #f8f9fc; color: #4e73df; }
+    .custom-select { border-radius: 10px; height: 45px; border: 1px solid #d1d3e2; }
 </style>
 
 <script>
     $(document).ready(function() {
-        $('#dataTableDetail').DataTable({
-            "order": [[ 0, "desc" ]],
-            "language": {
-                "search": "Cari Data:",
-                "emptyTable": "Siswa ini belum memiliki riwayat absensi."
-            }
+        // 1. Inisialisasi DataTable
+        if ($.fn.DataTable) {
+    $('#dataTableDetail').DataTable({
+        order: [[0, "desc"]],
+        language: {
+            search: "Cari Data:",
+            emptyTable: "Siswa ini belum memiliki riwayat absensi."
+        }
+    });
+}
+
+        // 2. Script untuk lempar data ke Modal menggunakan Event Delegation
+        // Menggunakan '#dataTableDetail' sebagai parent agar tombol tetap jalan meski tabel di-sortir
+        $('#dataTableDetail').on('click', '.btn-edit-absen', function() {
+            // Mengambil data menggunakan .attr('data-id') agar lebih pasti
+            const id = $(this).attr('data-id');
+            const status = $(this).attr('data-status');
+            const date = $(this).attr('data-date');
+
+            // Debugging di console browser (Tekan F12 untuk cek)
+            console.log("Koreksi Absen ID:", id);
+
+            // Masukkan data ke input dalam modal
+            $('#edit_id_absensi').val(id);
+            $('#edit_status').val(status);
+            $('#display_date').text(date);
         });
     });
 </script>
