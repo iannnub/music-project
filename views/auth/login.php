@@ -70,7 +70,7 @@
                     <div class="text-center mb-5">
                         <h2 class="font-weight-bold text-dark">Selamat Datang!</h2>
                         <div class="social-login-icons">
-                            <a href="https://www.tiktok.com/@yosearmando98?_r=1&_t=ZS-92KvhQMN8kf"><i class="fab fa-tiktok"></i></a>
+                            <a href="https://www.tiktok.com/@kakyolessonmusik"><i class="fab fa-tiktok"></i></a>
                             <a href="https://wa.me/6285179861126"><i class="fab fa-whatsapp" target="_blank"></i></a>
                             <a href="https://www.instagram.com/kakyo_lesson?igsh=MTRwd2J2ZjFrb2VtaA=="><i class="fab fa-instagram"></i></a>
                         </div>
