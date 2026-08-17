@@ -181,7 +181,7 @@
                             <th class="pl-4 border-0">Hari</th>
                             <th class="border-0">Waktu</th>
                             <th class="border-0">Kelas & Instrumen</th>
-                            <th class="border-0">Daftar Siswa</th> 
+                            <th class="border-0">Nama Siswa</th> 
                             <th class="border-0 text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -203,6 +203,18 @@
                                     $is_today = ($j['day'] == $hari_ini_indo);
                                     $is_ongoing = ($is_today && $jam_sekarang >= $j['start_time'] && $jam_sekarang <= $j['end_time']);
                                     $row_class = $is_ongoing ? 'bg-ongoing' : ($is_today ? 'bg-today' : '');
+                                    
+                                    // Status Absensi Guru
+                                    $is_checked_in = in_array($j['schedule_id'], $checked_schedule_ids);
+                                    
+                                    // Rentang jendela absensi (5 menit sebelum kelas s/d kelas selesai)
+                                    $start_absen_time = strtotime($j['start_time']) - 300;
+                                    $end_absen_time = strtotime($j['end_time']);
+                                    $time_now = strtotime($jam_sekarang);
+                                    $is_in_absen_window = ($time_now >= $start_absen_time && $time_now <= $end_absen_time);
+                                    
+                                    // Kelas dianggap selesai untuk hari ini jika jam sekarang melewati end_time
+                                    $is_ended = ($is_today && $time_now > $end_absen_time);
                             ?>
                             <tr class="<?= $row_class; ?>">
                                 <td class="pl-4 align-middle">
@@ -215,14 +227,30 @@
                                     <div class="font-weight-bold text-primary"><?= htmlspecialchars($j['class_name']); ?></div>
                                     <div class="text-xs text-muted italic text-uppercase font-weight-bold"><?= $j['type']; ?> Session</div>
                                 </td>
-                                <td class="align-middle">
-                                    <div class="text-truncate small font-weight-bold text-muted" style="max-width: 150px;" title="<?= htmlspecialchars($j['student_names']); ?>">
-                                        <?= !empty($j['student_names']) ? htmlspecialchars($j['student_names']) : 'Tidak ada siswa'; ?>
-                                    </div>
+                                <td class="align-middle font-weight-bold">
+                                    <?= htmlspecialchars($j['student_name']); ?>
                                 </td>
                                 <td class="text-center align-middle">
                                     <?php if($is_today): ?>
-                                        <a href="index.php?page=guru_progress_detail&class_id=<?= $j['class_id']; ?>" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm font-weight-bold">Mulai Kelas</a>
+                                        <?php if($is_ended): ?>
+                                            <span class="badge badge-light border text-muted px-3 py-2 rounded-pill font-weight-bold" style="font-size: 11px;">
+                                                <i class="fas fa-check-circle mr-1 text-secondary"></i> Selesai
+                                            </span>
+                                        <?php else: ?>
+                                            <div class="d-flex justify-content-center align-items-center flex-wrap">
+                                                <a href="index.php?page=guru_progress_detail&class_id=<?= $j['class_id']; ?>" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm font-weight-bold m-1">Mulai Kelas</a>
+                                                
+                                                <?php if ($is_checked_in): ?>
+                                                    <span class="badge badge-success px-3 py-2 rounded-pill shadow-sm m-1 font-weight-bold" style="font-size: 11px;">
+                                                        <i class="fas fa-check-circle mr-1"></i> Sudah Absen
+                                                    </span>
+                                                <?php elseif ($is_in_absen_window): ?>
+                                                    <a href="index.php?page=guru_absen&schedule_id=<?= $j['schedule_id']; ?>" class="btn btn-warning btn-sm rounded-pill px-3 shadow-sm font-weight-bold m-1">
+                                                        <i class="fas fa-fingerprint mr-1"></i> Absen
+                                                    </a>
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php endif; ?>
                                     <?php else: ?>
                                         <span class="text-muted small italic">Terjadwal</span>
                                     <?php endif; ?>

@@ -13,6 +13,11 @@ if (!defined('BASE_URL')) {
 require_once '../config/database.php';
 require_once '../helpers/CsrfHelper.php';
 
+// Auto-process student Alpha (Ditolak) status for missed slots
+require_once '../models/AbsensiModel.php';
+(new AbsensiModel($db))->autoProcessAlpha();
+(new AbsensiModel($db))->autoProcessTeacherAlpha();
+
 $timeout_duration = 1800; 
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > $timeout_duration)) {
     session_unset();     
@@ -26,6 +31,21 @@ CsrfHelper::generateToken();
 
 $page = isset($_GET['page']) ? $_GET['page'] : 'auth';
 $action = isset($_GET['action']) ? $_GET['action'] : 'index';
+
+// Check if student has not filled parent_name or phone. If so, force redirect to profile page.
+if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'siswa') {
+    if (empty($_SESSION['user']['parent_name']) || empty($_SESSION['user']['phone'])) {
+        if ($page !== 'profile' && $page !== 'auth') {
+            $_SESSION['flash'] = [
+                'status' => 'warning',
+                'title'  => 'Lengkapi Profil',
+                'msg'    => 'Harap isi Nama Orang Tua dan Nomor WhatsApp terlebih dahulu.'
+            ];
+            header("Location: index.php?page=profile");
+            exit;
+        }
+    }
+}
 
 switch ($page) {
     
@@ -205,10 +225,6 @@ switch ($page) {
         $controller->detail(); // Memanggil tampilan Kartu SPP Digital
         break;
 
-        default:
-        header("Location: index.php?page=dashboard");
-        break;
-
 // --------------------------- dashboard_siswa ---------------------------
 
     case 'dashboard_siswa':
@@ -315,7 +331,7 @@ switch ($page) {
         // ... routing guru lainnya ...
 
     case 'guru_validasi':
-        if ($_SESSION['user']['role'] != 'guru') { header("Location: index.php"); exit; }
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'guru') { header("Location: index.php?page=auth"); exit; }
         require_once '../controllers/GuruController.php';
         $controller = new GuruController($db);
         
@@ -371,7 +387,7 @@ switch ($page) {
 
     // ROUTING AKADEMIK GURU
     case 'guru_materi':
-        if ($_SESSION['user']['role'] != 'guru') { header("Location: index.php"); exit; }
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'guru') { header("Location: index.php?page=auth"); exit; }
         require_once '../controllers/GuruController.php';
         $controller = new GuruController($db);
         
@@ -387,7 +403,7 @@ switch ($page) {
         break;
 
     case 'guru_tugas':
-    if ($_SESSION['user']['role'] != 'guru') { header("Location: index.php"); exit; }
+    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'guru') { header("Location: index.php?page=auth"); exit; }
     require_once '../controllers/GuruController.php';
     $controller = new GuruController($db);
     
@@ -405,21 +421,21 @@ switch ($page) {
         // ... case guru_tugas selesai ...
 
     case 'guru_tugas_detail':
-    if ($_SESSION['user']['role'] != 'guru') { header("Location: index.php"); exit; }
+    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'guru') { header("Location: index.php?page=auth"); exit; }
     require_once '../controllers/GuruController.php';
     $controller = new GuruController($db);
     $controller->tugas_detail();
     break;
 
     case 'guru_tugas_acc':
-    if ($_SESSION['user']['role'] != 'guru') { header("Location: index.php"); exit; }
+    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'guru') { header("Location: index.php?page=auth"); exit; }
     require_once '../controllers/GuruController.php';
     $controller = new GuruController($db);
     $controller->tugas_acc(); // Memanggil method baru di controller
     break;
 
     case 'guru_tugas_nilai':
-        if ($_SESSION['user']['role'] != 'guru') { header("Location: index.php"); exit; }
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'guru') { header("Location: index.php?page=auth"); exit; }
         require_once '../controllers/GuruController.php';
         $controller = new GuruController($db);
         $controller->tugas_nilai();
@@ -448,30 +464,53 @@ switch ($page) {
         $controller->progress_delete();
         break;
 
-
+        case 'guru_absen':
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'guru') {
+            header("Location: index.php?page=auth");
+            exit;
+        }
+        require_once '../controllers/GuruController.php';
+        $controller = new GuruController($db);
+        
+        if ($action == 'submit') {
+            $controller->proses_absen_guru(); // Pastikan method ini ada di Controller
+        } else {
+            $controller->view_absen_guru();   // Pastikan method ini ada di Controller
+        }
+        break;
         // ... case pembayaran selesai ...
 
     // ROUTING LAPORAN
     case 'laporan_keuangan':
-        if ($_SESSION['user']['role'] != 'admin') { header("Location: index.php"); exit; }
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'admin') { header("Location: index.php?page=auth"); exit; }
         require_once '../controllers/LaporanController.php';
         $controller = new LaporanController($db);
         $controller->keuangan();
         break;
 
     case 'laporan_absensi':
-        if ($_SESSION['user']['role'] != 'admin') { header("Location: index.php"); exit; }
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'admin') { header("Location: index.php?page=auth"); exit; }
         require_once '../controllers/LaporanController.php';
         $controller = new LaporanController($db);
         $controller->absensi();
         break;
 
+    case 'laporan_absensi_guru':
+        if (!isset($_SESSION['user']) || !in_array($_SESSION['user']['role'], ['admin', 'guru'])) { header("Location: index.php?page=auth"); exit; }
+        require_once '../controllers/LaporanController.php';
+        $controller = new LaporanController($db);
+        $controller->absensi_guru();
+        break;
 
-        case 'siswa_cetak_raport':
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'siswa') { header("Location: index.php"); exit; }
+    case 'siswa_cetak_raport':
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'siswa') { header("Location: index.php?page=auth"); exit; }
         require_once '../controllers/SiswaController.php';
         $controller = new SiswaController($db);
         $controller->cetak_raport();
+        break;
+
+    default:
+        header("Location: index.php?page=dashboard");
         break;
 
 }

@@ -65,7 +65,8 @@
 
                                     <a href="index.php?page=kelas&action=delete&id=<?= $k['id']; ?>" 
                                         class="btn btn-danger btn-sm btn-circle btn-delete" 
-                                        title="Hapus">
+                                        title="Hapus"
+                                        onclick="return confirm('Yakin ingin menghapus kelas ini? Semua jadwal, tugas, dan data terkait akan ikut terhapus!');">
                                          <i class="fas fa-trash"></i>
                                     </a>
                             </td>

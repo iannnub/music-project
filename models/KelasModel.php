@@ -83,6 +83,7 @@ class KelasModel {
     // Kita tambahkan GROUP BY agar baris dengan student_id yang sama digabung jadi satu
     $query = "SELECT 
                 u.name, 
+                u.parent_name,
                 u.photo_profile,
                 MIN(cm.id) as member_id, -- Mengambil ID terkecil sebagai representasi
                 MIN(cm.joined_at) as joined_at,
@@ -150,6 +151,16 @@ class KelasModel {
     public function removeMember($member_id) {
         $stmt = $this->db->prepare("DELETE FROM class_members WHERE id = ?");
         return $stmt->execute([$member_id]);
+    }
+
+    // 5. Hapus Kelas (dan semua anggotanya via Cascade jika ada, atau manual)
+    public function delete($id) {
+        try {
+            $stmt = $this->db->prepare("DELETE FROM classes WHERE id = ?");
+            return $stmt->execute([$id]);
+        } catch (PDOException $e) {
+            return false;
+        }
     }
 }
 ?>

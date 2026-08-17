@@ -53,8 +53,8 @@ class DashboardModel {
             'attendance' as type 
          FROM attendances a 
          JOIN users u ON a.student_id = u.id 
-         JOIN schedules s ON a.schedule_id = s.id 
-         JOIN classes c ON s.class_id = c.id)
+         JOIN class_members cm ON a.schedule_id = cm.id 
+         JOIN classes c ON cm.class_id = c.id)
         ORDER BY created_at DESC LIMIT :limit";
 
     $stmt = $this->db->prepare($query);
@@ -79,18 +79,18 @@ class DashboardModel {
     }
 
     public function getJadwalGuru($teacher_id) {
-        $query = "SELECT s.*, c.name as class_name, c.type, 
-                  (SELECT GROUP_CONCAT(u.name SEPARATOR ', ') FROM class_members cm JOIN users u ON cm.student_id = u.id WHERE cm.class_id = c.id) as student_names
-                  FROM schedules s JOIN classes c ON s.class_id = c.id 
-                  WHERE c.teacher_id = :tid ORDER BY s.day, s.start_time";
+        $query = "SELECT cm.*, c.name as class_name, c.type, 
+                  (SELECT GROUP_CONCAT(u.name SEPARATOR ', ') FROM class_members cm2 JOIN users u ON cm2.student_id = u.id WHERE cm2.class_id = c.id) as student_names
+                  FROM class_members cm JOIN classes c ON cm.class_id = c.id 
+                  WHERE c.teacher_id = :tid ORDER BY cm.day, cm.start_time";
         $stmt = $this->db->prepare($query);
         $stmt->execute(['tid' => $teacher_id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getPendingValidation($teacher_id) {
-        $query = "SELECT COUNT(*) FROM attendances a JOIN schedules s ON a.schedule_id = s.id JOIN classes c ON s.class_id = c.id 
-                  WHERE c.teacher_id = :tid AND a.is_validated = 0";
+        $query = "SELECT COUNT(*) FROM attendances a JOIN class_members cm ON a.schedule_id = cm.id JOIN classes c ON cm.class_id = c.id 
+                  WHERE c.teacher_id = :tid AND a.status = 'Menunggu'";
         $stmt = $this->db->prepare($query);
         $stmt->execute(['tid' => $teacher_id]);
         return $stmt->fetchColumn();
@@ -106,26 +106,26 @@ class DashboardModel {
 
     public function getNextClass($student_id, $day) {
         $now = date('H:i:s');
-        $query = "SELECT s.*, c.name as class_name, u.name as teacher_name 
-                  FROM schedules s JOIN classes c ON s.class_id = c.id JOIN class_members cm ON c.id = cm.class_id JOIN users u ON c.teacher_id = u.id
-                  WHERE cm.student_id = :sid AND s.day = :day AND s.start_time > :now 
-                  ORDER BY s.start_time ASC LIMIT 1";
+        $query = "SELECT cm.*, c.name as class_name, u.name as teacher_name 
+                  FROM class_members cm JOIN classes c ON cm.class_id = c.id JOIN users u ON c.teacher_id = u.id
+                  WHERE cm.student_id = :sid AND cm.day = :day AND cm.start_time > :now 
+                  ORDER BY cm.start_time ASC LIMIT 1";
         $stmt = $this->db->prepare($query);
         $stmt->execute(['sid' => $student_id, 'day' => $day, 'now' => $now]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function getJadwalSiswa($student_id) {
-        $query = "SELECT s.*, c.name as class_name, u.name as teacher_name 
-                  FROM schedules s JOIN classes c ON s.class_id = c.id JOIN class_members cm ON c.id = cm.class_id JOIN users u ON c.teacher_id = u.id
-                  WHERE cm.student_id = ? ORDER BY s.day, s.start_time";
+        $query = "SELECT cm.*, c.name as class_name, u.name as teacher_name 
+                  FROM class_members cm JOIN classes c ON cm.class_id = c.id JOIN users u ON c.teacher_id = u.id
+                  WHERE cm.student_id = ? ORDER BY cm.day, cm.start_time";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$student_id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getLastProgress($student_id) {
-        $query = "SELECT * FROM progress_notes WHERE student_id = ? ORDER BY date DESC LIMIT 1";
+        $query = "SELECT * FROM progress_logs WHERE student_id = ? ORDER BY date DESC LIMIT 1";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$student_id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);

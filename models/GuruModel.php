@@ -297,16 +297,15 @@ public function updateAssignment($id, $data) {
     // 4. Tadi di Controller lo manggil getJadwalByGuru
     public function getJadwalByGuru($teacher_id) {
         $query = "SELECT 
+                    cm.id as schedule_id,
                     cm.day, cm.start_time, cm.end_time, c.name as class_name, 
-                    c.type, c.id as class_id, COUNT(cm.student_id) as total_murid,
-                    GROUP_CONCAT(u.name SEPARATOR ', ') as student_names 
+                    c.type, c.id as class_id, u.name as student_name 
                   FROM class_members cm
                   JOIN classes c ON cm.class_id = c.id
                   JOIN users u ON cm.student_id = u.id
                   WHERE c.teacher_id = ?
-                  GROUP BY cm.day, cm.start_time, cm.end_time, c.name, c.type, c.id
                   ORDER BY FIELD(cm.day, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'), 
-                           cm.start_time ASC";
+                           cm.start_time ASC, cm.id ASC";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$teacher_id]);
         return $stmt->fetchAll();

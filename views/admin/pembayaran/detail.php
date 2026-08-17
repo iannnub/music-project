@@ -71,7 +71,7 @@
                                     $linkWA = "https://api.whatsapp.com/send?phone=" . preg_replace('/^0/', '62', $student['phone'] ?? '') . "&text=" . urlencode($pesanWA);
                                 ?>
                                 <tr>
-                                    <td class="align-middle">
+                                    <td class="align-middle" data-order="<?= sprintf('%04d-%02d', $h['year'], $h['month']); ?>">
                                         <div class="font-weight-bold text-primary"><?= date("F Y", mktime(0, 0, 0, $h['month'], 10, $h['year'])); ?></div>
                                         <small class="text-muted"><?= date('d/m/y', strtotime($h['start_date'])); ?> - <?= date('d/m/y', strtotime($h['end_date'])); ?></small>
                                     </td>

@@ -66,7 +66,7 @@
                                     <tr>
                                         <td class="align-middle">
                                             <div class="font-weight-bold text-primary"><?= htmlspecialchars($j['class_name']); ?></div>
-                                            
+                                            <div class="small text-muted font-weight-bold"><i class="fas fa-chalkboard-teacher mr-1 text-gray-400"></i> Guru: <?= htmlspecialchars($j['teacher_name'] ?? '-'); ?></div>
                                         </td>
                                         <td class="align-middle">
                                             <span class="badge badge-light border px-2 py-1 mb-1">
@@ -121,7 +121,7 @@
                         <select class="form-control" name="class_id" required>
                             <option value="">-- Pilih Kelas --</option>
                             <?php foreach($all_classes as $c): ?>
-                                <option value="<?= $c['id']; ?>"><?= htmlspecialchars($c['name']); ?></option>
+                                <option value="<?= $c['id']; ?>"><?= htmlspecialchars($c['name']); ?> (Guru: <?= htmlspecialchars($c['guru_name']); ?>)</option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -168,7 +168,7 @@
                         <label class="font-weight-bold small">Pilih Kelas</label>
                         <select class="form-control" name="class_id" id="val_class" required>
                             <?php foreach($all_classes as $c): ?>
-                                <option value="<?= $c['id']; ?>"><?= htmlspecialchars($c['name']); ?></option>
+                                <option value="<?= $c['id']; ?>"><?= htmlspecialchars($c['name']); ?> (Guru: <?= htmlspecialchars($c['guru_name']); ?>)</option>
                             <?php endforeach; ?>
                         </select>
                     </div>

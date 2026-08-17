@@ -70,10 +70,34 @@ class KelasController {
     // --- 4. PROSES TAMBAH SISWA KE KELAS ---
     public function add_member() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $class_id = $_POST['class_id'];
+            $class_id   = $_POST['class_id'];
             $student_id = $_POST['student_id'];
+            $day        = $_POST['day'];
+            $start_time = $_POST['start_time'];
+            $end_time   = $_POST['end_time'];
 
-            if ($this->kelasModel->addMember($class_id, $student_id)) {
+            $kelas = $this->kelasModel->getById($class_id);
+            $teacher_id = $kelas['teacher_id'] ?? null;
+
+            if ($teacher_id && $this->kelasModel->isConflict($teacher_id, $day, $start_time, $end_time)) {
+                $_SESSION['flash'] = [
+                    'status' => 'warning',
+                    'title'  => 'Jadwal Bentrok!',
+                    'msg'    => 'Guru pengampu sudah memiliki jadwal lain di jam tersebut.'
+                ];
+                header("Location: index.php?page=kelas&action=detail&id=$class_id");
+                exit;
+            }
+
+            $data = [
+                'student_id' => $student_id,
+                'class_id'   => $class_id,
+                'day'        => $day,
+                'start_time' => $start_time,
+                'end_time'   => $end_time
+            ];
+
+            if ($this->kelasModel->addMember($data)) {
                 $_SESSION['flash'] = [
                     'status' => 'success',
                     'title'  => 'Siswa Ditambahkan',
@@ -133,6 +157,28 @@ class KelasController {
                     'status' => 'error',
                     'title'  => 'Gagal Update',
                     'msg'    => 'Data kelas gagal diperbarui, cek kembali inputan.'
+                ];
+            }
+            header("Location: index.php?page=kelas");
+            exit;
+        }
+    }
+
+    // --- 7. PROSES HAPUS KELAS ---
+    public function delete() {
+        if (isset($_GET['id'])) {
+            $id = $_GET['id'];
+            if ($this->kelasModel->delete($id)) {
+                $_SESSION['flash'] = [
+                    'status' => 'success',
+                    'title'  => 'Berhasil Dihapus',
+                    'msg'    => 'Kelas dan seluruh jadwal yang berkaitan telah dihapus dari sistem.'
+                ];
+            } else {
+                $_SESSION['flash'] = [
+                    'status' => 'error',
+                    'title'  => 'Gagal Hapus',
+                    'msg'    => 'Data kelas gagal dihapus.'
                 ];
             }
             header("Location: index.php?page=kelas");

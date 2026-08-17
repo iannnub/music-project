@@ -62,6 +62,9 @@
                                 <td class="align-middle text-center"><?= $no++; ?></td>
                                 <td class="align-middle font-weight-bold text-dark">
                                     <?= htmlspecialchars($m['name']); ?>
+                                    <?php if (!empty($m['parent_name'])): ?>
+                                        <br><small class="text-muted"><i class="fas fa-user-friends mr-1"></i> Ortu: <?= htmlspecialchars($m['parent_name']); ?></small>
+                                    <?php endif; ?>
                                 </td>
                                 <td class="align-middle">
                                     <?php 
@@ -113,6 +116,32 @@
                                 <option value="<?= $s['id']; ?>"><?= $s['name']; ?> (<?= $s['username']; ?>)</option>
                             <?php endforeach; ?>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="small font-weight-bold text-dark text-uppercase">Hari Latihan</label>
+                        <select class="form-control text-dark" name="day" required>
+                            <option value="Senin">Senin</option>
+                            <option value="Selasa">Selasa</option>
+                            <option value="Rabu">Rabu</option>
+                            <option value="Kamis">Kamis</option>
+                            <option value="Jumat">Jumat</option>
+                            <option value="Sabtu">Sabtu</option>
+                            <option value="Minggu">Minggu</option>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="small font-weight-bold text-dark text-uppercase">Jam Mulai</label>
+                                <input type="time" class="form-control text-dark" name="start_time" required>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="small font-weight-bold text-dark text-uppercase">Jam Selesai</label>
+                                <input type="time" class="form-control text-dark" name="end_time" required>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer border-0 bg-light">

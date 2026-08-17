@@ -79,7 +79,12 @@
                             if ($total == 0) { $kategori = "N/A"; }
                         ?>
                         <tr>
-                            <td class="align-middle font-weight-bold text-gray-900"><?= htmlspecialchars($s['student_name']); ?></td>
+                            <td class="align-middle font-weight-bold text-gray-900">
+                                <?= htmlspecialchars($s['student_name']); ?>
+                                <?php if (!empty($s['parent_name'])): ?>
+                                    <br><small class="text-muted"><i class="fas fa-user-friends mr-1"></i> Ortu: <?= htmlspecialchars($s['parent_name']); ?></small>
+                                <?php endif; ?>
+                            </td>
                             <td class="align-middle">
                                 <?php foreach(explode(', ', $s['class_names']) as $kls): ?>
                                     <span class="badge badge-light border mb-1"><?= htmlspecialchars($kls); ?></span>

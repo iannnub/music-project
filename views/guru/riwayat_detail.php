@@ -62,7 +62,7 @@
                                     
                                     if ($h['status'] == 'Izin' || $h['status'] == 'Sakit') {
                                         $status_class = "badge-info";
-                                    } elseif ($h['status'] == 'Ditolak' || $h['status'] == 'Alpha') {
+                                    } elseif ($h['status'] == 'Ditolak') {
                                         $status_class = "badge-danger";
                                     }
                                 ?>
@@ -100,15 +100,16 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalEditAbsen" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+<div class="modal fade" id="modalEditAbsen" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content border-0 shadow-lg rounded-lg">
             <div class="modal-header border-bottom-0">
-                <h5 class="modal-title font-weight-bold text-dark" id="editModalLabel">Koreksi Status Kehadiran</h5>
+                <h5 class="modal-title font-weight-bold text-dark">Koreksi Status Kehadiran</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
+            <!-- Form diarahkan ke action update_status -->
             <form action="index.php?page=guru_riwayat_detail&action=update_status" method="POST">
                 <div class="modal-body py-4">
                     <?= CsrfHelper::formField(); ?>
@@ -126,22 +127,20 @@
                             <option value="Hadir">Hadir</option>
                             <option value="Izin">Izin</option>
                             <option value="Sakit">Sakit</option>
-                            <option value="Alpha">Alpha</option>
-                            <option value="Ditolak">Ditolak</option>
+                            <option value="Ditolak">Alpha</option>
                         </select>
-                        <small class="form-text text-muted mt-2">
-                            Pastikan data sudah benar sebelum menyimpan perubahan.
-                        </small>
                     </div>
                 </div>
                 <div class="modal-footer border-top-0 bg-light p-3">
                     <button type="button" class="btn btn-light rounded-pill px-4 font-weight-bold" data-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4 font-weight-bold shadow">Simpan Perubahan</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 font-weight-bold shadow-sm">Simpan Perubahan</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+
 
 <style>
     .badge-primary-soft { background-color: rgba(78, 115, 223, 0.1); color: #4e73df; }
@@ -156,33 +155,19 @@
 </style>
 
 <script>
-    $(document).ready(function() {
-        // 1. Inisialisasi DataTable
-        if ($.fn.DataTable) {
-    $('#dataTableDetail').DataTable({
-        order: [[0, "desc"]],
-        language: {
-            search: "Cari Data:",
-            emptyTable: "Siswa ini belum memiliki riwayat absensi."
-        }
+$(document).ready(function() {
+    $('.btn-edit-absen').on('click', function() {
+        const id = $(this).data('id');
+        const status = $(this).data('status');
+        const date = $(this).data('date');
+
+        // Masukkan data ke dalam elemen modal
+        $('#edit_id_absensi').val(id);
+        $('#display_date').text(date);
+        
+        // Pilih status yang sesuai di dropdown
+        // Pastikan nilai value di <option> sesuai dengan status di database
+        $('#edit_status').val(status);
     });
-}
-
-        // 2. Script untuk lempar data ke Modal menggunakan Event Delegation
-        // Menggunakan '#dataTableDetail' sebagai parent agar tombol tetap jalan meski tabel di-sortir
-        $('#dataTableDetail').on('click', '.btn-edit-absen', function() {
-            // Mengambil data menggunakan .attr('data-id') agar lebih pasti
-            const id = $(this).attr('data-id');
-            const status = $(this).attr('data-status');
-            const date = $(this).attr('data-date');
-
-            // Debugging di console browser (Tekan F12 untuk cek)
-            console.log("Koreksi Absen ID:", id);
-
-            // Masukkan data ke input dalam modal
-            $('#edit_id_absensi').val(id);
-            $('#edit_status').val(status);
-            $('#display_date').text(date);
-        });
-    });
+});
 </script>

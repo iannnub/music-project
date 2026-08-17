@@ -140,7 +140,7 @@ class PembayaranController {
         if ($student_id) {
             header("Location: index.php?page=pembayaran_detail&student_id=" . $student_id);
         } else {
-            header("Location: index.php?page=pembayaran_detail&student_id=" . $student_id);
+            header("Location: index.php?page=pembayaran");
         }
         exit();
     }

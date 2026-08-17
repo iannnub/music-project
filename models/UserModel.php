@@ -23,11 +23,12 @@ class UserModel {
 
     public function create($data) {
         try {
-            $query = "INSERT INTO users (username, name, email, password, role, phone) 
-                      VALUES (:username, :name, :email, :password, :role, :phone)";
+            $query = "INSERT INTO users (username, name, email, password, role, phone, parent_name) 
+                      VALUES (:username, :name, :email, :password, :role, :phone, :parent_name)";
             
             $stmt = $this->db->prepare($query);
             $email = !empty($data['email']) ? $data['email'] : null;
+            $parent_name = !empty($data['parent_name']) ? $data['parent_name'] : null;
 
             $result = $stmt->execute([
                 ':username' => $data['username'],
@@ -35,7 +36,8 @@ class UserModel {
                 ':email'    => $email,
                 ':password' => $data['password'],
                 ':role'     => $data['role'],
-                ':phone'    => $data['phone']
+                ':phone'    => $data['phone'],
+                ':parent_name' => $parent_name
             ]);
 
             return $result ? $this->db->lastInsertId() : false;
@@ -50,18 +52,19 @@ class UserModel {
     public function update($id, $data) {
         try {
             $email = !empty($data['email']) ? $data['email'] : null;
+            $parent_name = !empty($data['parent_name']) ? $data['parent_name'] : null;
 
             if (!empty($data['password'])) {
-                $query = "UPDATE users SET username=:u, name=:n, email=:e, phone=:p, password=:pass WHERE id=:id";
+                $query = "UPDATE users SET username=:u, name=:n, email=:e, phone=:p, parent_name=:pn, password=:pass WHERE id=:id";
                 $params = [
                     ':u' => $data['username'], ':n' => $data['name'], ':e' => $email, 
-                    ':p' => $data['phone'], ':pass' => $data['password'], ':id' => $id
+                    ':p' => $data['phone'], ':pn' => $parent_name, ':pass' => $data['password'], ':id' => $id
                 ];
             } else {
-                $query = "UPDATE users SET username=:u, name=:n, email=:e, phone=:p WHERE id=:id";
+                $query = "UPDATE users SET username=:u, name=:n, email=:e, phone=:p, parent_name=:pn WHERE id=:id";
                 $params = [
                     ':u' => $data['username'], ':n' => $data['name'], ':e' => $email, 
-                    ':p' => $data['phone'], ':id' => $id
+                    ':p' => $data['phone'], ':pn' => $parent_name, ':id' => $id
                 ];
             }
             $stmt = $this->db->prepare($query);
@@ -107,41 +110,46 @@ class UserModel {
 
     // UPDATE PROFILE SENDIRI
     public function updateProfile($id, $data) {
-        try {
-            $email = !empty($data['email']) ? $data['email'] : null;
-            $gdrive = !empty($data['gdrive_link']) ? $data['gdrive_link'] : null;
+    try {
+        $email = !empty($data['email']) ? $data['email'] : null;
+        // Ganti gdrive_link menjadi ig_link
+        $ig_link = !empty($data['ig_link']) ? $data['ig_link'] : null;
+        $parent_name = !empty($data['parent_name']) ? $data['parent_name'] : null;
 
-            $query = "UPDATE users SET 
-                        name = :n, 
-                        email = :e, 
-                        phone = :p, 
-                        photo_profile = :f, 
-                        gdrive_link = :g 
-                      WHERE id = :id";
+        $query = "UPDATE users SET 
+            name = :n, 
+            email = :e, 
+            phone = :p, 
+            parent_name = :pn,
+            photo_profile = :f, 
+            ig_link = :ig 
+            WHERE id = :id";
 
-            $params = [
-                ':n'  => $data['name'],
-                ':e'  => $email,
-                ':p'  => $data['phone'],
-                ':f'  => $data['photo'], 
-                ':g'  => $gdrive,       
-                ':id' => $id
-            ];
+        $params = [
+            ':n' => $data['name'],
+            ':e' => $email,
+            ':p' => $data['phone'],
+            ':pn' => $parent_name,
+            ':f' => $data['photo'], 
+            ':ig' => $ig_link, 
+            ':id' => $id
+        ];
 
-            $stmt = $this->db->prepare($query);
-            return $stmt->execute($params);
+        $stmt = $this->db->prepare($query);
+        return $stmt->execute($params);
 
-        } catch (PDOException $e) {
-            error_log("Update Profile Error: " . $e->getMessage());
-            return false;
-        }
+    } catch (PDOException $e) {
+        error_log("Update Profile Error: " . $e->getMessage());
+        return false;
     }
+}
 
     // Ambil jadwal spesifik yang dimiliki oleh seorang siswa
 public function getStudentSchedule($student_id) {
-        $query = "SELECT cm.*, c.name as class_name 
+        $query = "SELECT cm.*, c.name as class_name, u.name as teacher_name 
                   FROM class_members cm
                   JOIN classes c ON cm.class_id = c.id
+                  LEFT JOIN users u ON c.teacher_id = u.id
                   WHERE cm.student_id = :id";
         $stmt = $this->db->prepare($query);
         $stmt->execute([':id' => $student_id]);

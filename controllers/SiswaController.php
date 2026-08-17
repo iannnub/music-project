@@ -61,9 +61,9 @@ class SiswaController {
             $jam_sekarang = date('H:i:s');
 
             foreach ($jadwal_saya as $j) {
-                if ($j['day'] == $hari_indo && $j['start_time'] > $jam_sekarang) {
+                if ($j['day'] == $hari_indo && $j['end_time'] >= $jam_sekarang) {
                     $data['next_class'] = $j;
-                    break; // Ambil yang paling dekat jamnya
+                    break; // Ambil yang paling dekat jamnya (yang belum selesai)
                 }
             }
 
@@ -99,12 +99,6 @@ class SiswaController {
             $data['tugas_pending'] = $tugas_pending;
 
             $this->renderView('siswa/dashboard', $data);
-
-            require_once '../views/layouts/header.php';
-            require_once '../views/layouts/sidebar.php';
-            require_once '../views/layouts/topbar.php';
-            require_once '../views/siswa/dashboard.php';
-            require_once '../views/layouts/footer.php';
         }
     }
     public function store() {
@@ -140,7 +134,8 @@ class SiswaController {
             'email'    => $_POST['email'],
             'password' => password_hash($_POST['password'], PASSWORD_DEFAULT),
             'role'     => 'siswa',
-            'phone'    => $_POST['phone']
+            'phone'    => $_POST['phone'],
+            'parent_name' => $_POST['parent_name'] ?? null
         ];
 
         // create() harus mengembalikan lastInsertId
@@ -256,7 +251,8 @@ public function delete_schedule_item() {
             'username' => $_POST['username'],
             'name'     => $_POST['name'],
             'email'    => $_POST['email'],
-            'phone'    => $_POST['phone']
+            'phone'    => $_POST['phone'],
+            'parent_name' => $_POST['parent_name'] ?? null
         ];
         
         if (!empty($_POST['password'])) {
@@ -462,7 +458,7 @@ public function update_jadwal() {
                     assignments.*, 
                     classes.name as class_name, 
                     teacher.name as teacher_name,
-                    teacher.gdrive_link as teacher_gdrive, -- AMBIL LINK MASTER GURU
+                    teacher.ig_link as teacher_ig, -- AMBIL LINK MASTER GURU
                     submissions.status as submission_status, -- STATUS BARU (PENDING/VERIFIED)
                     submissions.grade, 
                     submissions.teacher_feedback, 

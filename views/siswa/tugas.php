@@ -70,11 +70,12 @@
                                                 <i class="fas fa-check-circle text-success fa-3x"></i>
                                             </div>
                                             <h6 class="font-weight-bold text-success mb-1">Tugas Terverifikasi!</h6>
-                                            <p class="text-muted small mb-3">Kamu bisa melihat kembali rekaman/file latihanmu di folder guru.</p>
+                                            <p class="text-muted small mb-3">Kamu bisa melihat kembali rekaman/postingan latihanmu di Instagram guru.</p>
                                             
-                                            <?php if(!empty($t['teacher_gdrive'])): ?>
-                                                <a href="<?= $t['teacher_gdrive']; ?>" target="_blank" class="btn btn-outline-success btn-block py-2 rounded-pill font-weight-bold shadow-sm mb-2">
-                                                    <i class="fab fa-google-drive mr-2"></i> Lihat File di GDrive
+                                            <!-- Link IG Guru -->
+                                            <?php if(!empty($t['teacher_ig'])): ?>
+                                                <a href="<?= $t['teacher_ig']; ?>" target="_blank" class="btn btn-outline-danger btn-block py-2 rounded-pill font-weight-bold shadow-sm mb-2">
+                                                    <i class="fab fa-instagram mr-2"></i> Lihat File di Instagram
                                                 </a>
                                             <?php endif; ?>
 
@@ -87,18 +88,18 @@
 
                                     <?php else: ?>
                                         <div class="mb-3">
-                                            <?php if(!empty($t['teacher_gdrive'])): ?>
-                                                <a href="<?= $t['teacher_gdrive']; ?>" target="_blank" class="btn btn-outline-primary btn-block py-2 rounded-pill font-weight-bold shadow-sm mb-3">
-                                                    <i class="fab fa-google-drive mr-2"></i> 1. Buka Folder GDrive Guru
+                                            <?php if(!empty($t['teacher_ig'])): ?>
+                                                <a href="<?= $t['teacher_ig']; ?>" target="_blank" class="btn btn-outline-danger btn-block py-2 rounded-pill font-weight-bold shadow-sm mb-3">
+                                                    <i class="fab fa-instagram mr-2"></i> 1. Buka Instagram Guru
                                                 </a>
                                             <?php else: ?>
                                                 <div class="alert alert-warning small border-0 py-2">
-                                                    <i class="fas fa-exclamation-circle mr-1"></i> Link GDrive belum tersedia.
+                                                    <i class="fas fa-exclamation-circle mr-1"></i> Link Instagram guru belum tersedia.
                                                 </div>
                                             <?php endif; ?>
 
                                             <button class="btn <?= ($status == 'Menunggu Verifikasi') ? 'btn-warning text-white' : ($is_late ? 'btn-danger' : 'btn-primary'); ?> btn-block py-3 shadow font-weight-bold rounded-pill" 
-                                                    data-toggle="modal" data-target="#modalKonfirmasi<?= $t['id']; ?>">
+                                                data-toggle="modal" data-target="#modalKonfirmasi<?= $t['id']; ?>">
                                                 <i class="fas fa-check-circle mr-2"></i> 
                                                 <?= ($status == 'Menunggu Verifikasi') ? 'Update Laporan' : '2. Konfirmasi Sudah Upload'; ?>
                                             </button>
@@ -110,27 +111,36 @@
                     </div>
                 </div>
 
-                <div class="modal fade" id="modalKonfirmasi<?= $t['id']; ?>" tabindex="-1" role="dialog" aria-hidden="true">
+                <<div class="modal fade" id="modalKonfirmasi<?= $t['id']; ?>" tabindex="-1" role="dialog" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered" role="document">
                         <div class="modal-content border-0 shadow-lg">
                             <div class="modal-header bg-dark text-white border-0">
-                                <h5 class="modal-title font-weight-bold"><i class="fas fa-clipboard-check mr-2 text-warning"></i> Konfirmasi Setoran</h5>
+                                <h5 class="modal-title font-weight-bold">
+                                    <i class="fas fa-clipboard-check mr-2 text-warning"></i> Konfirmasi Setoran
+                                </h5>
                                 <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
                             </div>
                             <form action="index.php?page=siswa_tugas&action=upload" method="POST">
                                 <div class="modal-body p-4 text-dark text-left">
                                     <input type="hidden" name="assignment_id" value="<?= $t['id']; ?>">
-                                    <div class="alert alert-info border-0 small mb-4">
-                                        <i class="fas fa-info-circle mr-1"></i> Pastikan file tugas sudah ada di Google Drive Guru sebelum konfirmasi.
-                                    </div>
+                                    <?= CsrfHelper::formField(); ?>
+
+                                    <!-- UPDATE INSTRUKSI DI SINI -->
+                                    <p class="small text-muted mb-4">
+                                        Pastikan kamu sudah mengunggah video latihan ke <strong>Instagram</strong> dan men-tag akun guru pengampu sebelum melakukan konfirmasi di sini agar mudah diverifikasi.
+                                    </p>
+                                    
                                     <div class="form-group">
-                                        <label class="font-weight-bold small text-uppercase text-primary">Deskripsi</label>
-                                        <textarea class="form-control bg-light border-0" name="notes" rows="4" placeholder="Tulisa catatan disini Jika ada"><?= $t['notes'] ?? ''; ?></textarea>
+                                        <label class="small font-weight-bold">CATATAN / LINK POSTINGAN (OPSIONAL)</label>
+                                        <textarea name="notes" class="form-control bg-light border-0" rows="3" 
+                                                placeholder="Contoh: Sudah saya upload di feed IG saya kak.."></textarea>
                                     </div>
                                 </div>
-                                <div class="modal-footer bg-light border-0">
-                                    <button type="button" class="btn btn-link text-muted font-weight-bold" data-dismiss="modal">Batal</button>
-                                    <button type="submit" class="btn btn-primary px-5 shadow rounded-pill font-weight-bold">KIRIM</button>
+                                <div class="modal-footer border-0 p-3">
+                                    <button type="button" class="btn btn-light rounded-pill px-4" data-dismiss="modal">Batal</button>
+                                    <button type="submit" class="btn btn-primary rounded-pill px-4 font-weight-bold shadow-sm">
+                                        Kirim Laporan
+                                    </button>
                                 </div>
                             </form>
                         </div>

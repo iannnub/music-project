@@ -11,12 +11,20 @@ class DashboardController {
     public function index() {
         // Keamanan: Pastikan user sudah login (Cek Integritas Sesi)
         if (!isset($_SESSION['user'])) {
-            header("Location: index.php?page=login");
+            header("Location: index.php?page=auth");
             exit();
         }
 
         $user = $_SESSION['user'];
         $role = $user['role'];
+
+        if ($role == 'guru') {
+            header("Location: index.php?page=dashboard_guru");
+            exit();
+        } elseif ($role == 'siswa') {
+            header("Location: index.php?page=dashboard_siswa");
+            exit();
+        }
 
         // FASE 4: CROSS-ROLE ALIGNMENT (Standardisasi Layout & Timezone)
         require_once '../views/layouts/header.php';

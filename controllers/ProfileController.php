@@ -33,11 +33,12 @@ class ProfileController {
 
             // --- PERBAIKAN FASE 2: TAMBAHKAN gdrive_link ---
             $data = [
-                'name'        => $_POST['name'],
-                'email'       => $_POST['email'],
-                'phone'       => $_POST['phone'],
-                'photo'       => $userOld['photo_profile'], // Default pake foto lama
-                'gdrive_link' => $_POST['gdrive_link'] ?? $userOld['gdrive_link'] 
+                'name' => $_POST['name'],
+                'email' => $_POST['email'],
+                'phone' => $_POST['phone'],
+                'parent_name' => $_POST['parent_name'] ?? null,
+                'photo' => $userOld['photo_profile'],
+                'ig_link' => $_POST['ig_link'] ?? $userOld['ig_link'] 
             ];
 
             // --- LOGIKA PROSES FOTO BASE64 (Sama seperti sebelumnya) ---
@@ -69,8 +70,8 @@ class ProfileController {
 
                 $_SESSION['flash'] = [
                     'status' => 'success',
-                    'title'  => 'Update Berhasil!',
-                    'msg'    => 'Profil dan Link GDrive Anda telah diperbarui.'
+                    'title' => 'Update Berhasil!',
+                    'msg' => 'Profil Anda berhasil diperbarui.'
                 ];
             } else {
                 $_SESSION['flash'] = [

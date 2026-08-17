@@ -45,33 +45,40 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="small font-weight-bold text-dark text-uppercase">Email</label>
-                                    <input type="email" class="form-control bg-light border-0 shadow-sm" name="email" value="<?= htmlspecialchars($user['email']); ?>" required>
+                                    <input type="email" class="form-control bg-light border-0 shadow-sm" name="email" value="<?= htmlspecialchars($user['email'] ?? ''); ?>">
                                 </div>
                             </div>
                         </div>
 
+                        <?php if ($user['role'] == 'siswa'): ?>
                         <div class="form-group">
-                            <label class="small font-weight-bold text-dark text-uppercase">Nomor WhatsApp</label>
+                            <label class="small font-weight-bold text-dark text-uppercase">Nama Orang Tua <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control bg-light border-0 shadow-sm" name="parent_name" value="<?= htmlspecialchars($user['parent_name'] ?? ''); ?>" required>
+                        </div>
+                        <?php endif; ?>
+
+                        <div class="form-group">
+                            <label class="small font-weight-bold text-dark text-uppercase">Nomor WhatsApp <?= ($user['role'] == 'siswa') ? '<span class="text-danger">*</span>' : ''; ?></label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text bg-light border-0"><i class="fab fa-whatsapp text-success"></i></span>
                                 </div>
-                                <input type="text" class="form-control bg-light border-0 shadow-sm" name="phone" value="<?= htmlspecialchars($user['phone']); ?>">
+                                <input type="text" class="form-control bg-light border-0 shadow-sm" name="phone" value="<?= htmlspecialchars($user['phone'] ?? ''); ?>" <?= ($user['role'] == 'siswa') ? 'required' : ''; ?>>
                             </div>
                         </div>
 
                         <?php if ($user['role'] == 'guru'): ?>
                         <div class="form-group mt-4 p-3 bg-primary-soft rounded border-left-primary shadow-xs">
                             <label class="small font-weight-bold text-primary text-uppercase">
-                                <i class="fab fa-google-drive mr-1"></i>Link GDrive
+                                <i class="fab fa-instagram mr-1"></i>Link Instagram
                             </label>
                             <div class="input-group shadow-sm rounded overflow-hidden">
-                                <input type="url" name="gdrive_link" class="form-control border-0 bg-white" 
-                                       placeholder="https://drive.google.com/drive/folders/..." 
-                                       value="<?= htmlspecialchars($user['gdrive_link'] ?? ''); ?>">
+                                <input type="url" name="ig_link" class="form-control border-0 bg-white" 
+                                    placeholder="Masukkan Link Instagram" 
+                                    value="<?= htmlspecialchars($user['ig_link'] ?? ''); ?>">
                             </div>
                             <small class="text-muted mt-2 d-block italic">
-                                <i class="fas fa-info-circle mr-1 text-primary"></i> Link ini akan otomatis muncul di semua tugas yang Anda buat sebagai wadah pengumpulan murid.
+                                <i class="fas fa-info-circle mr-1 text-primary"></i> Link ini akan digunakan murid sebagai akses pengumpulan tugas.
                             </small>
                         </div>
                         <?php endif; ?>

@@ -24,40 +24,45 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $no = 1; foreach ($siswa as $s): ?>
-                        <tr>
-                            <td><?= $no++; ?></td>
-                            <td>
-                                <span class="font-weight-bold text-primary"><?= htmlspecialchars($s['name']); ?></span>
-                            </td>
-                            <td><?= htmlspecialchars($s['username']); ?></td>
-                            <td><?= htmlspecialchars($s['email'] ?? '-'); ?></td>
-                            <td><?= htmlspecialchars($s['phone']); ?></td>
-                            <td class="text-center">
-                                <a href="index.php?page=siswa_manage_jadwal&id=<?= $s['id']; ?>" 
-                                   class="btn btn-info btn-sm btn-circle" 
-                                   title="Atur Kelas & Jadwal">
-                                    <i class="fas fa-calendar-alt"></i>
-                                </a>
+                        <?php $no = 1;
+                        foreach ($siswa as $s): ?>
+                            <tr>
+                                <td><?= $no++; ?></td>
+                                <td>
+                                    <span class="font-weight-bold text-primary"><?= htmlspecialchars($s['name']); ?></span>
+                                    <?php if (!empty($s['parent_name'])): ?>
+                                        <br><small class="text-muted"><i class="fas fa-user-friends mr-1"></i> Ortu: <?= htmlspecialchars($s['parent_name']); ?></small>
+                                    <?php endif; ?>
+                                </td>
+                                <td><?= htmlspecialchars($s['username']); ?></td>
+                                <td><?= htmlspecialchars($s['email'] ?? '-'); ?></td>
+                                <td><?= htmlspecialchars($s['phone']); ?></td>
+                                <td class="text-center">
+                                    <a href="index.php?page=siswa_manage_jadwal&id=<?= $s['id']; ?>"
+                                        class="btn btn-info btn-sm btn-circle"
+                                        title="Atur Kelas & Jadwal">
+                                        <i class="fas fa-calendar-alt"></i>
+                                    </a>
 
-                                <button class="btn btn-warning btn-sm btn-circle btn-edit" 
-                                   title="Edit Profil"
-                                   data-id="<?= $s['id']; ?>"
-                                   data-name="<?= htmlspecialchars($s['name']); ?>"
-                                   data-username="<?= htmlspecialchars($s['username']); ?>"
-                                   data-email="<?= htmlspecialchars($s['email']); ?>"
-                                   data-phone="<?= htmlspecialchars($s['phone']); ?>"
-                                   data-toggle="modal" data-target="#modalEditSiswa">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                
-                                <a href="index.php?page=siswa&action=delete&id=<?= $s['id']; ?>" 
-                                    class="btn btn-danger btn-sm btn-circle btn-delete" 
-                                    title="Hapus" onclick="return confirm('Yakin ingin menghapus siswa ini?')">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
+                                    <button class="btn btn-warning btn-sm btn-circle btn-edit"
+                                        title="Edit Profil"
+                                        data-id="<?= $s['id']; ?>"
+                                        data-name="<?= htmlspecialchars($s['name']); ?>"
+                                        data-username="<?= htmlspecialchars($s['username']); ?>"
+                                        data-email="<?= htmlspecialchars($s['email']); ?>"
+                                        data-phone="<?= htmlspecialchars($s['phone']); ?>"
+                                        data-parent="<?= htmlspecialchars($s['parent_name'] ?? ''); ?>"
+                                        data-toggle="modal" data-target="#modalEditSiswa">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+
+                                    <a href="index.php?page=siswa&action=delete&id=<?= $s['id']; ?>"
+                                        class="btn btn-danger btn-sm btn-circle btn-delete"
+                                        title="Hapus" onclick="return confirm('Yakin ingin menghapus siswa ini?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
@@ -67,7 +72,7 @@
 </div>
 
 <div class="modal fade" id="modalTambahSiswa" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document"> 
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title font-weight-bold"><i class="fas fa-user-plus mr-2"></i> Tambah Siswa & Plotting Jadwal</h5>
@@ -93,6 +98,10 @@
                             <div class="form-group">
                                 <label class="small font-weight-bold">Nomor WhatsApp <span class="text-danger"></span></label>
                                 <input type="text" class="form-control" name="phone" placeholder="Boleh Kosong">
+                            </div>
+                            <div class="form-group">
+                                <label class="small font-weight-bold">Nama Orang Tua</label>
+                                <input type="text" class="form-control" name="parent_name" placeholder="Boleh Kosong">
                             </div>
                             <div class="form-group">
                                 <label class="small font-weight-bold">Email</label>
@@ -178,6 +187,10 @@
                         <input type="text" class="form-control" name="phone" id="edit_phone">
                     </div>
                     <div class="form-group">
+                        <label class="small font-weight-bold">Nama Orang Tua</label>
+                        <input type="text" class="form-control" name="parent_name" id="edit_parent_name">
+                    </div>
+                    <div class="form-group">
                         <label class="small font-weight-bold">Email</label>
                         <input type="email" class="form-control" name="email" id="edit_email">
                     </div>
@@ -252,6 +265,7 @@
             $('#edit_username').val($(this).data('username'));
             $('#edit_email').val($(this).data('email'));
             $('#edit_phone').val($(this).data('phone'));
+            $('#edit_parent_name').val($(this).data('parent'));
         });
     });
 </script>

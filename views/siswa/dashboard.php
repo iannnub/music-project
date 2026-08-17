@@ -158,7 +158,12 @@
                                     </td>
                                     <td class="text-center align-middle">
                                         <?php if (!empty($j['status_kehadiran'])): ?>
-                                            <span class="badge badge-success px-3 py-2 rounded-pill shadow-sm"><i class="fas fa-check mr-1"></i> Hadir</span>
+                                            <?php 
+                                            $st = $j['status_kehadiran'];
+                                            $stColor = ($st == 'Hadir') ? 'success' : (($st == 'Ditolak') ? 'danger' : (($st == 'Menunggu') ? 'warning' : 'info'));
+                                            $icon = ($st == 'Hadir') ? 'fa-check' : (($st == 'Ditolak') ? 'fa-times' : (($st == 'Menunggu') ? 'fa-clock' : 'fa-info-circle'));
+                                            ?>
+                                            <span class="badge badge-<?= $stColor ?> px-3 py-2 rounded-pill shadow-sm"><i class="fas <?= $icon ?> mr-1"></i> <?= $st ?></span>
                                         <?php elseif ($is_today && $jam_ts >= $waktu_buka && $jam_ts <= $waktu_selesai): ?>
                                             <button class="btn btn-success btn-sm rounded-pill px-3 shadow-sm btn-absen" 
                                                     data-id="<?= $j['schedule_id']; ?>" 
