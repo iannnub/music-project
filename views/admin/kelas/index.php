@@ -26,51 +26,52 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $no = 1; foreach ($kelas as $k): ?>
-                        <tr>
-                            <td><?= $no++; ?></td>
-                            <td>
-                                <span class="font-weight-bold text-primary"><?= htmlspecialchars($k['name']); ?></span>
-                                <br>
-                                <small class="text-muted"><?= htmlspecialchars($k['description']); ?></small>
-                            </td>
-                            <td>
-                                <?php if($k['type'] == 'private'): ?>
-                                    <span class="badge badge-success">Private (Solo)</span>
-                                <?php else: ?>
-                                    <span class="badge badge-warning">Group (Band)</span>
-                                <?php endif; ?>
-                            </td>
-                            <td><?= htmlspecialchars($k['instrument']); ?></td>
-                            <td>
-                                <i class="fas fa-chalkboard-teacher text-gray-400"></i>
-                                <?= htmlspecialchars($k['guru_name']); ?>
-                            </td>
-                            <td>
-                                <a href="index.php?page=kelas&action=detail&id=<?= $k['id']; ?>" class="btn btn-info btn-sm btn-circle" title="Kelola Anggota">
-                                    <i class="fas fa-users"></i>
-                                </a>
+                        <?php $no = 1;
+                        foreach ($kelas as $k): ?>
+                            <tr>
+                                <td><?= $no++; ?></td>
+                                <td>
+                                    <span class="font-weight-bold text-primary"><?= htmlspecialchars($k['name']); ?></span>
+                                    <br>
+                                    <small class="text-muted"><?= htmlspecialchars($k['description']); ?></small>
+                                </td>
+                                <td>
+                                    <?php if ($k['type'] == 'private'): ?>
+                                        <span class="badge badge-success">Private (Solo)</span>
+                                    <?php else: ?>
+                                        <span class="badge badge-warning">Group (Band)</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td><?= htmlspecialchars($k['instrument']); ?></td>
+                                <td>
+                                    <i class="fas fa-chalkboard-teacher text-gray-400"></i>
+                                    <?= htmlspecialchars($k['guru_name']); ?>
+                                </td>
+                                <td>
+                                    <a href="index.php?page=kelas&action=detail&id=<?= $k['id']; ?>" class="btn btn-info btn-sm btn-circle" title="Kelola Anggota">
+                                        <i class="fas fa-users"></i>
+                                    </a>
 
-                                <button class="btn btn-warning btn-sm btn-circle btn-edit" 
-                                   title="Edit Kelas"
-                                   data-id="<?= $k['id']; ?>"
-                                   data-name="<?= htmlspecialchars($k['name']); ?>"
-                                   data-type="<?= $k['type']; ?>"
-                                   data-instrument="<?= $k['instrument']; ?>"
-                                   data-teacher="<?= $k['teacher_id']; ?>"
-                                   data-desc="<?= htmlspecialchars($k['description']); ?>"
-                                   data-toggle="modal" data-target="#modalEditKelas">
-                                    <i class="fas fa-edit"></i>
-                                </button>
+                                    <button class="btn btn-warning btn-sm btn-circle btn-edit"
+                                        title="Edit Kelas"
+                                        data-id="<?= $k['id']; ?>"
+                                        data-name="<?= htmlspecialchars($k['name']); ?>"
+                                        data-type="<?= $k['type']; ?>"
+                                        data-instrument="<?= $k['instrument']; ?>"
+                                        data-teacher="<?= $k['teacher_id']; ?>"
+                                        data-desc="<?= htmlspecialchars($k['description']); ?>"
+                                        data-toggle="modal" data-target="#modalEditKelas">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
 
-                                    <a href="index.php?page=kelas&action=delete&id=<?= $k['id']; ?>" 
-                                        class="btn btn-danger btn-sm btn-circle btn-delete" 
+                                    <a href="index.php?page=kelas&action=delete&id=<?= $k['id']; ?>"
+                                        class="btn btn-danger btn-sm btn-circle btn-delete"
                                         title="Hapus"
                                         onclick="return confirm('Yakin ingin menghapus kelas ini? Semua jadwal, tugas, dan data terkait akan ikut terhapus!');">
-                                         <i class="fas fa-trash"></i>
+                                        <i class="fas fa-trash"></i>
                                     </a>
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
@@ -90,7 +91,7 @@
             </div>
             <form action="index.php?page=kelas&action=store" method="POST">
                 <div class="modal-body">
-                    
+
                     <div class="form-group">
                         <label>Nama Kelas / Band <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" name="name" placeholder="Masukkan Nama Kelas" required>
@@ -161,7 +162,7 @@
             <form action="index.php?page=kelas&action=update" method="POST">
                 <div class="modal-body">
                     <input type="hidden" name="id" id="edit_id">
-                    
+
                     <div class="form-group">
                         <label>Nama Kelas / Band</label>
                         <input type="text" class="form-control" name="name" id="edit_name" required>
@@ -219,27 +220,27 @@
 <script src="assets/sb-admin-2/vendor/datatables/jquery.dataTables.min.js"></script>
 <script src="assets/sb-admin-2/vendor/datatables/dataTables.bootstrap4.min.js"></script>
 <script>
-$(document).ready(function() {
-    
-    // 1. Inisialisasi DataTables
-    $('#dataTable').DataTable();
+    $(document).ready(function() {
 
-    // 2. Logic Tombol Edit (Pakai Delegate Event biar aman)
-    $('body').on('click', '.btn-edit', function() {
-        const id = $(this).data('id');
-        const name = $(this).data('name');
-        const type = $(this).data('type');
-        const instrument = $(this).data('instrument');
-        const teacher = $(this).data('teacher');
-        const desc = $(this).data('desc');
+        // 1. Inisialisasi DataTables
+        $('#dataTable').DataTable();
 
-        $('#edit_id').val(id);
-        $('#edit_name').val(name);
-        $('#edit_type').val(type);
-        $('#edit_instrument').val(instrument);
-        $('#edit_teacher').val(teacher);
-        $('#edit_desc').val(desc);
+        // 2. Logic Tombol Edit (Pakai Delegate Event biar aman)
+        $('body').on('click', '.btn-edit', function() {
+            const id = $(this).data('id');
+            const name = $(this).data('name');
+            const type = $(this).data('type');
+            const instrument = $(this).data('instrument');
+            const teacher = $(this).data('teacher');
+            const desc = $(this).data('desc');
+
+            $('#edit_id').val(id);
+            $('#edit_name').val(name);
+            $('#edit_type').val(type);
+            $('#edit_instrument').val(instrument);
+            $('#edit_teacher').val(teacher);
+            $('#edit_desc').val(desc);
+        });
+
     });
-
-});
 </script>

@@ -176,6 +176,8 @@ switch ($page) {
             $controller->add_member();
         } elseif ($action == 'delete_member') {
             $controller->delete_member();
+        } elseif ($action == 'delete') {
+            $controller->delete();
         } else {
             $controller->index();
         }
