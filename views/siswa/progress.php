@@ -28,7 +28,7 @@
                                 <div class="small font-weight-bold text-primary">
                                     <i class="far fa-calendar-alt mr-1"></i> <?= date('d M Y', strtotime($p['date'])); ?>
                                 </div>
-                                <span class="badge badge-primary px-3 py-1 rounded-pill small"><?= $p['class_name']; ?></span>
+                                <span class="badge badge-primary px-3 py-1 rounded-pill small"><?= htmlspecialchars($p['class_name']); ?></span>
                             </div>
 
                             <div class="p-4">
@@ -42,7 +42,7 @@
 
                                 <div class="text-right">
                                     <small class="text-muted">
-                                        <i class="fas fa-user-tie mr-1"></i> Guru: <strong><?= $p['teacher_name']; ?></strong>
+                                        <i class="fas fa-user-tie mr-1"></i> Guru: <strong><?= htmlspecialchars($p['teacher_name']); ?></strong>
                                     </small>
                                 </div>
                             </div>

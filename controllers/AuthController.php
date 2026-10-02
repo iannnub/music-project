@@ -23,8 +23,12 @@ class AuthController {
             $user = $stmt->fetch();
 
             if ($user && password_verify($password, $user['password'])) {
+                // Regenerate session ID to prevent Session Fixation
+                session_regenerate_id(true);
+
                 // Simpan data user ke Session
                 $_SESSION['user'] = $user;
+                $_SESSION['LAST_ACTIVITY'] = time();
 
                 // --- LOGIC REDIRECT SESUAI ROLE ---
                 switch ($user['role']) {
@@ -32,11 +36,9 @@ class AuthController {
                         header("Location: index.php?page=dashboard");
                         break;
                     case 'guru':
-                        // Nanti kita buat di Fase 7
                         header("Location: index.php?page=dashboard_guru"); 
                         break;
                     case 'siswa':
-                        // INI TARGET KITA SEKARANG
                         header("Location: index.php?page=dashboard_siswa");
                         break;
                     default:
@@ -55,8 +57,17 @@ class AuthController {
     }
 
     public function logout() {
+        $_SESSION = [];
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000,
+                $params["path"], $params["domain"],
+                $params["secure"], $params["httponly"]
+            );
+        }
         session_destroy();
         header("Location: index.php?page=auth");
+        exit();
     }
 }
 ?>

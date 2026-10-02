@@ -272,7 +272,7 @@ class AbsensiModel
             $penalty = floor($diffInMinutes / 10) * 5000;
         }
 
-        $totalSalary = $baseSalary - $penalty;
+        $totalSalary = max(0, $baseSalary - $penalty);
 
         // 5. SIMPAN KE DATABASE
         $query = "INSERT INTO teacher_attendances 

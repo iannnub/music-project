@@ -54,7 +54,7 @@ class ProfileController {
                 if (file_put_contents($targetPath, $imageData)) {
                     $data['photo'] = $fileName;
 
-                    if (!empty($userOld['photo_profile']) && $userOld['photo_profile'] != 'default.svg') {
+                    if (!empty($userOld['photo_profile']) && !in_array($userOld['photo_profile'], ['default.png', 'default.svg'])) {
                         $oldPath = "../public/uploads/profil/" . $userOld['photo_profile'];
                         if (file_exists($oldPath)) {
                             unlink($oldPath);

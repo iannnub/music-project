@@ -68,7 +68,9 @@
                                     
                                     // Pesan WA Otomatis
                                     $pesanWA = "Halo *" . htmlspecialchars($student['name']) . "*, tagihan SPP periode " . date('F Y', mktime(0, 0, 0, $h['month'], 10, $h['year'])) . " sebesar *Rp " . number_format($h['amount'], 0, ',', '.') . "* status: *" . $h['status'] . "*. Harap segera diselesaikan. Terima kasih!";
-                                    $linkWA = "https://api.whatsapp.com/send?phone=" . preg_replace('/^0/', '62', $student['phone'] ?? '') . "&text=" . urlencode($pesanWA);
+                                    $phoneWA = preg_replace('/[^0-9]/', '', $student['phone'] ?? '');
+                                    $phoneWA = preg_replace('/^0/', '62', $phoneWA);
+                                    $linkWA = "https://wa.me/" . $phoneWA . "?text=" . urlencode($pesanWA);
                                 ?>
                                 <tr>
                                     <td class="align-middle" data-order="<?= sprintf('%04d-%02d', $h['year'], $h['month']); ?>">
@@ -87,6 +89,11 @@
                                     </td>
                                     <td class="text-center align-middle">
                                         <div class="btn-group shadow-sm rounded-pill border overflow-hidden">
+                                            <?php if(!empty($student['phone']) && $h['status'] != 'Lunas'): ?>
+                                                <a href="<?= $linkWA; ?>" target="_blank" class="btn btn-white btn-sm px-2 text-success" title="Kirim Reminder via WhatsApp">
+                                                    <i class="fab fa-whatsapp"></i>
+                                                </a>
+                                            <?php endif; ?>
                                             <a href="index.php?page=pembayaran&action=cetak&id=<?= $h['id']; ?>" target="_blank" class="btn btn-white btn-sm px-2" title="Cetak Kwitansi">
                                                 <i class="fas fa-print text-primary"></i>
                                             </a>

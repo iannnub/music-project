@@ -43,6 +43,26 @@ class PembayaranController {
             $rawAmount = $_POST['amount'];
             $cleanAmount = preg_replace('/[^0-9]/', '', $rawAmount);
 
+            if (empty($cleanAmount) || (int)$cleanAmount <= 0) {
+                $_SESSION['flash'] = [
+                    'status' => 'warning',
+                    'title'  => 'Nominal Tidak Valid',
+                    'msg'    => 'Nominal pembayaran harus lebih dari Rp 0.'
+                ];
+                header("Location: index.php?page=pembayaran_detail&student_id=" . $_POST['student_id']);
+                exit();
+            }
+
+            if ($this->pembayaranModel->checkExisting($_POST['student_id'], $_POST['month'], $_POST['year'])) {
+                $_SESSION['flash'] = [
+                    'status' => 'warning',
+                    'title'  => 'Tagihan Sudah Ada',
+                    'msg'    => 'Tagihan untuk periode bulan dan tahun ini sudah tercatat sebelumnya.'
+                ];
+                header("Location: index.php?page=pembayaran_detail&student_id=" . $_POST['student_id']);
+                exit();
+            }
+
             $data = [
                 'student_id' => $_POST['student_id'],
                 'admin_id'   => $_SESSION['user']['id'],
@@ -150,6 +170,9 @@ class PembayaranController {
     public function cetak() {
         if (isset($_GET['id'])) {
             $data = $this->pembayaranModel->getById($_GET['id']);
+            if (!$data) {
+                die("Data transaksi pembayaran tidak ditemukan.");
+            }
             require_once '../views/admin/pembayaran/cetak.php';
         }
     }

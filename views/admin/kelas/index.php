@@ -128,7 +128,7 @@
                             <option value="">Pilih Guru</option>
                             <?php foreach ($dataGuru as $g): ?>
                                 <option value="<?= $g['id']; ?>">
-                                    <?= $g['name']; ?> (<?= $g['instrument'] ?? 'Umum'; ?>)
+                                    <?= htmlspecialchars($g['name']); ?> (<?= htmlspecialchars($g['instrument'] ?? 'Umum'); ?>)
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -197,7 +197,7 @@
                         <label>Guru Pengajar</label>
                         <select class="form-control" name="teacher_id" id="edit_teacher" required>
                             <?php foreach ($dataGuru as $g): ?>
-                                <option value="<?= $g['id']; ?>"><?= $g['name']; ?></option>
+                                <option value="<?= $g['id']; ?>"><?= htmlspecialchars($g['name']); ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>

@@ -27,17 +27,29 @@
                         <?php else: ?>
                             <input type="hidden" name="teacher_id" value="<?= $teacher_id; ?>">
                         <?php endif; ?>
-                        <div class="col-md-3 mb-2">
+                        <div class="col-md-2 mb-2">
                             <label class="small font-weight-bold text-muted text-uppercase">Tanggal (Opsional)</label>
                             <input type="date" name="tanggal" class="form-control rounded-pill border-0 shadow-sm" value="<?= htmlspecialchars($tanggal); ?>">
                         </div>
-                        <div class="col-md-3 mb-2">
-                            <label class="small font-weight-bold text-muted text-uppercase">Bulan (Jika Tanggal Kosong)</label>
+                        <div class="col-md-2 mb-2">
+                            <label class="small font-weight-bold text-muted text-uppercase">Bulan</label>
                             <select name="bulan" class="form-control rounded-pill border-0 shadow-sm">
                                 <?php for($m=1; $m<=12; $m++){ 
                                     $sel = ($bulan == $m) ? 'selected' : '';
                                     echo "<option value='$m' $sel>".date("F", mktime(0,0,0,$m,10))."</option>";
                                 } ?>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="small font-weight-bold text-muted text-uppercase">Tahun</label>
+                            <select name="tahun" class="form-control rounded-pill border-0 shadow-sm">
+                                <?php 
+                                $currentYear = (int)date('Y');
+                                for($y=$currentYear; $y>=$currentYear-3; $y--): ?>
+                                    <option value="<?= $y ?>" <?= ($tahun == $y) ? 'selected' : '' ?>>
+                                        <?= $y ?>
+                                    </option>
+                                <?php endfor; ?>
                             </select>
                         </div>
                         <div class="col-md-3 mb-2">

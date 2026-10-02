@@ -52,7 +52,7 @@
                                     <div class="d-flex flex-wrap align-items-center">
                                         <div class="mr-4 mb-2">
                                             <small class="text-muted d-block font-weight-bold" style="font-size: 10px;">GURU PENGAMPU</small>
-                                            <span class="text-dark font-weight-bold"><i class="fas fa-user-tie text-primary mr-1"></i> <?= $t['teacher_name']; ?></span>
+                                            <span class="text-dark font-weight-bold"><i class="fas fa-user-tie text-primary mr-1"></i> <?= htmlspecialchars($t['teacher_name']); ?></span>
                                         </div>
                                         <div class="mb-2">
                                             <small class="text-muted d-block font-weight-bold" style="font-size: 10px;">BATAS WAKTU</small>
@@ -74,7 +74,7 @@
                                             
                                             <!-- Link IG Guru -->
                                             <?php if(!empty($t['teacher_ig'])): ?>
-                                                <a href="<?= $t['teacher_ig']; ?>" target="_blank" class="btn btn-outline-danger btn-block py-2 rounded-pill font-weight-bold shadow-sm mb-2">
+                                                <a href="<?= htmlspecialchars($t['teacher_ig']); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-outline-danger btn-block py-2 rounded-pill font-weight-bold shadow-sm mb-2">
                                                     <i class="fab fa-instagram mr-2"></i> Lihat File di Instagram
                                                 </a>
                                             <?php endif; ?>
@@ -89,7 +89,7 @@
                                     <?php else: ?>
                                         <div class="mb-3">
                                             <?php if(!empty($t['teacher_ig'])): ?>
-                                                <a href="<?= $t['teacher_ig']; ?>" target="_blank" class="btn btn-outline-danger btn-block py-2 rounded-pill font-weight-bold shadow-sm mb-3">
+                                                <a href="<?= htmlspecialchars($t['teacher_ig']); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-outline-danger btn-block py-2 rounded-pill font-weight-bold shadow-sm mb-3">
                                                     <i class="fab fa-instagram mr-2"></i> 1. Buka Instagram Guru
                                                 </a>
                                             <?php else: ?>

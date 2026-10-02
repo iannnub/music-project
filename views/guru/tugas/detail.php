@@ -11,7 +11,7 @@
         </div>
         <div class="d-flex">
             <?php if(!empty($teacher_gdrive)): ?>
-                <a href="<?= $teacher_gdrive; ?>" target="_blank" class="btn btn-primary shadow-sm rounded-pill px-4 mr-2">
+                <a href="<?= htmlspecialchars($teacher_gdrive); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary shadow-sm rounded-pill px-4 mr-2">
                     <i class="fab fa-google-drive mr-1"></i> Buka Folder GDrive Saya
                 </a>
             <?php endif; ?>

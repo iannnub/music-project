@@ -69,6 +69,12 @@
                                         <i class="fas fa-map-marker-alt text-danger"></i>
                                     </a>
 
+                                    <?php if (!empty($r['photo_proof']) && $r['photo_proof'] !== 'tidak_absen'): ?>
+                                        <button type="button" class="btn btn-sm btn-light border rounded-circle shadow-sm ml-1" data-toggle="modal" data-target="#modalFoto<?= $r['id']; ?>" title="Lihat Foto Bukti">
+                                            <i class="fas fa-camera text-primary"></i>
+                                        </button>
+                                    <?php endif; ?>
+
                                     <div class="modal fade" id="modalFoto<?= $r['id']; ?>" tabindex="-1" role="dialog" aria-hidden="true">
                                         <div class="modal-dialog modal-dialog-centered" role="document">
                                             <div class="modal-content border-0 shadow-lg">

@@ -113,7 +113,7 @@
                         <select class="form-control select-siswa" name="student_id" style="width: 100%" required>
                             <option value="">-- Ketik Nama Siswa --</option>
                             <?php foreach ($allSiswa as $s): ?>
-                                <option value="<?= $s['id']; ?>"><?= $s['name']; ?> (<?= $s['username']; ?>)</option>
+                                <option value="<?= $s['id']; ?>"><?= htmlspecialchars($s['name']); ?> (<?= htmlspecialchars($s['username']); ?>)</option>
                             <?php endforeach; ?>
                         </select>
                     </div>

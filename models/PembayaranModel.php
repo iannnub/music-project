@@ -149,6 +149,18 @@ public function deleteAllByStudent($student_id) {
     return $stmt->rowCount() > 0; // Mengembalikan true jika lunas
 }
 
+    public function checkExisting($student_id, $month, $year, $exclude_id = null) {
+        $query = "SELECT COUNT(*) FROM payments WHERE student_id = ? AND month = ? AND year = ?";
+        $params = [$student_id, (int)$month, (int)$year];
+        if ($exclude_id) {
+            $query .= " AND id != ?";
+            $params[] = (int)$exclude_id;
+        }
+        $stmt = $this->db->prepare($query);
+        $stmt->execute($params);
+        return $stmt->fetchColumn() > 0;
+    }
+
     public function delete($id) {
         $stmt = $this->db->prepare("DELETE FROM payments WHERE id = :id");
         return $stmt->execute([':id' => $id]);

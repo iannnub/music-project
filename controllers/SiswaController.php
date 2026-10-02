@@ -366,8 +366,7 @@ public function update_jadwal() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             $student_id = $_SESSION['user']['id'];
-            $schedule_id = $_POST['schedule_id'];
-            $foto_base64 = $_POST['foto_base64']; 
+            $schedule_id = $_POST['schedule_id']; 
             
             // Koordinat tetap ditangkap sebagai 0 agar tidak merusak struktur database
             $lat_siswa = $_POST['lat'] ?? 0;
@@ -384,24 +383,15 @@ public function update_jadwal() {
                 header("Location: index.php?page=dashboard_siswa"); exit;
             }
 
-            // 2. Proses Penyimpanan Gambar (Photo Proof)
+            // 2. Simpan Data Absensi (Siswa presensi tanpa bukti foto)
             try {
-                $img_parts = explode(";base64,", $foto_base64);
-                $image_base64 = base64_decode($img_parts[1]);
-                $nama_file = 'absen_' . $schedule_id . '_' . $student_id . '_' . time() . '.jpg';
-                $folder_tujuan = '../public/uploads/absensi/';
-                
-                if (!is_dir($folder_tujuan)) mkdir($folder_tujuan, 0777, true);
-                file_put_contents($folder_tujuan . $nama_file, $image_base64);
-
-                // 3. Eksekusi Simpan Data ke Database
                 $data = [
                     'schedule_id' => $schedule_id, 
                     'student_id'  => $student_id, 
-                    'date'         => $tanggal_hari_ini,
-                    'photo'        => $nama_file, 
-                    'lat'          => $lat_siswa, 
-                    'long'         => $long_siswa
+                    'date'        => $tanggal_hari_ini,
+                    'photo'       => null, 
+                    'lat'         => $lat_siswa, 
+                    'long'        => $long_siswa
                 ];
 
                 if ($absensiModel->create($data)) {
@@ -418,7 +408,7 @@ public function update_jadwal() {
                 $_SESSION['flash'] = [
                     'status' => 'error', 
                     'title' => 'Gagal Absen', 
-                    'msg' => 'Terjadi kesalahan teknis saat memproses foto.'
+                    'msg' => 'Terjadi kesalahan teknis saat menyimpan data presensi.'
                 ];
             }
 

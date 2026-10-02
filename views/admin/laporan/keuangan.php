@@ -25,7 +25,9 @@
                         <div class="col-md-3 mb-2">
                             <label class="small font-weight-bold text-muted text-uppercase">Tahun</label>
                             <select name="tahun" class="form-control rounded-pill border-0 shadow-sm">
-                                <?php for($y=2024; $y<=2026; $y++){ 
+                                <?php 
+                                $currentYear = (int)date('Y');
+                                for($y=$currentYear; $y>=$currentYear-3; $y--){ 
                                     $sel = ($tahun == $y) ? 'selected' : '';
                                     echo "<option value='$y' $sel>$y</option>";
                                 } ?>

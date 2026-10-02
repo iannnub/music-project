@@ -12,11 +12,7 @@ if (!defined('BASE_URL')) {
 
 require_once '../config/database.php';
 require_once '../helpers/CsrfHelper.php';
-
-// Auto-process student Alpha (Ditolak) status for missed slots
 require_once '../models/AbsensiModel.php';
-(new AbsensiModel($db))->autoProcessAlpha();
-(new AbsensiModel($db))->autoProcessTeacherAlpha();
 
 $timeout_duration = 1800;
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > $timeout_duration)) {
@@ -568,6 +564,36 @@ switch ($page) {
         require_once '../controllers/SiswaController.php';
         $controller = new SiswaController($db);
         $controller->cetak_raport();
+        break;
+
+    case 'admin_process_alpha':
+    case 'process-alpha':
+        $is_admin = isset($_SESSION['user']) && $_SESSION['user']['role'] === 'admin';
+        $cron_key = $_GET['key'] ?? '';
+        $valid_cron = (!empty($cron_key) && defined('CRON_TOKEN') && hash_equals(CRON_TOKEN, $cron_key));
+
+        if (!$is_admin && !$valid_cron) {
+            header("Location: index.php?page=auth");
+            exit;
+        }
+
+        $absensiModel = new AbsensiModel($db);
+        $absensiModel->autoProcessAlpha();
+        $absensiModel->autoProcessTeacherAlpha();
+
+        if ($is_admin) {
+            $_SESSION['flash'] = [
+                'status' => 'success',
+                'title'  => 'Proses Berhasil',
+                'msg'    => 'Kalkulasi alpha siswa dan guru selesai dijalankan.'
+            ];
+            header("Location: index.php?page=dashboard");
+            exit;
+        } else {
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'success', 'message' => 'Kalkulasi alpha selesai.']);
+            exit;
+        }
         break;
 
     default:
