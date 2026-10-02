@@ -110,6 +110,7 @@
                 <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <form action="index.php?page=kelas&action=add_member" method="POST">
+                <?= CsrfHelper::formField(); ?>
                 <div class="modal-body py-4">
                     <input type="hidden" name="class_id" value="<?= $kelas['id']; ?>">
                     <div class="form-group">

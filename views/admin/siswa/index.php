@@ -82,6 +82,7 @@
                 <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <form action="index.php?page=siswa&action=store" method="POST">
+                <?= CsrfHelper::formField(); ?>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-5 border-right">
@@ -175,6 +176,7 @@
                 <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <form action="index.php?page=siswa&action=update" method="POST">
+                <?= CsrfHelper::formField(); ?>
                 <div class="modal-body">
                     <input type="hidden" name="id" id="edit_id">
                     <div class="form-group">

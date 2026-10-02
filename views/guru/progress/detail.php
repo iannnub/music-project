@@ -130,6 +130,7 @@
                 <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <form action="index.php?page=guru_progress_store" method="POST">
+                <?= CsrfHelper::formField(); ?>
                 <div class="modal-body text-dark">
                     <input type="hidden" name="class_id" value="<?= $_GET['class_id']; ?>">
                     <input type="hidden" name="student_id" id="input_student_id">
@@ -163,6 +164,7 @@
                 <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <form action="index.php?page=guru_progress_update" method="POST">
+                <?= CsrfHelper::formField(); ?>
                 <div class="modal-body text-dark">
                     <input type="hidden" name="class_id" value="<?= $_GET['class_id']; ?>">
                     <input type="hidden" name="id" id="edit_id">

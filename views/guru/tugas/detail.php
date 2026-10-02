@@ -110,11 +110,14 @@
 
                             <td class="align-middle">
                                 <?php if ($status == 'Menunggu Verifikasi'): ?>
-                                    <a href="index.php?page=guru_tugas_acc&submission_id=<?= $s['id']; ?>&assignment_id=<?= $tugas['id']; ?>" 
-                                       class="btn btn-success btn-sm rounded-pill px-4 shadow-sm font-weight-bold"
-                                       onclick="return confirm('Sudah cek GDrive? Klik OK jika tugas dari <?= htmlspecialchars($s['student_name']); ?> sudah benar.')">
-                                        <i class="fas fa-check mr-1"></i> TERIMA TUGAS
-                                    </a>
+                                    <form action="index.php?page=guru_tugas_acc" method="POST" style="display:inline;" onsubmit="return confirm('Sudah cek GDrive? Klik OK jika tugas dari <?= htmlspecialchars($s['student_name']); ?> sudah benar.')">
+                                        <input type="hidden" name="csrf_token" value="<?= CsrfHelper::getToken(); ?>">
+                                        <input type="hidden" name="submission_id" value="<?= $s['id']; ?>">
+                                        <input type="hidden" name="assignment_id" value="<?= $tugas['id']; ?>">
+                                        <button type="submit" class="btn btn-success btn-sm rounded-pill px-4 shadow-sm font-weight-bold">
+                                            <i class="fas fa-check mr-1"></i> TERIMA TUGAS
+                                        </button>
+                                    </form>
                                 <?php elseif ($status == 'Selesai'): ?>
                                     <span class="text-success font-weight-bold small">
                                         <i class="fas fa-check-double mr-1"></i> Terverifikasi

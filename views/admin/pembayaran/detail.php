@@ -138,6 +138,7 @@
                 <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <form action="index.php?page=pembayaran&action=store" method="POST">
+                <?= CsrfHelper::formField(); ?>
                 <input type="hidden" name="student_id" value="<?= $student['id']; ?>">
                 <div class="modal-body p-4 text-dark">
                     <div class="row">
@@ -184,6 +185,7 @@
                 <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <form action="index.php?page=pembayaran&action=update" method="POST">
+                <?= CsrfHelper::formField(); ?>
                 <input type="hidden" name="id" id="edit_id">
                 <input type="hidden" name="student_id" id="edit_student_id">
                 <div class="modal-body p-4 text-dark">

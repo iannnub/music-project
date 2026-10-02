@@ -102,11 +102,20 @@ class SiswaController {
         }
     }
     public function store() {
-    // 1. TANGKAP DATA JADWAL (Array)
-    $class_ids   = $_POST['class_id']; 
-    $days        = $_POST['day'];
-    $start_times = $_POST['start_time'];
-    $end_times   = $_POST['end_time'];
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            die("Metode request tidak diizinkan. Gunakan POST.");
+        }
+        require_once '../helpers/CsrfHelper.php';
+        if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            die("CSRF token tidak valid");
+        }
+        // 1. TANGKAP DATA JADWAL (Array)
+        $class_ids   = $_POST['class_id']; 
+        $days        = $_POST['day'];
+        $start_times = $_POST['start_time'];
+        $end_times   = $_POST['end_time'];
 
     try {
         $this->db->beginTransaction();
@@ -185,9 +194,17 @@ class SiswaController {
 
 // --- FITUR TAMBAH JADWAL SATUAN (Buat Siswa Lama) ---
 public function add_schedule_item() {
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        $student_id = $_POST['student_id'];
-        $class_id   = $_POST['class_id'];
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        die("Metode request tidak diizinkan. Gunakan POST.");
+    }
+    require_once '../helpers/CsrfHelper.php';
+    if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+        http_response_code(403);
+        die("CSRF token tidak valid");
+    }
+    $student_id = $_POST['student_id'];
+    $class_id   = $_POST['class_id'];
         $day        = $_POST['day'];
         $start_time = $_POST['start_time'];
         $end_time   = $_POST['end_time'];
@@ -226,7 +243,6 @@ public function add_schedule_item() {
         header("Location: index.php?page=siswa_manage_jadwal&id=" . $student_id);
         exit();
     }
-}
 
 // --- FITUR HAPUS JADWAL SATUAN ---
 public function delete_schedule_item() {
@@ -255,6 +271,15 @@ public function delete_schedule_item() {
 }
 
     public function update() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            die("Metode request tidak diizinkan. Gunakan POST.");
+        }
+        require_once '../helpers/CsrfHelper.php';
+        if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            die("CSRF token tidak valid");
+        }
         $id = $_POST['id'];
         $data = [
             'username' => $_POST['username'],
@@ -309,6 +334,11 @@ public function delete_schedule_item() {
 
 public function update_jadwal() {
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        require_once '../helpers/CsrfHelper.php';
+        if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            die("CSRF token tidak valid");
+        }
         $id_member = $_POST['id_member'];
         $student_id = $_POST['student_id'];
         
@@ -383,7 +413,11 @@ public function update_jadwal() {
     public function proses_absen() {
         $absensiModel = new AbsensiModel($this->db);
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            
+            require_once '../helpers/CsrfHelper.php';
+            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+                http_response_code(403);
+                die("CSRF token tidak valid");
+            }
             $student_id = $_SESSION['user']['id'];
             $schedule_id = $_POST['schedule_id']; 
             
@@ -499,8 +533,15 @@ public function update_jadwal() {
 
     // --- FITUR BARU: HAPUS SETORAN TUGAS ---
     public function hapus_setoran() {
-        if (isset($_GET['id'])) {
-            $assignment_id = $_GET['id'];
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            require_once '../helpers/CsrfHelper.php';
+            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+                http_response_code(403);
+                die("CSRF token tidak valid");
+            }
+        }
+        $assignment_id = $_POST['id'] ?? $_GET['id'] ?? null;
+        if ($assignment_id) {
             $student_id = $_SESSION['user']['id'];
 
             // 1. Validasi: Cek apakah tugas sudah dinilai?
@@ -546,6 +587,11 @@ public function update_jadwal() {
     // --- 5. FITUR AKADEMIK: UPLOAD TUGAS ---
     public function upload_tugas() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            require_once '../helpers/CsrfHelper.php';
+            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+                http_response_code(403);
+                die("CSRF token tidak valid");
+            }
             $assignment_id = $_POST['assignment_id'];
             $student_id = $_SESSION['user']['id'];
             $notes = $_POST['notes'] ?? '';

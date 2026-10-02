@@ -61,6 +61,11 @@ class GuruController {
 
     public function update() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            require_once '../helpers/CsrfHelper.php';
+            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+                http_response_code(403);
+                die("CSRF token tidak valid");
+            }
             $id = $_POST['id'];
             $data = [
                 'username' => $_POST['username'],
@@ -124,7 +129,16 @@ class GuruController {
 
     // --- FITUR CRUD GURU (Digunakan Admin) ---
     public function store() {
-    // 1. Tangkap data
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            die("Metode request tidak diizinkan. Gunakan POST.");
+        }
+        require_once '../helpers/CsrfHelper.php';
+        if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            die("CSRF token tidak valid");
+        }
+        // 1. Tangkap data
     $data = [
         'username' => $_POST['username'],
         'name'     => $_POST['name'],
@@ -282,6 +296,11 @@ public function proses_absen_guru() {
 
     public function store_progress() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            require_once '../helpers/CsrfHelper.php';
+            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+                http_response_code(403);
+                die("CSRF token tidak valid");
+            }
             require_once '../models/GuruModel.php';
             $guruModel = new GuruModel($this->db);
 
@@ -314,6 +333,11 @@ public function proses_absen_guru() {
 
     public function progress_update() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            require_once '../helpers/CsrfHelper.php';
+            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+                http_response_code(403);
+                die("CSRF token tidak valid");
+            }
             require_once '../models/GuruModel.php';
             $guruModel = new GuruModel($this->db);
 
@@ -409,6 +433,11 @@ public function proses_absen_guru() {
 
     public function materi_store() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            require_once '../helpers/CsrfHelper.php';
+            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+                http_response_code(403);
+                die("CSRF token tidak valid");
+            }
             require_once '../models/GuruModel.php';
             $guruModel = new GuruModel($this->db);
             
@@ -433,6 +462,11 @@ public function proses_absen_guru() {
 
     public function materi_update() {
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        require_once '../helpers/CsrfHelper.php';
+        if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            die("CSRF token tidak valid");
+        }
         require_once '../models/GuruModel.php';
         $guruModel = new GuruModel($this->db);
         
@@ -509,6 +543,11 @@ public function proses_absen_guru() {
 
     public function tugas_store() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            require_once '../helpers/CsrfHelper.php';
+            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+                http_response_code(403);
+                die("CSRF token tidak valid");
+            }
             require_once '../models/GuruModel.php';
             $guruModel = new GuruModel($this->db);
             
@@ -534,6 +573,11 @@ public function proses_absen_guru() {
 
     public function tugas_update() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            require_once '../helpers/CsrfHelper.php';
+            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+                http_response_code(403);
+                die("CSRF token tidak valid");
+            }
             require_once '../models/GuruModel.php';
             $guruModel = new GuruModel($this->db);
             
@@ -611,12 +655,18 @@ public function proses_absen_guru() {
     }
 
     public function tugas_acc() {
-        if (isset($_GET['submission_id']) && isset($_GET['assignment_id'])) {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            require_once '../helpers/CsrfHelper.php';
+            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+                http_response_code(403);
+                die("CSRF token tidak valid");
+            }
+        }
+        $submission_id = $_POST['submission_id'] ?? $_GET['submission_id'] ?? null;
+        $assignment_id = $_POST['assignment_id'] ?? $_GET['assignment_id'] ?? null;
+        if ($submission_id && $assignment_id) {
             require_once '../models/GuruModel.php';
             $guruModel = new GuruModel($this->db);
-            
-            $submission_id = $_GET['submission_id'];
-            $assignment_id = $_GET['assignment_id'];
 
             if ($guruModel->accSubmission($submission_id)) {
                 $_SESSION['flash'] = [
@@ -638,6 +688,11 @@ public function proses_absen_guru() {
 
     public function tugas_nilai() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            require_once '../helpers/CsrfHelper.php';
+            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+                http_response_code(403);
+                die("CSRF token tidak valid");
+            }
             require_once '../models/GuruModel.php';
             $guruModel = new GuruModel($this->db);
             

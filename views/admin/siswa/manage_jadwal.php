@@ -118,6 +118,7 @@
                 <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <form action="index.php?page=siswa&action=add_schedule_item" method="POST">
+                <?= CsrfHelper::formField(); ?>
                 <div class="modal-body py-4">
                     <input type="hidden" name="student_id" value="<?= $_GET['id']; ?>">
                     <div class="form-group">
@@ -165,6 +166,7 @@
                 <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <form action="index.php?page=siswa&action=update_jadwal" method="POST">
+                <?= CsrfHelper::formField(); ?>
                 <div class="modal-body py-4">
                     <input type="hidden" name="id_member" id="id_member">
                     <input type="hidden" name="student_id" value="<?= $_GET['id']; ?>">

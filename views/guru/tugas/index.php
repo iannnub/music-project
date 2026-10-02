@@ -122,6 +122,7 @@
                 <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <form action="index.php?page=guru_tugas&action=store" method="POST">
+                <?= CsrfHelper::formField(); ?>
                 <div class="modal-body p-4">
                     <div class="form-group mb-3">
                         <label class="small font-weight-bold text-uppercase">Pilih Kelas</label>
@@ -173,6 +174,7 @@
                 <button type="button" class="close text-dark" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <form action="index.php?page=guru_tugas&action=update" method="POST">
+                <?= CsrfHelper::formField(); ?>
                 <input type="hidden" name="id" id="edit-id">
                 <div class="modal-body p-4">
                     <div class="form-group mb-3">

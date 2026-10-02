@@ -104,6 +104,7 @@
                 <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <form action="index.php?page=guru_materi&action=store" method="POST">
+                <?= CsrfHelper::formField(); ?>
                 <div class="modal-body">
                     <div class="form-group mb-3">
                         <label class="small font-weight-bold">PILIH KELAS</label>
@@ -155,6 +156,7 @@
                 <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <form action="index.php?page=guru_materi&action=update" method="POST">
+                <?= CsrfHelper::formField(); ?>
                 <input type="hidden" name="id" id="edit-id">
                 <div class="modal-body">
                     <div class="form-group mb-3">

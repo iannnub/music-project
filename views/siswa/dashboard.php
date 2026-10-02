@@ -216,6 +216,7 @@
                 <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <form action="index.php?page=dashboard_siswa&action=proses_absen" method="POST">
+                <?= CsrfHelper::formField(); ?>
                 <div class="modal-body text-center py-4">
                     <div class="mb-3">
                         <i class="fas fa-user-check fa-4x text-primary mb-3"></i>

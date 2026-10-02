@@ -92,6 +92,7 @@
                 </button>
             </div>
             <form action="index.php?page=kelas&action=store" method="POST">
+                <?= CsrfHelper::formField(); ?>
                 <div class="modal-body">
 
                     <div class="form-group">
@@ -162,6 +163,7 @@
                 </button>
             </div>
             <form action="index.php?page=kelas&action=update" method="POST">
+                <?= CsrfHelper::formField(); ?>
                 <div class="modal-body">
                     <input type="hidden" name="id" id="edit_id">
 

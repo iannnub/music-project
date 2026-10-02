@@ -69,6 +69,7 @@
                 <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <form action="index.php?page=guru&action=store" method="POST">
+                <?= CsrfHelper::formField(); ?>
                 <div class="modal-body">
                     <input type="hidden" name="role" value="guru">
                     <div class="form-group">
@@ -115,6 +116,7 @@
                 <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <form action="index.php?page=guru&action=update" method="POST">
+                <?= CsrfHelper::formField(); ?>
                 <div class="modal-body">
                     <input type="hidden" name="id" id="edit_id">
                     <div class="form-group">

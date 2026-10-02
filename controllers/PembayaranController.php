@@ -40,6 +40,11 @@ class PembayaranController {
 
     public function store() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            require_once '../helpers/CsrfHelper.php';
+            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+                http_response_code(403);
+                die("CSRF token tidak valid");
+            }
             $rawAmount = $_POST['amount'];
             $cleanAmount = preg_replace('/[^0-9]/', '', $rawAmount);
 
@@ -124,6 +129,11 @@ class PembayaranController {
 
     public function update() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            require_once '../helpers/CsrfHelper.php';
+            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+                http_response_code(403);
+                die("CSRF token tidak valid");
+            }
             $id = $_POST['id'];
             $rawAmount = $_POST['amount'];
             $cleanAmount = preg_replace('/[^0-9]/', '', $rawAmount);

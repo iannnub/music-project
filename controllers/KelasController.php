@@ -28,6 +28,11 @@ class KelasController {
     // --- 2. PROSES SIMPAN KELAS BARU ---
     public function store() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            require_once '../helpers/CsrfHelper.php';
+            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+                http_response_code(403);
+                die("CSRF token tidak valid");
+            }
             $data = [
                 'name'        => $_POST['name'],
                 'teacher_id'  => $_POST['teacher_id'],
@@ -70,6 +75,11 @@ class KelasController {
     // --- 4. PROSES TAMBAH SISWA KE KELAS ---
     public function add_member() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            require_once '../helpers/CsrfHelper.php';
+            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+                http_response_code(403);
+                die("CSRF token tidak valid");
+            }
             $class_id   = $_POST['class_id'];
             $student_id = $_POST['student_id'];
             $day        = $_POST['day'];
@@ -145,6 +155,11 @@ class KelasController {
     // --- 6. PROSES UPDATE KELAS ---
     public function update() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            require_once '../helpers/CsrfHelper.php';
+            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+                http_response_code(403);
+                die("CSRF token tidak valid");
+            }
             $id = $_POST['id'];
             
             $data = [
