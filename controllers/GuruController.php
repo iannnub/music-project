@@ -337,30 +337,48 @@ public function proses_absen_guru() {
     }
 
     public function progress_delete() {
-        if (isset($_GET['id']) && isset($_GET['class_id'])) {
-            require_once '../models/GuruModel.php';
-            $guruModel = new GuruModel($this->db);
+        $id = $_POST['id'] ?? $_GET['id'] ?? null;
+        $class_id = $_POST['class_id'] ?? $_GET['class_id'] ?? null;
 
-            $id = $_GET['id'];
-            $class_id = $_GET['class_id'];
-
-            if ($guruModel->deleteProgress($id)) {
-                $_SESSION['flash'] = [
-                    'status' => 'success',
-                    'title'  => 'Dihapus!',
-                    'msg'    => 'Satu baris jurnal progress telah dibersihkan.'
-                ];
-            } else {
-                $_SESSION['flash'] = [
-                    'status' => 'error',
-                    'title'  => 'Gagal Hapus',
-                    'msg'    => 'Data ini mungkin masih terkait dengan laporan lain.'
-                ];
-            }
-            
-            header("Location: index.php?page=guru_progress_detail&class_id=" . $class_id);
+        if (!$id) {
+            header("Location: index.php?page=guru_progress");
             exit();
         }
+
+        require_once '../models/GuruModel.php';
+        $guruModel = new GuruModel($this->db);
+
+        $progress = $guruModel->getProgressById($id);
+        if (!$progress || (int)$progress['teacher_id'] !== (int)$_SESSION['user']['id']) {
+            http_response_code(403);
+            die("Akses ditolak: Data bukan milik Anda.");
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            require_once '../helpers/CsrfHelper.php';
+            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+                http_response_code(403);
+                die("CSRF token tidak valid");
+            }
+        }
+
+        if ($guruModel->deleteProgress($id)) {
+            $_SESSION['flash'] = [
+                'status' => 'success',
+                'title'  => 'Dihapus!',
+                'msg'    => 'Satu baris jurnal progress telah dibersihkan.'
+            ];
+        } else {
+            $_SESSION['flash'] = [
+                'status' => 'error',
+                'title'  => 'Gagal Hapus',
+                'msg'    => 'Data ini mungkin masih terkait dengan laporan lain.'
+            ];
+        }
+        
+        $redirectUrl = $class_id ? "index.php?page=guru_progress_detail&class_id=" . $class_id : "index.php?page=guru_progress";
+        header("Location: " . $redirectUrl);
+        exit();
     }
 
     // --- MANAJEMEN MATERI ---
@@ -429,19 +447,38 @@ public function proses_absen_guru() {
 }
 
     public function materi_delete() {
-        if (isset($_GET['id'])) {
-            require_once '../models/GuruModel.php';
-            $guruModel = new GuruModel($this->db);
-            if ($guruModel->deleteMaterial($_GET['id'])) {
-                $_SESSION['flash'] = [
-                    'status' => 'success',
-                    'title'  => 'Terhapus',
-                    'msg'    => 'Materi belajar telah berhasil dihapus.'
-                ];
-            }
-            header("Location: index.php?page=guru_materi");
-            exit();
+        $id = $_POST['id'] ?? $_GET['id'] ?? null;
+        if (!$id) {
+            header("Location: index.php?page=guru_materi&error=id_required");
+            exit;
         }
+
+        require_once '../models/GuruModel.php';
+        $guruModel = new GuruModel($this->db);
+        $materi = $guruModel->getMaterialById($id);
+
+        if (!$materi || (int)$materi['teacher_id'] !== (int)$_SESSION['user']['id']) {
+            http_response_code(403);
+            die("Akses ditolak: Data bukan milik Anda.");
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            require_once '../helpers/CsrfHelper.php';
+            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+                http_response_code(403);
+                die("CSRF token tidak valid");
+            }
+        }
+
+        if ($guruModel->deleteMaterial($id)) {
+            $_SESSION['flash'] = [
+                'status' => 'success',
+                'title'  => 'Terhapus',
+                'msg'    => 'Materi belajar telah berhasil dihapus.'
+            ];
+        }
+        header("Location: index.php?page=guru_materi&success=deleted");
+        exit;
     }
 
     // --- MANAJEMEN TUGAS ---
@@ -512,15 +549,34 @@ public function proses_absen_guru() {
     }
 
     public function tugas_delete() {
-        if (isset($_GET['id'])) {
-            require_once '../models/GuruModel.php';
-            $guruModel = new GuruModel($this->db);
-            if ($guruModel->deleteAssignment($_GET['id'])) {
-                $_SESSION['flash'] = ['status' => 'success', 'title' => 'Dihapus', 'msg' => 'Tugas berhasil dihapus.'];
-            }
-            header("Location: index.php?page=guru_tugas");
-            exit();
+        $id = $_POST['id'] ?? $_GET['id'] ?? null;
+        if (!$id) {
+            header("Location: index.php?page=guru_tugas&error=id_required");
+            exit;
         }
+
+        require_once '../models/GuruModel.php';
+        $guruModel = new GuruModel($this->db);
+        $tugas = $guruModel->getAssignmentById($id);
+
+        if (!$tugas || (int)$tugas['teacher_id'] !== (int)$_SESSION['user']['id']) {
+            http_response_code(403);
+            die("Akses ditolak: Data bukan milik Anda.");
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            require_once '../helpers/CsrfHelper.php';
+            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+                http_response_code(403);
+                die("CSRF token tidak valid");
+            }
+        }
+
+        if ($guruModel->deleteAssignment($id)) {
+            $_SESSION['flash'] = ['status' => 'success', 'title' => 'Dihapus', 'msg' => 'Tugas berhasil dihapus.'];
+        }
+        header("Location: index.php?page=guru_tugas");
+        exit();
     }
 
     public function tugas_detail() {

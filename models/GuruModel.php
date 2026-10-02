@@ -105,6 +105,12 @@ class GuruModel {
         }
     }
 
+    public function getProgressById($id) {
+        $stmt = $this->db->prepare("SELECT p.*, c.teacher_id as class_teacher_id FROM progress_logs p JOIN classes c ON p.class_id = c.id WHERE p.id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     // 2. Hapus data progress berdasarkan ID
     public function deleteProgress($id) {
         try {
@@ -148,6 +154,12 @@ public function updateMaterial($id, $data) {
     public function deleteMaterial($id) {
         $stmt = $this->db->prepare("DELETE FROM materials WHERE id = ?");
         return $stmt->execute([$id]);
+    }
+
+    public function getMaterialById($id) {
+        $stmt = $this->db->prepare("SELECT m.*, c.teacher_id FROM materials m JOIN classes c ON m.class_id = c.id WHERE m.id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     // --- 4. TUGAS (PR) ---
@@ -226,7 +238,7 @@ public function updateAssignment($id, $data) {
 
     // Ambil Detail Satu Tugas
     public function getAssignmentById($id) {
-        $query = "SELECT a.*, c.name as class_name FROM assignments a 
+        $query = "SELECT a.*, c.name as class_name, c.teacher_id FROM assignments a 
                   JOIN classes c ON a.class_id = c.id WHERE a.id = ?";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$id]);
