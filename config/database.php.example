@@ -5,6 +5,17 @@
 $appConfig = file_exists(__DIR__ . '/app.php') ? require __DIR__ . '/app.php' : [];
 $appDebug  = $appConfig['app_debug'] ?? false;
 
+if (!defined('APP_DEBUG')) {
+    define('APP_DEBUG', (bool)$appDebug);
+}
+
+if (!APP_DEBUG) {
+    ini_set('display_errors', 0);
+    ini_set('log_errors', 1);
+} else {
+    ini_set('display_errors', 1);
+}
+
 $host     = "localhost";
 $dbname   = "db_les_musik";
 $username = "root";
