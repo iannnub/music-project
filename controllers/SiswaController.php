@@ -214,6 +214,17 @@ public function add_schedule_item() {
         $stmt->execute([$class_id]);
         $teacher_id = $stmt->fetch()['teacher_id'] ?? null;
 
+        // 1.5 Cek Apakah Siswa Sudah Ada di Kelas Tersebut
+        if ($this->classModel->isMember($class_id, $student_id)) {
+            $_SESSION['flash'] = [
+                'status' => 'warning',
+                'title'  => 'Sudah Terdaftar!',
+                'msg'    => 'Siswa sudah terdaftar pada kelas tersebut.'
+            ];
+            header("Location: index.php?page=siswa_manage_jadwal&id=" . $student_id);
+            exit();
+        }
+
         // 2. Cek Konflik Jadwal Guru
         if ($this->classModel->isConflict($teacher_id, $day, $start_time, $end_time)) {
             $_SESSION['flash'] = [

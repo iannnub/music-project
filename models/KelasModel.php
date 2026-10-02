@@ -99,6 +99,13 @@ class KelasModel {
     return $stmt->fetchAll();
 }
 
+    // Cek apakah siswa sudah terdaftar di kelas
+    public function isMember($class_id, $student_id) {
+        $stmt = $this->db->prepare("SELECT 1 FROM class_members WHERE class_id = ? AND student_id = ? LIMIT 1");
+        $stmt->execute([$class_id, $student_id]);
+        return (bool)$stmt->fetch();
+    }
+
     // 3. Masukkan Siswa ke Kelas (Enroll)
     public function addMember($data) {
         try {
@@ -114,6 +121,9 @@ class KelasModel {
                 ':end_time'   => $data['end_time']
             ]);
         } catch (PDOException $e) {
+            if ($e->getCode() == '23000') {
+                error_log("Duplicate entry: Siswa {$data['student_id']} sudah terdaftar di kelas {$data['class_id']}.");
+            }
             return false;
         }
     }

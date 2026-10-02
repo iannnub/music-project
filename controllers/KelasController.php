@@ -86,8 +86,15 @@ class KelasController {
             $start_time = $_POST['start_time'];
             $end_time   = $_POST['end_time'];
 
-            $kelas = $this->kelasModel->getById($class_id);
-            $teacher_id = $kelas['teacher_id'] ?? null;
+            if ($this->kelasModel->isMember($class_id, $student_id)) {
+                $_SESSION['flash'] = [
+                    'status' => 'warning',
+                    'title'  => 'Siswa Sudah Terdaftar!',
+                    'msg'    => 'Siswa tersebut sudah menjadi anggota di kelas ini.'
+                ];
+                header("Location: index.php?page=kelas&action=detail&id=$class_id");
+                exit;
+            }
 
             if ($teacher_id && $this->kelasModel->isConflict($teacher_id, $day, $start_time, $end_time)) {
                 $_SESSION['flash'] = [
