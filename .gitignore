@@ -1,5 +1,5 @@
 # Database configuration (Sangat sensitif!)
-config/database.php
+config/database.local.php
 db/if0_*.sql
 
 # OS and IDE junk
