@@ -121,15 +121,29 @@ class SiswaController {
         $this->db->beginTransaction();
 
         // 2. TAHAP VALIDASI: CEK KONFLIK UNTUK SEMUA JADWAL YANG DIINPUT
-        // Kita cek satu-satu sebelum melakukan INSERT apa pun ke database
+        // Prepare statement sekali di luar loop untuk efisiensi
+        $stmtTeacher = $this->db->prepare("SELECT teacher_id FROM classes WHERE id = ?");
         foreach ($class_ids as $key => $class_id) {
             // Ambil teacher_id untuk kelas ini
-            $stmt = $this->db->prepare("SELECT teacher_id FROM classes WHERE id = ?");
-            $stmt->execute([$class_id]);
-            $classData = $stmt->fetch();
+            $stmtTeacher->execute([$class_id]);
+            $classData = $stmtTeacher->fetch();
             $teacher_id = $classData['teacher_id'] ?? null;
 
-            // Validasi Konflik
+            if ($start_times[$key] >= $end_times[$key]) {
+                throw new Exception("Jam selesai harus lebih besar dari jam mulai pada baris ke-" . ($key + 1));
+            }
+
+            // Validasi duplikat kelas dan bentrok waktu antar jadwal yang diinput bersamaan
+            for ($k = 0; $k < $key; $k++) {
+                if ($class_ids[$k] === $class_id) {
+                    throw new Exception("Kelas yang sama dipilih lebih dari satu kali!");
+                }
+                if ($days[$k] === $days[$key] && !($end_times[$k] <= $start_times[$key] || $start_times[$key] >= $end_times[$key])) {
+                    throw new Exception("Jadwal input ke-" . ($key + 1) . " bentrok dengan jadwal input ke-" . ($k + 1) . "!");
+                }
+            }
+
+            // Validasi Konflik Jadwal Guru
             if ($this->classModel->isConflict($teacher_id, $days[$key], $start_times[$key], $end_times[$key])) {
                 // Jika ada salah satu yang bentrok, lempar exception untuk membatalkan semua
                 throw new Exception("Jadwal di hari " . $days[$key] . " jam " . $start_times[$key] . " bentrok dengan jadwal Guru!");
@@ -154,17 +168,21 @@ class SiswaController {
             throw new Exception("Gagal membuat akun siswa. Username mungkin sudah digunakan.");
         }
 
-        // 4. SIMPAN SEMUA JADWAL (LOOPING INSERT)
+        // 4. SIMPAN SEMUA JADWAL (PREPARE SEKALI DI LUAR LOOP)
+        $stmtInsertMember = $this->db->prepare("
+            INSERT INTO class_members (student_id, class_id, day, start_time, end_time) 
+            VALUES (?, ?, ?, ?, ?)
+        ");
         foreach ($class_ids as $key => $class_id) {
-            $memberData = [
-                'student_id' => $newStudentId,
-                'class_id'   => $class_id,
-                'day'        => $days[$key],
-                'start_time' => $start_times[$key],
-                'end_time'   => $end_times[$key]
-            ];
+            $success = $stmtInsertMember->execute([
+                $newStudentId,
+                $class_id,
+                $days[$key],
+                $start_times[$key],
+                $end_times[$key]
+            ]);
 
-            if (!$this->classModel->addMember($memberData)) {
+            if (!$success) {
                 throw new Exception("Gagal menyimpan plotting jadwal ke-" . ($key + 1));
             }
         }
