@@ -225,6 +225,17 @@ public function add_schedule_item() {
             exit();
         }
 
+        // Cek Konflik Jadwal Siswa
+        if ($this->classModel->isStudentConflict($student_id, $day, $start_time, $end_time)) {
+            $_SESSION['flash'] = [
+                'status' => 'warning',
+                'title'  => 'Jadwal Siswa Bentrok!',
+                'msg'    => 'Jadwal siswa bentrok dengan kelas lain di hari dan jam yang sama.'
+            ];
+            header("Location: index.php?page=siswa_manage_jadwal&id=" . $student_id);
+            exit();
+        }
+
         // 3. Eksekusi Simpan ke class_members
         $data = [
             'student_id' => $student_id,
@@ -348,6 +359,36 @@ public function update_jadwal() {
             'start_time' => $_POST['start_time'],
             'end_time'   => $_POST['end_time']
         ];
+
+        if ($data['start_time'] >= $data['end_time']) {
+            $_SESSION['flash'] = [
+                'status' => 'warning',
+                'title'  => 'Jam Tidak Valid!',
+                'msg'    => 'Jam selesai harus lebih besar dari jam mulai.'
+            ];
+            header("Location: index.php?page=siswa_manage_jadwal&id=" . $student_id);
+            exit();
+        }
+
+        if ($this->classModel->isScheduleConflict($data['class_id'], $data['day'], $data['start_time'], $data['end_time'], $id_member)) {
+            $_SESSION['flash'] = [
+                'status' => 'warning',
+                'title'  => 'Jadwal Guru Bentrok!',
+                'msg'    => 'Guru pengajar sudah memiliki kelas lain di hari dan rentang jam tersebut.'
+            ];
+            header("Location: index.php?page=siswa_manage_jadwal&id=" . $student_id);
+            exit();
+        }
+
+        if ($this->classModel->isStudentConflict($student_id, $data['day'], $data['start_time'], $data['end_time'], $id_member)) {
+            $_SESSION['flash'] = [
+                'status' => 'warning',
+                'title'  => 'Jadwal Siswa Bentrok!',
+                'msg'    => 'Jadwal siswa bentrok dengan kelas lain di hari dan jam yang sama.'
+            ];
+            header("Location: index.php?page=siswa_manage_jadwal&id=" . $student_id);
+            exit();
+        }
 
         if ($this->userModel->updateJadwalSiswa($id_member, $data)) {
             $_SESSION['flash'] = [

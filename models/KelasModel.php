@@ -147,6 +147,21 @@ class KelasModel {
     return $result['total'] > 0; // True jika ada bentrok
 }
 
+    public function isStudentConflict($student_id, $day, $start_time, $end_time, $ignore_id = null) {
+        $sql = "SELECT 1 FROM class_members cm
+                WHERE cm.student_id = ? AND cm.day = ?
+                AND NOT (cm.end_time <= ? OR cm.start_time >= ?)";
+        $params = [$student_id, $day, $start_time, $end_time];
+        if ($ignore_id) {
+            $sql .= " AND cm.id != ?";
+            $params[] = $ignore_id;
+        }
+        $sql .= " LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return (bool)$stmt->fetch();
+    }
+
     // 4. Keluarkan Siswa dari Kelas (Kick)
     public function removeMember($member_id) {
         $stmt = $this->db->prepare("DELETE FROM class_members WHERE id = ?");

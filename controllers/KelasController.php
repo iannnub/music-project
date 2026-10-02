@@ -99,6 +99,16 @@ class KelasController {
                 exit;
             }
 
+            if ($this->kelasModel->isStudentConflict($student_id, $day, $start_time, $end_time)) {
+                $_SESSION['flash'] = [
+                    'status' => 'warning',
+                    'title'  => 'Jadwal Siswa Bentrok!',
+                    'msg'    => 'Jadwal siswa bentrok dengan kelas lain di hari dan jam yang sama.'
+                ];
+                header("Location: index.php?page=kelas&action=detail&id=$class_id");
+                exit;
+            }
+
             $data = [
                 'student_id' => $student_id,
                 'class_id'   => $class_id,
