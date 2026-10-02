@@ -1,6 +1,18 @@
-# Database configuration (Sangat sensitif!)
+# Database configuration & credentials (Sangat sensitif!)
+config/database.php
 config/database.local.php
+*.env
+*.env.*
+
+# Database raw dumps
+*.sql
+!db/migration_*.sql
 db/if0_*.sql
+
+# Markdown documentation files except README
+*.md
+!README.md
+!readme.md
 
 # OS and IDE junk
 .DS_Store
