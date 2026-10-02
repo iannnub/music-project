@@ -109,11 +109,14 @@
                                                 data-toggle="modal" data-target="#modalEditBayar">
                                                 <i class="fas fa-edit text-warning"></i>
                                             </button>
-                                            <a href="index.php?page=pembayaran&action=delete&id=<?= $h['id']; ?>" 
-                                            class="btn btn-white btn-sm px-2" title="Hapus Riwayat"
-                                            onclick="return confirm('Hapus record pembayaran ini?')">
-                                                <i class="fas fa-trash text-danger"></i>
-                                            </a>
+                                            <form action="index.php?page=pembayaran" method="POST" style="display:inline;" onsubmit="return confirm('Hapus record pembayaran ini?')">
+                                                <input type="hidden" name="action" value="delete">
+                                                <input type="hidden" name="csrf_token" value="<?= CsrfHelper::getToken(); ?>">
+                                                <input type="hidden" name="id" value="<?= $h['id']; ?>">
+                                                <button type="submit" class="btn btn-white btn-sm px-2" title="Hapus Riwayat">
+                                                    <i class="fas fa-trash text-danger"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>

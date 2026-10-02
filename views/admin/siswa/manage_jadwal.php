@@ -87,11 +87,15 @@
                                                         data-end="<?= $j['end_time']; ?>" title="Ubah Jadwal">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <a href="index.php?page=siswa&action=delete_schedule_item&id=<?= $j['id']; ?>&student_id=<?= $_GET['id']; ?>" 
-                                                   class="btn btn-danger btn-sm" title="Hapus Jadwal"
-                                                   onclick="return confirm('Siswa tidak akan bisa absen di jadwal ini lagi. Hapus?')">
-                                                    <i class="fas fa-trash"></i>
-                                                </a>
+                                                <form action="index.php?page=siswa" method="POST" style="display:inline;" onsubmit="return confirm('Siswa tidak akan bisa absen di jadwal ini lagi. Hapus?')">
+                                                    <input type="hidden" name="action" value="delete_schedule_item">
+                                                    <input type="hidden" name="csrf_token" value="<?= CsrfHelper::getToken(); ?>">
+                                                    <input type="hidden" name="id" value="<?= $j['id']; ?>">
+                                                    <input type="hidden" name="student_id" value="<?= htmlspecialchars($_GET['id'] ?? ''); ?>">
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="Hapus Jadwal">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
                                             </div>
                                         </td>
                                     </tr>

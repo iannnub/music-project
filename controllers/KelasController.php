@@ -117,10 +117,19 @@ class KelasController {
 
     // --- 5. PROSES HAPUS SISWA DARI KELAS ---
     public function delete_member() {
-        if (isset($_GET['member_id']) && isset($_GET['class_id'])) {
-            $member_id = $_GET['member_id']; 
-            $class_id = $_GET['class_id'];   
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            die("Metode request tidak diizinkan. Gunakan POST.");
+        }
+        require_once '../helpers/CsrfHelper.php';
+        if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            die("CSRF token tidak valid");
+        }
+        $member_id = (int)($_POST['member_id'] ?? 0);
+        $class_id = (int)($_POST['class_id'] ?? 0);
 
+        if ($member_id > 0) {
             if ($this->kelasModel->removeMember($member_id)) {
                 $_SESSION['flash'] = [
                     'status' => 'success',
@@ -128,9 +137,9 @@ class KelasController {
                     'msg'    => 'Siswa telah dikeluarkan dari kelas ini.'
                 ];
             }
-            header("Location: index.php?page=kelas&action=detail&id=$class_id");
-            exit;
         }
+        header("Location: index.php?page=kelas&action=detail&id=$class_id");
+        exit;
     }
 
     // --- 6. PROSES UPDATE KELAS ---
@@ -166,8 +175,17 @@ class KelasController {
 
     // --- 7. PROSES HAPUS KELAS ---
     public function delete() {
-        if (isset($_GET['id'])) {
-            $id = $_GET['id'];
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            die("Metode request tidak diizinkan. Gunakan POST.");
+        }
+        require_once '../helpers/CsrfHelper.php';
+        if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            die("CSRF token tidak valid");
+        }
+        $id = (int)($_POST['id'] ?? 0);
+        if ($id > 0) {
             if ($this->kelasModel->delete($id)) {
                 $_SESSION['flash'] = [
                     'status' => 'success',
@@ -181,9 +199,9 @@ class KelasController {
                     'msg'    => 'Data kelas gagal dihapus.'
                 ];
             }
-            header("Location: index.php?page=kelas");
-            exit;
         }
+        header("Location: index.php?page=kelas");
+        exit;
     }
 }
 ?>

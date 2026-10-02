@@ -230,8 +230,17 @@ public function add_schedule_item() {
 
 // --- FITUR HAPUS JADWAL SATUAN ---
 public function delete_schedule_item() {
-    $id = $_GET['id']; // ID dari tabel class_members
-    $student_id = $_GET['student_id']; // Buat redirect balik
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        die("Metode request tidak diizinkan. Gunakan POST.");
+    }
+    require_once '../helpers/CsrfHelper.php';
+    if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+        http_response_code(403);
+        die("CSRF token tidak valid");
+    }
+    $id = (int)($_POST['id'] ?? 0);
+    $student_id = (int)($_POST['student_id'] ?? 0);
 
     // Eksekusi hapus baris di class_members
     $stmt = $this->db->prepare("DELETE FROM class_members WHERE id = ?");
@@ -331,8 +340,18 @@ public function update_jadwal() {
 
     // --- FITUR HAPUS SISWA (ADMIN) ---
     public function delete() {
-        if (isset($_GET['id'])) {
-            if ($this->userModel->delete($_GET['id'])) {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            die("Metode request tidak diizinkan. Gunakan POST.");
+        }
+        require_once '../helpers/CsrfHelper.php';
+        if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            die("CSRF token tidak valid");
+        }
+        $id = (int)($_POST['id'] ?? 0);
+        if ($id > 0) {
+            if ($this->userModel->delete($id)) {
                 $_SESSION['flash'] = [
                     'status' => 'success',
                     'title'  => 'Terhapus',

@@ -25,8 +25,8 @@ $_SESSION['LAST_ACTIVITY'] = time();
 
 CsrfHelper::generateToken();
 
-$page = isset($_GET['page']) ? $_GET['page'] : 'auth';
-$action = isset($_GET['action']) ? $_GET['action'] : 'index';
+$page = $_POST['page'] ?? $_GET['page'] ?? 'auth';
+$action = $_POST['action'] ?? $_GET['action'] ?? 'index';
 
 // Check if student has not filled parent_name or phone. If so, force redirect to profile page.
 if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'siswa') {

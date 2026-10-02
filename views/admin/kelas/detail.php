@@ -82,11 +82,15 @@
                                 </td>
                                 <td class="align-middle small"><?= date('d M Y', strtotime($m['joined_at'])); ?></td>
                                 <td class="text-center align-middle">
-                                    <a href="index.php?page=kelas&action=delete_member&member_id=<?= $m['member_id']; ?>&class_id=<?= $kelas['id']; ?>" 
-                                       class="btn btn-danger btn-circle btn-sm shadow-sm" 
-                                       onclick="return confirm('Keluarkan siswa ini dari kelas?');">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
+                                    <form action="index.php?page=kelas" method="POST" style="display:inline;" onsubmit="return confirm('Keluarkan siswa ini dari kelas?');">
+                                        <input type="hidden" name="action" value="delete_member">
+                                        <input type="hidden" name="csrf_token" value="<?= CsrfHelper::getToken(); ?>">
+                                        <input type="hidden" name="member_id" value="<?= $m['member_id']; ?>">
+                                        <input type="hidden" name="class_id" value="<?= $kelas['id']; ?>">
+                                        <button type="submit" class="btn btn-danger btn-circle btn-sm shadow-sm" title="Hapus Anggota">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                             <?php endforeach; ?>

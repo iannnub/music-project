@@ -47,6 +47,7 @@
      */
     $(document).on('click', '.btn-delete', function(e) {
         e.preventDefault();
+        const form = $(this).closest('form');
         const href = $(this).attr('href');
 
         Swal.fire({
@@ -61,7 +62,11 @@
             reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = href;
+                if (form.length > 0) {
+                    form.submit();
+                } else if (href) {
+                    window.location.href = href;
+                }
             }
         });
     });

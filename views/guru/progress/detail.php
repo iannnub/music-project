@@ -97,10 +97,14 @@
                                                     data-toggle="modal" data-target="#modalEdit">
                                                 <i class="fas fa-edit"></i>
                                             </button>
-                                            <a href="index.php?page=guru_progress_delete&id=<?= $h['id']; ?>&class_id=<?= $_GET['class_id']; ?>" 
-                                               class="btn btn-light btn-sm btn-delete text-danger border" title="Hapus">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
+                                            <form action="index.php?page=guru_progress_delete" method="POST" style="display:inline;">
+                                                <input type="hidden" name="csrf_token" value="<?= CsrfHelper::getToken(); ?>">
+                                                <input type="hidden" name="id" value="<?= $h['id']; ?>">
+                                                <input type="hidden" name="class_id" value="<?= htmlspecialchars($_GET['class_id'] ?? ''); ?>">
+                                                <button type="submit" class="btn btn-light btn-sm btn-delete text-danger border" title="Hapus">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>

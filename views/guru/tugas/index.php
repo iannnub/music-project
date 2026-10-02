@@ -95,11 +95,14 @@
                                             data-desc="<?= htmlspecialchars($t['description']); ?>">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <a href="index.php?page=guru_tugas&action=delete&id=<?= $t['id']; ?>" 
-                                       class="btn btn-danger btn-sm" 
-                                       onclick="return confirm('Hapus tugas ini? Data setoran murid juga akan hilang.')">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
+                                    <form action="index.php?page=guru_tugas" method="POST" style="display:inline;" onsubmit="return confirm('Hapus tugas ini? Data setoran murid juga akan hilang.')">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="csrf_token" value="<?= CsrfHelper::getToken(); ?>">
+                                        <input type="hidden" name="id" value="<?= $t['id']; ?>">
+                                        <button type="submit" class="btn btn-danger btn-sm" title="Hapus Tugas">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>

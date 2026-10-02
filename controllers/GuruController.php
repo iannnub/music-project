@@ -93,8 +93,17 @@ class GuruController {
     }
 
     public function delete() {
-        if (isset($_GET['id'])) {
-            $id = $_GET['id'];
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            die("Metode request tidak diizinkan. Gunakan POST.");
+        }
+        require_once '../helpers/CsrfHelper.php';
+        if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            die("CSRF token tidak valid");
+        }
+        $id = (int)($_POST['id'] ?? 0);
+        if ($id > 0) {
             if ($this->userModel->delete($id)) {
                 $_SESSION['flash'] = [
                     'status' => 'success',

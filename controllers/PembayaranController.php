@@ -94,25 +94,33 @@ class PembayaranController {
     }
 
     public function delete_all_by_student() {
-    if (isset($_GET['student_id'])) {
-        $student_id = $_GET['student_id'];
-        if ($this->pembayaranModel->deleteAllByStudent($student_id)) {
-            $_SESSION['flash'] = [
-                'status' => 'success',
-                'title'  => 'Berhasil!',
-                'msg'    => 'Seluruh riwayat pembayaran siswa telah dihapus.'
-            ];
-        } else {
-            $_SESSION['flash'] = [
-                'status' => 'error',
-                'title'  => 'Gagal!',
-                'msg'    => 'Terjadi kesalahan saat menghapus data.'
-            ];
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            die("Metode request tidak diizinkan. Gunakan POST.");
+        }
+        if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            die("CSRF token tidak valid");
+        }
+        $student_id = (int)($_POST['student_id'] ?? 0);
+        if ($student_id > 0) {
+            if ($this->pembayaranModel->deleteAllByStudent($student_id)) {
+                $_SESSION['flash'] = [
+                    'status' => 'success',
+                    'title'  => 'Berhasil!',
+                    'msg'    => 'Seluruh riwayat pembayaran siswa telah dihapus.'
+                ];
+            } else {
+                $_SESSION['flash'] = [
+                    'status' => 'error',
+                    'title'  => 'Gagal!',
+                    'msg'    => 'Terjadi kesalahan saat menghapus data.'
+                ];
+            }
         }
         header("Location: index.php?page=pembayaran");
         exit();
     }
-}
 
     public function update() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -144,27 +152,36 @@ class PembayaranController {
     }
 
     public function delete() {
-    if (isset($_GET['id'])) {
-
-        $payment = $this->pembayaranModel->getById($_GET['id']);
-        $student_id = $payment['student_id'] ?? null;
-
-        if ($this->pembayaranModel->delete($_GET['id'])) {
-            $_SESSION['flash'] = [
-                'status' => 'success',
-                'title'  => 'Dihapus',
-                'msg'    => 'Data transaksi dihapus.'
-            ];
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            die("Metode request tidak diizinkan. Gunakan POST.");
         }
-
-        if ($student_id) {
-            header("Location: index.php?page=pembayaran_detail&student_id=" . $student_id);
-        } else {
-            header("Location: index.php?page=pembayaran");
+        if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            die("CSRF token tidak valid");
         }
-        exit();
+        $id = (int)($_POST['id'] ?? 0);
+
+        if ($id > 0) {
+            $payment = $this->pembayaranModel->getById($id);
+            $student_id = $payment['student_id'] ?? null;
+
+            if ($this->pembayaranModel->delete($id)) {
+                $_SESSION['flash'] = [
+                    'status' => 'success',
+                    'title'  => 'Dihapus',
+                    'msg'    => 'Data transaksi dihapus.'
+                ];
+            }
+
+            if ($student_id) {
+                header("Location: index.php?page=pembayaran_detail&student_id=" . $student_id);
+            } else {
+                header("Location: index.php?page=pembayaran");
+            }
+            exit();
+        }
     }
-}
 
 
     public function cetak() {

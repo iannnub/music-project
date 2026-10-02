@@ -56,11 +56,14 @@
                                         <i class="fas fa-edit"></i>
                                     </button>
 
-                                    <a href="index.php?page=siswa&action=delete&id=<?= $s['id']; ?>"
-                                        class="btn btn-danger btn-sm btn-circle btn-delete"
-                                        title="Hapus" onclick="return confirm('Yakin ingin menghapus siswa ini?')">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
+                                    <form action="index.php?page=siswa" method="POST" style="display:inline;">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="csrf_token" value="<?= CsrfHelper::getToken(); ?>">
+                                        <input type="hidden" name="id" value="<?= $s['id']; ?>">
+                                        <button type="submit" class="btn btn-danger btn-sm btn-circle btn-delete" title="Hapus">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

@@ -77,11 +77,14 @@
                                             data-desc="<?= htmlspecialchars($m['description']); ?>">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <a href="index.php?page=guru_materi&action=delete&id=<?= $m['id']; ?>" 
-                                       class="btn btn-danger btn-sm btn-circle shadow-sm" 
-                                       onclick="return confirm('Hapus materi ini?')">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
+                                    <form action="index.php?page=guru_materi" method="POST" style="display:inline;" onsubmit="return confirm('Hapus materi ini?')">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="csrf_token" value="<?= CsrfHelper::getToken(); ?>">
+                                        <input type="hidden" name="id" value="<?= $m['id']; ?>">
+                                        <button type="submit" class="btn btn-danger btn-sm btn-circle shadow-sm" title="Hapus Materi">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>
