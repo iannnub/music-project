@@ -8,6 +8,41 @@ class AbsensiModel
         $this->db = $db;
     }
 
+    public function getConfig($key, $default = null)
+    {
+        static $config = null;
+        if ($config === null) {
+            $configFile = __DIR__ . '/../config/app.php';
+            if (file_exists($configFile)) {
+                $config = require $configFile;
+            } else {
+                $config = [];
+            }
+        }
+        return $config[$key] ?? $default;
+    }
+
+    public function getStudioConfig()
+    {
+        return [
+            'studio_lat'        => (float)$this->getConfig('studio_lat', -8.28483445437825),
+            'studio_lng'        => (float)$this->getConfig('studio_lng', 113.52589125398372),
+            'studio_radius_m'   => (float)$this->getConfig('studio_radius_m', 100),
+            'salary_per_hour'   => (float)$this->getConfig('salary_per_hour', 30000),
+            'penalty_per_10min' => (float)$this->getConfig('penalty_per_10min', 5000),
+        ];
+    }
+
+    public function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371; // km
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+        $a = sin($dLat / 2) * sin($dLat / 2) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon / 2) * sin($dLon / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        return $earthRadius * $c; // in km
+    }
+
     // Cek apakah siswa sudah absen hari ini di jadwal ini? (Prevent Double Absen)
     public function cekSudahAbsen($student_id, $schedule_id, $date)
     {
@@ -239,26 +274,22 @@ class AbsensiModel
         $startTime = $jadwal['start_time'];
         $checkIn = $data['check_in_time'];
 
-        // HITUNG GAJI POKOK DARI DURASI MENGAJAR (Rp 30.000 per 1 jam)
+        // HITUNG GAJI POKOK DARI DURASI MENGAJAR
         $startSecs = strtotime($jadwal['start_time']);
         $endSecs = strtotime($jadwal['end_time']);
         $durationInHours = ($endSecs - $startSecs) / 3600;
         if ($durationInHours < 0.1) {
             $durationInHours = 1;
         }
-        $baseSalary = $durationInHours * 30000;
+        $salaryPerHour = (float)$this->getConfig('salary_per_hour', 30000);
+        $baseSalary = $durationInHours * $salaryPerHour;
 
         // 3. LOGIKA RADIUS (GEOFENCING)
-        $latKantor = -8.28483445437825;
-        $lngKantor = 113.52589125398372;
-        $radiusMaksimal = 0.1; // 100 meter
+        $latKantor = (float)$this->getConfig('studio_lat', -8.28483445437825);
+        $lngKantor = (float)$this->getConfig('studio_lng', 113.52589125398372);
+        $radiusMaksimal = (float)$this->getConfig('studio_radius_m', 100) / 1000; // konversi m ke km
 
-        $earthRadius = 6371;
-        $dLat = deg2rad($data['latitude'] - $latKantor);
-        $dLon = deg2rad($data['longitude'] - $lngKantor);
-        $a = sin($dLat / 2) * sin($dLat / 2) + cos(deg2rad($latKantor)) * cos(deg2rad($data['latitude'])) * sin($dLon / 2) * sin($dLon / 2);
-        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-        $jarak = $earthRadius * $c;
+        $jarak = $this->calculateDistance($latKantor, $lngKantor, $data['latitude'], $data['longitude']);
 
         if ($jarak > $radiusMaksimal) {
             return "diluar_radius";
@@ -266,10 +297,11 @@ class AbsensiModel
 
         // 4. HITUNG DENDA SESUAI JADWAL DINAMIS
         $penalty = 0;
+        $penaltyPer10Min = (float)$this->getConfig('penalty_per_10min', 5000);
         if (strtotime($checkIn) > strtotime($startTime)) {
             $diffInSeconds = strtotime($checkIn) - strtotime($startTime);
             $diffInMinutes = floor($diffInSeconds / 60);
-            $penalty = floor($diffInMinutes / 10) * 5000;
+            $penalty = floor($diffInMinutes / 10) * $penaltyPer10Min;
         }
 
         $totalSalary = max(0, $baseSalary - $penalty);
@@ -431,14 +463,14 @@ class AbsensiModel
             }
             $start->setTime(0, 0, 0);
 
-            // Hitung denda & gaji session berdasarkan durasi mengajar (Rp 30.000 per 1 jam)
+            // Hitung denda & gaji session berdasarkan durasi mengajar
             $startSecs = strtotime($s['start_time']);
             $endSecs = strtotime($s['end_time']);
             $durationInHours = ($endSecs - $startSecs) / 3600;
             if ($durationInHours < 0.1) {
                 $durationInHours = 1;
             }
-            $classSalary = $durationInHours * 30000;
+            $classSalary = $durationInHours * (float)$this->getConfig('salary_per_hour', 30000);
 
             while ($start <= $today) {
                 if ($start->format('l') === $target_day_name) {
