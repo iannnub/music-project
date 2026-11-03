@@ -77,10 +77,10 @@ class SiswaController {
             $stmt2->execute([':sid' => $student_id]);
             $last_progress = $stmt2->fetch();
 
-            // C. Link TikTok Latihan Global dari Admin
-            $tiktok_url   = $settingsModel->get('tiktok_practice_url', 'https://www.tiktok.com/@kakyo_lesson');
-            $tiktok_title = $settingsModel->get('tiktok_practice_title', 'Video Latihan & Dokumentasi Siswa KakYo Lesson');
-            $tiktok_desc  = $settingsModel->get('tiktok_practice_desc', 'Pantau video latihan rutin dan penampilan siswa langsung dari TikTok resmi KakYo Lesson.');
+            // C. Link TikTok Latihan Privat dari Admin (Hanya yang les yang tahu)
+            $tiktok_url   = $settingsModel->get('tiktok_practice_url', '');
+            $tiktok_title = $settingsModel->get('tiktok_practice_title', 'Video Latihan Privat Siswa KakYo Lesson');
+            $tiktok_desc  = $settingsModel->get('tiktok_practice_desc', 'Pantau video latihan dan evaluasi praktik privat siswa les KakYo Lesson di TikTok.');
 
             // D. Status SPP & Tagihan Aktif
             $bulan_ini = (int)date('n');
@@ -479,9 +479,9 @@ class SiswaController {
     public function tiktok() {
         $settingsModel = new SettingsModel($this->db);
         $this->renderView('siswa/tiktok', [
-            'tiktok_url'   => $settingsModel->get('tiktok_practice_url', 'https://www.tiktok.com/@kakyo_lesson'),
-            'tiktok_title' => $settingsModel->get('tiktok_practice_title', 'Video Latihan & Dokumentasi Siswa KakYo Lesson'),
-            'tiktok_desc'  => $settingsModel->get('tiktok_practice_desc', 'Pantau video latihan rutin, penampilan siswa, dan evaluasi praktik langsung dari kanal TikTok resmi KakYo Lesson.')
+            'tiktok_url'   => $settingsModel->get('tiktok_practice_url', ''),
+            'tiktok_title' => $settingsModel->get('tiktok_practice_title', 'Video Latihan Privat Siswa KakYo Lesson'),
+            'tiktok_desc'  => $settingsModel->get('tiktok_practice_desc', 'Pantau video latihan dan evaluasi praktik privat siswa les KakYo Lesson di TikTok.')
         ]);
     }
 

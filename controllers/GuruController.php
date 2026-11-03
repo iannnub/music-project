@@ -37,6 +37,12 @@ class GuruController {
         $stmtChecked->execute([$teacher_id, $today]);
         $data['checked_schedule_ids'] = $stmtChecked->fetchAll(PDO::FETCH_COLUMN);
 
+        require_once '../models/SettingsModel.php';
+        $settingsModel = new SettingsModel($this->db);
+        $data['tiktok_url']   = $settingsModel->get('tiktok_practice_url', '');
+        $data['tiktok_title'] = $settingsModel->get('tiktok_practice_title', 'Video Latihan Privat Siswa KakYo Lesson');
+        $data['tiktok_desc']  = $settingsModel->get('tiktok_practice_desc', 'Pantau video latihan dan evaluasi praktik privat siswa les KakYo Lesson di TikTok.');
+
         extract($data);
         require_once '../views/layouts/header.php';
         require_once '../views/layouts/sidebar.php';
@@ -783,6 +789,23 @@ class GuruController {
         require_once '../views/layouts/sidebar.php';
         require_once '../views/layouts/topbar.php';
         require_once '../views/guru/absen.php';
+        require_once '../views/layouts/footer.php';
+    }
+
+    // Halaman Video Latihan TikTok Privat untuk Guru
+    public function tiktok() {
+        require_once '../models/SettingsModel.php';
+        $settingsModel = new SettingsModel($this->db);
+        $data = [
+            'tiktok_url'   => $settingsModel->get('tiktok_practice_url', ''),
+            'tiktok_title' => $settingsModel->get('tiktok_practice_title', 'Video Latihan Privat Siswa KakYo Lesson'),
+            'tiktok_desc'  => $settingsModel->get('tiktok_practice_desc', 'Pantau video latihan dan evaluasi praktik privat siswa les KakYo Lesson di TikTok.')
+        ];
+        extract($data);
+        require_once '../views/layouts/header.php';
+        require_once '../views/layouts/sidebar.php';
+        require_once '../views/layouts/topbar.php';
+        require_once '../views/guru/tiktok.php';
         require_once '../views/layouts/footer.php';
     }
 }

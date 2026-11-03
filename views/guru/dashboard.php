@@ -114,6 +114,36 @@
                         <div class="icon-circle bg-warning-soft text-warning mx-auto mb-2"><i class="fas fa-wallet"></i></div>
                         <span class="small font-weight-bold">Rekap Gaji Saya</span>
                     </a>
+                    <a href="index.php?page=guru_tiktok" class="text-decoration-none text-center px-3 py-1">
+                        <div class="icon-circle bg-primary-soft text-primary mx-auto mb-2"><i class="fab fa-tiktok"></i></div>
+                        <span class="small font-weight-bold">Video Latihan</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kartu Tautan TikTok Latihan Privat (Hanya yang les yang tahu) -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-left-primary">
+                <div class="card-body py-3 d-flex flex-wrap align-items-center justify-content-between" style="gap: 12px;">
+                    <div>
+                        <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+                            <span class="lg-badge lg-badge-orange"><i class="fab fa-tiktok mr-1"></i> Tautan Privat</span>
+                            <span class="font-weight-bold text-primary"><?= htmlspecialchars($tiktok_title); ?></span>
+                        </div>
+                        <p class="small text-muted mb-0 mt-1"><?= htmlspecialchars($tiktok_desc); ?></p>
+                    </div>
+                    <div>
+                        <?php if (!empty($tiktok_url)): ?>
+                            <a href="<?= htmlspecialchars($tiktok_url); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm font-weight-bold px-3">
+                                <i class="fas fa-external-link-alt mr-1"></i> Buka Video Latihan di TikTok
+                            </a>
+                        <?php else: ?>
+                            <span class="small text-muted"><i class="fas fa-info-circle mr-1"></i> Belum ada link video latihan yang diinput Admin</span>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>

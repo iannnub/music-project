@@ -6,9 +6,9 @@
         elseif ($hour >= 15 && $hour < 18) $greeting = "Selamat Sore";
         else $greeting = "Selamat Malam";
 
-        $tiktokUrl   = $appSettings['tiktok_practice_url'] ?? 'https://www.tiktok.com/@kakyo_lesson';
-        $tiktokTitle = $appSettings['tiktok_practice_title'] ?? 'Video Latihan & Dokumentasi Siswa KakYo Lesson';
-        $tiktokDesc  = $appSettings['tiktok_practice_desc'] ?? 'Pantau perkembangan latihan anak melalui video dokumentasi resmi KakYo Lesson di TikTok.';
+        $tiktokUrl   = $appSettings['tiktok_practice_url'] ?? '';
+        $tiktokTitle = $appSettings['tiktok_practice_title'] ?? 'Video Latihan Privat Siswa KakYo Lesson';
+        $tiktokDesc  = $appSettings['tiktok_practice_desc'] ?? 'Pantau video latihan dan evaluasi praktik privat untuk siswa, orang tua, dan guru KakYo Lesson.';
     ?>
 
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -100,33 +100,38 @@
         </div>
     </div>
 
-    <!-- Pengaturan Link TikTok Latihan Siswa (Menggantikan Fitur Tugas Lama) -->
+    <!-- Pengaturan Link TikTok Latihan Privat (Hanya yang les yang tahu) -->
     <div class="row">
         <div class="col-12 mb-4">
             <div class="card">
                 <div class="card-header py-3 d-flex flex-wrap align-items-center justify-content-between">
-                    <h2 class="h6 m-0 font-weight-bold text-primary">
-                        <i class="fas fa-play-circle mr-2"></i>Pengaturan Tautan TikTok Latihan Siswa &amp; Wali Murid
-                    </h2>
-                    <a href="<?= htmlspecialchars($tiktokUrl); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary btn-sm mt-2 mt-sm-0">
-                        <i class="fas fa-external-link-alt mr-1"></i> Uji Buka Tautan TikTok
-                    </a>
+                    <div>
+                        <h2 class="h6 m-0 font-weight-bold text-primary">
+                            <i class="fas fa-play-circle mr-2"></i>Pengaturan Tautan TikTok Latihan Privat (Murid, Wali &amp; Guru)
+                        </h2>
+                        <small class="text-muted">Tautan privat khusus siswa dan guru les musik. Diisi sendiri oleh Admin (berbeda dari tautan promosi di halaman login).</small>
+                    </div>
+                    <?php if (!empty($tiktokUrl)): ?>
+                        <a href="<?= htmlspecialchars($tiktokUrl); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary btn-sm mt-2 mt-sm-0">
+                            <i class="fas fa-external-link-alt mr-1"></i> Uji Buka Tautan TikTok
+                        </a>
+                    <?php endif; ?>
                 </div>
                 <div class="card-body">
                     <form action="index.php?page=admin_settings" method="POST">
                         <?= CsrfHelper::formField(); ?>
                         <div class="row">
                             <div class="col-lg-5 mb-3">
-                                <label for="tiktok_practice_url" class="small font-weight-bold text-uppercase">URL TikTok Latihan Resmi <span class="text-danger">*</span></label>
-                                <input type="url" id="tiktok_practice_url" name="tiktok_practice_url" class="form-control" required
-                                       placeholder="https://www.tiktok.com/@kakyo_lesson"
+                                <label for="tiktok_practice_url" class="small font-weight-bold text-uppercase">URL TikTok Latihan Privat</label>
+                                <input type="url" id="tiktok_practice_url" name="tiktok_practice_url" class="form-control"
+                                       placeholder="https://www.tiktok.com/@akun_privat/video/..."
                                        value="<?= htmlspecialchars($tiktokUrl); ?>">
-                                <small class="text-muted">Tautan ini langsung muncul pada menu Video Latihan TikTok di akun seluruh siswa/orang tua.</small>
+                                <small class="text-muted">Tautan ini otomatis tampil sama di akun seluruh murid dan guru les.</small>
                             </div>
                             <div class="col-lg-4 mb-3">
-                                <label for="tiktok_practice_title" class="small font-weight-bold text-uppercase">Judul Kartu di Dashboard Siswa</label>
+                                <label for="tiktok_practice_title" class="small font-weight-bold text-uppercase">Judul Kartu di Akun Murid &amp; Guru</label>
                                 <input type="text" id="tiktok_practice_title" name="tiktok_practice_title" class="form-control"
-                                       placeholder="Video Latihan Siswa KakYo Lesson"
+                                       placeholder="Video Latihan Privat Siswa KakYo Lesson"
                                        value="<?= htmlspecialchars($tiktokTitle); ?>">
                             </div>
                             <div class="col-lg-3 mb-3 d-flex align-items-end">
@@ -135,7 +140,7 @@
                                 </button>
                             </div>
                             <div class="col-12">
-                                <label for="tiktok_practice_desc" class="small font-weight-bold text-uppercase">Pesan Pengantar untuk Orang Tua / Siswa</label>
+                                <label for="tiktok_practice_desc" class="small font-weight-bold text-uppercase">Pesan Pengantar untuk Siswa, Wali &amp; Guru</label>
                                 <input type="text" id="tiktok_practice_desc" name="tiktok_practice_desc" class="form-control"
                                        value="<?= htmlspecialchars($tiktokDesc); ?>">
                             </div>

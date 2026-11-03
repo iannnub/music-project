@@ -512,6 +512,16 @@ switch ($page) {
         header("Location: index.php?page=dashboard_guru");
         exit;
 
+    case 'guru_tiktok':
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'guru') {
+            header("Location: index.php?page=auth");
+            exit;
+        }
+        require_once '../controllers/GuruController.php';
+        $controller = new GuruController($db);
+        $controller->tiktok();
+        break;
+
     case 'guru_absen':
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'guru') {
             header("Location: index.php?page=auth");

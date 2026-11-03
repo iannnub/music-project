@@ -43,7 +43,7 @@ SET `phone` = TRIM(
 )
 WHERE `phone` IS NOT NULL;
 
--- 3. Application Settings Table (Official KakYo Lesson TikTok Link & Monthly Photo Cleanup Tracker)
+-- 3. Application Settings Table (Separate Promotional vs Private Student/Teacher Practice Video Link)
 CREATE TABLE IF NOT EXISTS `app_settings` (
   `setting_key` VARCHAR(100) NOT NULL,
   `setting_value` TEXT DEFAULT NULL,
@@ -52,9 +52,9 @@ CREATE TABLE IF NOT EXISTS `app_settings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT IGNORE INTO `app_settings` (`setting_key`, `setting_value`) VALUES
-  ('tiktok_practice_url', 'https://www.tiktok.com/@dokumentasikakyolesson?_r=1&_t=ZS-97pfSTXa7PQ'),
-  ('tiktok_practice_title', 'Video Latihan & Dokumentasi Siswa KakYo Lesson'),
-  ('tiktok_practice_desc', 'Pantau video latihan rutin, penampilan siswa, dan evaluasi praktik langsung dari kanal TikTok resmi KakYo Lesson.'),
+  ('tiktok_practice_url', ''),
+  ('tiktok_practice_title', 'Video Latihan Privat Siswa KakYo Lesson'),
+  ('tiktok_practice_desc', 'Tautan khusus video latihan dan evaluasi praktik privat untuk siswa, orang tua, dan guru KakYo Lesson.'),
   ('last_teacher_photo_cleanup_ym', '');
 
 -- 4. Group Class -> Band Hierarchy (Band 1, Band 2, Band 3 -> Students)

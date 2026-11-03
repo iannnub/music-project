@@ -136,21 +136,27 @@ $overallPct = (int)($curriculum['overall_percent'] ?? 0);
             <div class="card h-100 border-left-primary">
                 <div class="card-header py-3 d-flex align-items-center justify-content-between">
                     <h2 class="h6 m-0 font-weight-bold text-primary"><i class="fas fa-play-circle mr-2"></i>Video Latihan TikTok</h2>
-                    <span class="lg-badge lg-badge-orange">Dokumentasi Latihan</span>
+                    <span class="lg-badge lg-badge-orange">Dokumentasi Privat</span>
                 </div>
                 <div class="card-body d-flex flex-column justify-content-between">
                     <div>
                         <h3 class="h5 font-weight-bold mb-2"><?= htmlspecialchars($tiktok_title); ?></h3>
                         <p class="small text-muted mb-3"><?= htmlspecialchars($tiktok_desc); ?></p>
                     </div>
-                    <div class="d-flex flex-wrap align-items-center" style="gap: 10px;">
-                        <a href="<?= htmlspecialchars($tiktok_url); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary font-weight-bold px-4">
-                            <i class="fas fa-external-link-alt mr-1"></i> Tonton di TikTok Sekarang
-                        </a>
-                        <a href="index.php?page=siswa_tiktok" class="btn btn-outline-primary btn-sm px-3">
-                            Detail Halaman
-                        </a>
-                    </div>
+                    <?php if (!empty($tiktok_url)): ?>
+                        <div class="d-flex flex-wrap align-items-center" style="gap: 10px;">
+                            <a href="<?= htmlspecialchars($tiktok_url); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary font-weight-bold px-4">
+                                <i class="fas fa-external-link-alt mr-1"></i> Tonton di TikTok Sekarang
+                            </a>
+                            <a href="index.php?page=siswa_tiktok" class="btn btn-outline-primary btn-sm px-3">
+                                Detail Halaman
+                            </a>
+                        </div>
+                    <?php else: ?>
+                        <div class="p-3 rounded small text-muted" style="background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15);">
+                            <i class="fas fa-info-circle text-primary mr-1"></i> Belum ada tautan video latihan TikTok yang diisi oleh Admin.
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

@@ -60,31 +60,32 @@ class DashboardController {
         }
 
         $tiktokUrl   = trim($_POST['tiktok_practice_url'] ?? '');
-        $tiktokTitle = trim($_POST['tiktok_practice_title'] ?? 'Video Latihan & Dokumentasi Siswa KakYo Lesson');
+        $tiktokTitle = trim($_POST['tiktok_practice_title'] ?? 'Video Latihan Privat Siswa KakYo Lesson');
         $tiktokDesc  = trim($_POST['tiktok_practice_desc'] ?? '');
 
-        if ($tiktokUrl !== '' && !preg_match('#^https?://#i', $tiktokUrl)) {
-            $tiktokUrl = 'https://' . $tiktokUrl;
-        }
-
-        if ($tiktokUrl === '' || !filter_var($tiktokUrl, FILTER_VALIDATE_URL)) {
-            $_SESSION['flash'] = [
-                'status' => 'warning',
-                'title'  => 'Tautan Tidak Valid',
-                'msg'    => 'Masukkan URL TikTok yang valid (contoh: https://www.tiktok.com/@kakyo_lesson).'
-            ];
-            header("Location: index.php?page=dashboard");
-            exit;
+        if ($tiktokUrl !== '') {
+            if (!preg_match('#^https?://#i', $tiktokUrl)) {
+                $tiktokUrl = 'https://' . $tiktokUrl;
+            }
+            if (!filter_var($tiktokUrl, FILTER_VALIDATE_URL)) {
+                $_SESSION['flash'] = [
+                    'status' => 'warning',
+                    'title'  => 'Tautan Tidak Valid',
+                    'msg'    => 'Masukkan URL TikTok yang valid (contoh: https://www.tiktok.com/@akun_latihan/video/...).'
+                ];
+                header("Location: index.php?page=dashboard");
+                exit;
+            }
         }
 
         $this->settingsModel->set('tiktok_practice_url', $tiktokUrl);
-        $this->settingsModel->set('tiktok_practice_title', $tiktokTitle !== '' ? $tiktokTitle : 'Video Latihan Siswa KakYo Lesson');
+        $this->settingsModel->set('tiktok_practice_title', $tiktokTitle !== '' ? $tiktokTitle : 'Video Latihan Privat Siswa KakYo Lesson');
         $this->settingsModel->set('tiktok_practice_desc', $tiktokDesc);
 
         $_SESSION['flash'] = [
             'status' => 'success',
             'title'  => 'Tautan TikTok Disimpan',
-            'msg'    => 'Tautan video latihan TikTok untuk seluruh siswa dan wali murid berhasil diperbarui.'
+            'msg'    => 'Tautan video latihan TikTok privat untuk seluruh siswa, orang tua, dan guru berhasil diperbarui.'
         ];
         header("Location: index.php?page=dashboard");
         exit;

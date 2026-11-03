@@ -125,7 +125,7 @@
         </li>
 
         <?php
-            $guru_akad_pages = ['guru_progress', 'guru_progress_detail', 'guru_materi'];
+            $guru_akad_pages = ['guru_progress', 'guru_progress_detail', 'guru_materi', 'guru_tiktok'];
             $is_guru_akad = in_array($page, $guru_akad_pages, true);
         ?>
         <li class="nav-item <?= $is_guru_akad ? 'active' : ''; ?>">
@@ -139,6 +139,7 @@
                 <div class="py-2 collapse-inner rounded">
                     <a class="collapse-item <?= ($page === 'guru_progress' || $page === 'guru_progress_detail') ? 'active' : ''; ?>" href="index.php?page=guru_progress">Bab &amp; Progress Raport</a>
                     <a class="collapse-item <?= ($page === 'guru_materi') ? 'active' : ''; ?>" href="index.php?page=guru_materi">Upload Materi</a>
+                    <a class="collapse-item <?= ($page === 'guru_tiktok') ? 'active' : ''; ?>" href="index.php?page=guru_tiktok">Video Latihan TikTok</a>
                 </div>
             </div>
         </li>
