@@ -244,6 +244,20 @@ class KelasModel {
         return (bool)$stmt->fetch();
     }
 
+    // Ambil anggota kelas grup yang belum tergabung ke dalam Band mana pun (fallback data legacy)
+    public function getUnbandedMembers($class_id) {
+        $stmt = $this->db->prepare("
+            SELECT cm.id as member_id, cm.student_id, cm.day, cm.start_time, cm.end_time, cm.joined_at,
+                   u.name as student_name, u.parent_name, u.branch, u.instrument
+            FROM class_members cm
+            JOIN users u ON cm.student_id = u.id
+            WHERE cm.class_id = :cid AND cm.band_id IS NULL
+            ORDER BY cm.day ASC, cm.start_time ASC, u.name ASC
+        ");
+        $stmt->execute([':cid' => (int)$class_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     // Validasi bentrok jadwal guru (mengabaikan siswa lain yang berada dalam band_id yang sama)
     public function isConflict($teacher_id, $day, $start_time, $end_time, $ignore_id = null, $ignore_band_id = null) {
         $query = "SELECT COUNT(*) as total 
@@ -313,10 +327,38 @@ class KelasModel {
         return (bool)$stmt->fetch();
     }
 
-    // 4. Keluarkan Siswa dari Kelas / Band
+    // 4. Keluarkan Siswa dari Kelas / Band (Aman menjaga riwayat gaji guru Band jika masih ada anggota lain di Band yang sama)
     public function removeMember($member_id) {
-        $stmt = $this->db->prepare("DELETE FROM class_members WHERE id = ?");
-        return $stmt->execute([$member_id]);
+        try {
+            $this->db->beginTransaction();
+
+            $stmtInfo = $this->db->prepare("SELECT id, band_id FROM class_members WHERE id = ? LIMIT 1");
+            $stmtInfo->execute([(int)$member_id]);
+            $row = $stmtInfo->fetch(PDO::FETCH_ASSOC);
+
+            if ($row && !empty($row['band_id'])) {
+                $stmtOther = $this->db->prepare("SELECT id FROM class_members WHERE band_id = ? AND id != ? ORDER BY id ASC LIMIT 1");
+                $stmtOther->execute([(int)$row['band_id'], (int)$member_id]);
+                $replacementId = (int)$stmtOther->fetchColumn();
+
+                if ($replacementId > 0) {
+                    $stmtReassign = $this->db->prepare("UPDATE teacher_attendances SET schedule_id = ? WHERE schedule_id = ?");
+                    $stmtReassign->execute([$replacementId, (int)$member_id]);
+                }
+            }
+
+            $stmt = $this->db->prepare("DELETE FROM class_members WHERE id = ?");
+            $ok = $stmt->execute([(int)$member_id]);
+
+            $this->db->commit();
+            return $ok;
+        } catch (PDOException $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            error_log("Gagal Remove Member: " . $e->getMessage());
+            return false;
+        }
     }
 
     // 5. Hapus Kelas

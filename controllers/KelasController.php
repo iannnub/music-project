@@ -61,10 +61,11 @@ class KelasController {
             header("Location: index.php?page=kelas");
             exit;
         }
-        $members  = $this->kelasModel->getMembers($id);
-        $bands    = ($kelas['type'] === 'group') ? $this->kelasModel->getBandsByClass($id) : [];
-        $allSiswa = $this->userModel->getAllByRole('siswa');
-        $dataGuru = $this->userModel->getAllByRole('guru');
+        $members         = $this->kelasModel->getMembers($id);
+        $bands           = ($kelas['type'] === 'group') ? $this->kelasModel->getBandsByClass($id) : [];
+        $unbandedMembers = ($kelas['type'] === 'group') ? $this->kelasModel->getUnbandedMembers($id) : [];
+        $allSiswa        = $this->userModel->getAllByRole('siswa');
+        $dataGuru        = $this->userModel->getAllByRole('guru');
 
         require_once '../views/layouts/header.php';
         require_once '../views/layouts/sidebar.php';

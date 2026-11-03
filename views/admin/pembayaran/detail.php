@@ -80,8 +80,15 @@ $branchLabel = ($student['branch'] ?? '') === 'Jember'
                                     $is_late = ($h['status'] === 'Belum Lunas' && $today > $h['end_date']);
 
                                     $pesanWA = "Halo *" . $student['name'] . "*, tagihan KakYo Lesson periode " . date('F Y', mktime(0, 0, 0, (int)$h['month'], 10, (int)$h['year'])) . " sebesar *Rp " . number_format($h['amount'], 0, ',', '.') . "* berstatus *" . $h['status'] . "*. Terima kasih!";
-                                    $phoneWA = preg_replace('/[^0-9]/', '', $student['phone'] ?? '');
-                                    $phoneWA = preg_replace('/^0/', '62', $phoneWA);
+                                    $rawPhone = trim((string)($student['phone'] ?? ''));
+                                    $phoneWA  = preg_replace('/[^0-9]/', '', $rawPhone);
+                                    if (strpos($rawPhone, '+') === false) {
+                                        $phoneWA = preg_replace('/^0/', '62', $phoneWA);
+                                        if (preg_match('/^8[0-9]{7,13}$/', $phoneWA)) {
+                                            $phoneWA = '62' . $phoneWA;
+                                        }
+                                    }
+                                    $hasValidWA = strlen($phoneWA) >= 9;
                                     $linkWA = "https://wa.me/" . $phoneWA . "?text=" . urlencode($pesanWA);
                                 ?>
                                 <tr>
@@ -106,7 +113,7 @@ $branchLabel = ($student['branch'] ?? '') === 'Jember'
                                     </td>
                                     <td class="text-center align-middle">
                                         <div class="d-inline-flex flex-wrap" style="gap: 6px;">
-                                            <?php if (!empty($student['phone']) && $h['status'] !== 'Lunas'): ?>
+                                            <?php if ($hasValidWA && $h['status'] !== 'Lunas'): ?>
                                                 <a href="<?= htmlspecialchars($linkWA); ?>" target="_blank" rel="noopener noreferrer"
                                                    class="btn btn-success btn-sm btn-circle"
                                                    title="Kirim Pengingat via WhatsApp"

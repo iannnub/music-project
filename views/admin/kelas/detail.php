@@ -155,6 +155,61 @@
             </div>
         <?php endif; ?>
 
+        <?php if (!empty($unbandedMembers)): ?>
+            <div class="card mb-4">
+                <div class="card-header py-3 d-flex align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-user-clock mr-2"></i>Anggota Grup Belum Masuk Band (Data Lama)
+                    </h6>
+                    <span class="lg-badge lg-badge-muted"><?= count($unbandedMembers); ?> Jadwal</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th width="6%" class="text-center">No</th>
+                                    <th>Nama Siswa</th>
+                                    <th>Jadwal Latihan</th>
+                                    <th>Tgl Bergabung</th>
+                                    <th width="10%" class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php $uNo = 1; foreach ($unbandedMembers as $um): ?>
+                                    <tr>
+                                        <td class="text-center align-middle"><?= $uNo++; ?></td>
+                                        <td class="align-middle font-weight-bold">
+                                            <?= htmlspecialchars($um['student_name']); ?>
+                                            <?php if (!empty($um['parent_name'])): ?>
+                                                <br><small class="text-muted">Wali: <?= htmlspecialchars($um['parent_name']); ?></small>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="align-middle">
+                                            <span class="lg-badge lg-badge-orange">
+                                                <i class="far fa-clock"></i> <?= htmlspecialchars($um['day']); ?>, <?= substr($um['start_time'], 0, 5); ?> - <?= substr($um['end_time'], 0, 5); ?> WIB
+                                            </span>
+                                        </td>
+                                        <td class="align-middle small"><?= date('d M Y', strtotime($um['joined_at'])); ?></td>
+                                        <td class="text-center align-middle">
+                                            <form action="index.php?page=kelas&action=delete_member" method="POST" style="display:inline;" onsubmit="return confirm('Keluarkan jadwal anggota ini dari kelas grup?');">
+                                                <?= CsrfHelper::formField(); ?>
+                                                <input type="hidden" name="member_id" value="<?= (int)$um['member_id']; ?>">
+                                                <input type="hidden" name="class_id" value="<?= (int)$kelas['id']; ?>">
+                                                <button type="submit" class="btn btn-danger btn-circle btn-sm" title="Keluarkan Anggota" aria-label="Keluarkan <?= htmlspecialchars($um['student_name']); ?>">
+                                                    <i class="fas fa-user-minus"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <!-- Modal Buat Band Baru -->
         <div class="modal fade" id="modalAddBand" tabindex="-1" role="dialog" aria-labelledby="lblAddBand" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
