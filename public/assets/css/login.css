@@ -33,12 +33,7 @@
     box-sizing: border-box;
 }
 
-html {
-    min-height: 100%;
-    background-color: var(--bg-canvas);
-}
-
-body {
+html, body {
     min-height: 100dvh;
     background-color: var(--bg-canvas);
     color: var(--text-body);
@@ -46,32 +41,6 @@ body {
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
     overflow-x: clip;
-    position: relative;
-}
-
-/* Page Wallpaper Backdrop (using user photo bg.jpeg) */
-body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: -2;
-    background-image: url('../img/bg.jpeg');
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
-    transform: scale(1.02);
-}
-
-/* Solid Ambient Tint Scrim for Contrast (Zero Gradients) */
-body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    background-color: rgba(9, 9, 11, 0.72);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    pointer-events: none;
 }
 
 .skip-link {
@@ -337,15 +306,44 @@ textarea:focus-visible,
     align-items: center;
 }
 
-/* Liquid Glass Form Sheet */
+/* Liquid Glass Form Sheet with Photo Backdrop (bg.jpeg) */
 .glass-form-card {
-    background-color: var(--glass-fill);
-    backdrop-filter: saturate(190%) blur(26px);
-    -webkit-backdrop-filter: saturate(190%) blur(26px);
+    position: relative;
+    overflow: hidden;
+    background-color: #0B0B0F;
     border: 1px solid var(--glass-border);
     border-radius: 28px;
     padding: 34px 32px;
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+}
+
+.glass-form-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url('../img/bg.jpeg');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    opacity: 0.40;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.glass-form-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: rgba(9, 9, 12, 0.68);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.glass-form-card > * {
+    position: relative;
+    z-index: 2;
 }
 
 .form-card-header {
@@ -358,11 +356,13 @@ textarea:focus-visible,
     font-weight: 800;
     letter-spacing: -0.02em;
     color: var(--text-primary);
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.90);
     margin-bottom: 6px;
 }
 
 .form-card-header p {
-    color: var(--text-muted);
+    color: var(--text-body);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
     font-size: 0.92rem;
 }
 
@@ -426,7 +426,8 @@ textarea:focus-visible,
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: var(--text-body);
+    color: #FFFFFF;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
     margin-bottom: 7px;
 }
 
@@ -772,13 +773,42 @@ textarea:focus-visible,
 }
 
 .branch-select-card {
-    background-color: rgba(12, 12, 15, 0.92);
-    backdrop-filter: saturate(190%) blur(28px);
-    -webkit-backdrop-filter: saturate(190%) blur(28px);
+    position: relative;
+    overflow: hidden;
+    background-color: #0B0B0F;
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 28px;
     padding: 38px 36px;
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.70);
+}
+
+.branch-select-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url('../img/bg.jpeg');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    opacity: 0.40;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.branch-select-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: rgba(9, 9, 12, 0.68);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.branch-select-card > * {
+    position: relative;
+    z-index: 2;
 }
 
 .branch-option-card {
