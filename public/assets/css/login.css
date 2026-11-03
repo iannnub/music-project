@@ -33,14 +33,42 @@
     box-sizing: border-box;
 }
 
-html, body {
+html {
+    min-height: 100%;
+    background-color: var(--bg-canvas);
+}
+
+body {
     min-height: 100dvh;
     background-color: var(--bg-canvas);
+    background-image: url('../img/bg.jpeg');
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
     color: var(--text-body);
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
     overflow-x: clip;
+    position: relative;
+}
+
+/* Translucent solid dark backdrop tint over the wallpaper (Zero Gradients) */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-color: rgba(8, 8, 10, 0.45);
+    pointer-events: none;
+}
+
+.skip-link,
+.auth-shell,
+.branch-select-shell {
+    position: relative;
+    z-index: 1;
 }
 
 .skip-link {
@@ -144,24 +172,18 @@ textarea:focus-visible,
 /* Left Showcase Glass Panel */
 .showcase-panel {
     position: relative;
-    background-color: var(--bg-panel);
-    backdrop-filter: saturate(190%) blur(26px);
-    -webkit-backdrop-filter: saturate(190%) blur(26px);
+    background-color: rgba(14, 14, 18, 0.90);
+    backdrop-filter: saturate(190%) blur(24px);
+    -webkit-backdrop-filter: saturate(190%) blur(24px);
     border: 1px solid var(--glass-border);
     border-radius: 28px;
     padding: 36px;
     overflow: hidden;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
 }
 
 .showcase-bg-photo {
-    position: absolute;
-    inset: 0;
-    background-image: url('../img/bg.jpeg');
-    background-size: cover;
-    background-position: center;
-    opacity: 0.16;
-    pointer-events: none;
+    display: none;
 }
 
 .showcase-content {
@@ -306,44 +328,16 @@ textarea:focus-visible,
     align-items: center;
 }
 
-/* Liquid Glass Form Sheet with Photo Backdrop (bg.jpeg) */
+/* Liquid Glass Form Sheet (Frosted Dark Glass without photo) */
 .glass-form-card {
     position: relative;
-    overflow: hidden;
-    background-color: #0B0B0F;
+    background-color: rgba(14, 14, 18, 0.92);
+    backdrop-filter: saturate(190%) blur(24px);
+    -webkit-backdrop-filter: saturate(190%) blur(24px);
     border: 1px solid var(--glass-border);
     border-radius: 28px;
     padding: 34px 32px;
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
-}
-
-.glass-form-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url('../img/bg.jpeg');
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
-    opacity: 0.40;
-    pointer-events: none;
-    z-index: 0;
-}
-
-.glass-form-card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-color: rgba(9, 9, 12, 0.68);
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
-    pointer-events: none;
-    z-index: 1;
-}
-
-.glass-form-card > * {
-    position: relative;
-    z-index: 2;
 }
 
 .form-card-header {
@@ -774,41 +768,13 @@ textarea:focus-visible,
 
 .branch-select-card {
     position: relative;
-    overflow: hidden;
-    background-color: #0B0B0F;
+    background-color: rgba(14, 14, 18, 0.92);
+    backdrop-filter: saturate(190%) blur(24px);
+    -webkit-backdrop-filter: saturate(190%) blur(24px);
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 28px;
     padding: 38px 36px;
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.70);
-}
-
-.branch-select-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url('../img/bg.jpeg');
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
-    opacity: 0.40;
-    pointer-events: none;
-    z-index: 0;
-}
-
-.branch-select-card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-color: rgba(9, 9, 12, 0.68);
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
-    pointer-events: none;
-    z-index: 1;
-}
-
-.branch-select-card > * {
-    position: relative;
-    z-index: 2;
 }
 
 .branch-option-card {
