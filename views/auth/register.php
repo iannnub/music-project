@@ -5,7 +5,6 @@
     <?php
     $customPageTitle = 'Formulir Pendaftaran Siswa Baru | KakYo Lesson';
     require_once __DIR__ . '/../layouts/head_meta.php';
-    $selBranch = $reg_old['branch'] ?? 'Balung';
     ?>
     <link rel="stylesheet" href="<?= BASE_URL; ?>assets/sb-admin-2/vendor/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="<?= BASE_URL; ?>assets/css/login.css">
@@ -13,13 +12,6 @@
 
 <body>
     <a href="#main-register" class="skip-link">Lewati ke Formulir Pendaftaran</a>
-
-    <div class="auth-island-bar">
-        <div class="auth-dynamic-island" id="regDynamicIsland">
-            <span class="island-pulse" aria-hidden="true"></span>
-            <span id="regIslandSummary">Pendaftaran Online &bull; Studio 1 Balung (Rp 300.000)</span>
-        </div>
-    </div>
 
     <main id="main-register" class="auth-shell is-register">
         <aside class="showcase-panel" aria-labelledby="reg-info-title">
@@ -36,19 +28,19 @@
                 </h1>
 
                 <p class="hero-lead">
-                    Daftarkan putra/putri Anda atau diri Anda secara langsung. Akun belajar langsung aktif beserta rincian tagihan perdana sesuai cabang studio yang dipilih.
+                    Daftarkan putra/putri Anda atau diri Anda secara langsung. Akun belajar langsung aktif dengan kurikulum Bab terukur dan evaluasi raport digital.
                 </p>
 
                 <div class="branch-summary-grid" style="grid-template-columns: 1fr;">
                     <div class="branch-summary-card">
-                        <span class="branch-tag">Studio 1 Balung</span>
-                        <div class="branch-price">Rp 250.000 SPP + Rp 50.000 Pendaftaran</div>
-                        <div class="branch-sub">Total Tagihan Perdana: <strong>Rp 300.000</strong> &bull; Jl. Puger (Dekat Dira Balung)</div>
+                        <span class="branch-tag"><i class="fas fa-user-edit" aria-hidden="true"></i> Tahap 1: Registrasi Akun</span>
+                        <div class="branch-price">Identitas &amp; Akun Siswa</div>
+                        <div class="branch-sub">Lengkapi identitas siswa, wali, program musik, dan persetujuan Tata Tertib kursus.</div>
                     </div>
                     <div class="branch-summary-card">
-                        <span class="branch-tag">Studio 2 Jember Kota</span>
-                        <div class="branch-price">Rp 350.000 SPP + Rp 50.000 Pendaftaran</div>
-                        <div class="branch-sub">Total Tagihan Perdana: <strong>Rp 400.000</strong> &bull; Wilayah Kota Jember</div>
+                        <span class="branch-tag"><i class="fas fa-map-marker-alt" aria-hidden="true"></i> Tahap 2: Pilih Lokasi Studio</span>
+                        <div class="branch-price">Studio 1 Balung / Studio 2 Jember</div>
+                        <div class="branch-sub">Tentukan cabang studio les sesudah akun aktif untuk menerbitkan tagihan perdana.</div>
                     </div>
                 </div>
 
@@ -65,8 +57,8 @@
 
         <section class="glass-form-card" aria-labelledby="form-reg-title">
             <div class="form-card-header">
-                <h2 id="form-reg-title">Data Pendaftaran KakYo Lesson</h2>
-                <p>Lengkapi identitas wali, siswa, pilihan cabang, jadwal pengajuan, dan persetujuan Tata Tertib.</p>
+                <h2 id="form-reg-title">Data Pendaftaran Siswa Baru</h2>
+                <p>Lengkapi identitas wali, siswa, minat program musik, pengajuan jadwal, dan persetujuan Tata Tertib.</p>
             </div>
 
             <?php if (!empty($reg_error)): ?>
@@ -84,45 +76,7 @@
                     <input type="text" id="websiteUrlTrap" name="website_url" tabindex="-1" autocomplete="off">
                 </div>
 
-                <!-- 1. Pilihan Cabang Studio -->
-                <div class="field-group">
-                    <span class="field-label">Pilih Lokasi Cabang Studio <span class="req">*</span></span>
-                    <div class="branch-radio-grid" role="radiogroup" aria-label="Pilih Cabang Studio">
-                        <label class="branch-radio-option">
-                            <input type="radio" name="branch" value="Balung" data-label="Studio 1 Balung" data-spp="250.000" data-total="300.000" <?= ($selBranch === 'Balung') ? 'checked' : ''; ?> required>
-                            <span class="branch-radio-tile">
-                                <span class="tile-title">
-                                    <span>Studio 1 Balung</span>
-                                    <i class="fas fa-check-circle" style="color:#FF8C24;" aria-hidden="true"></i>
-                                </span>
-                                <span class="tile-spp">SPP Rp 250.000 / bln</span>
-                                <span class="tile-reg">+ Rp 50.000 Pendaftaran (Total Rp 300.000)</span>
-                            </span>
-                        </label>
-
-                        <label class="branch-radio-option">
-                            <input type="radio" name="branch" value="Jember" data-label="Studio 2 Jember Kota" data-spp="350.000" data-total="400.000" <?= ($selBranch === 'Jember') ? 'checked' : ''; ?> required>
-                            <span class="branch-radio-tile">
-                                <span class="tile-title">
-                                    <span>Studio 2 Jember Kota</span>
-                                    <i class="fas fa-check-circle" style="color:#FF8C24;" aria-hidden="true"></i>
-                                </span>
-                                <span class="tile-spp">SPP Rp 350.000 / bln</span>
-                                <span class="tile-reg">+ Rp 50.000 Pendaftaran (Total Rp 400.000)</span>
-                            </span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="invoice-preview-box" aria-live="polite">
-                    <div>
-                        <div style="font-size:0.76rem;font-weight:700;text-transform:uppercase;color:#B4B4BE;">Estimasi Tagihan Perdana Otomatis</div>
-                        <div id="previewBranchDesc" style="font-size:0.88rem;color:#F4F4F5;">Studio 1 Balung: SPP Rp 250.000 + Pendaftaran Rp 50.000</div>
-                    </div>
-                    <div class="invoice-preview-total" id="previewBranchTotal">Rp 300.000</div>
-                </div>
-
-                <!-- 2. Identitas Wali & Siswa -->
+                <!-- 1. Identitas Wali & Siswa -->
                 <div class="field-grid-2">
                     <div class="field-group">
                         <label class="field-label" for="regParentName">Nama Wali <span class="req">*</span></label>
@@ -270,8 +224,8 @@
                 </div>
 
                 <button type="submit" id="btnSubmitRegister" class="btn-orange-solid w-full" disabled>
-                    <i class="fas fa-check-circle" aria-hidden="true"></i>
-                    <span>Daftar &amp; Aktifkan Akun Siswa</span>
+                    <i class="fas fa-user-check" aria-hidden="true"></i>
+                    <span>Daftar &amp; Aktifkan Akun</span>
                 </button>
             </form>
 
@@ -295,32 +249,7 @@
                 });
             }
 
-            // 2. Live Branch Tariff & Dynamic Island Morphing
-            var radios = document.querySelectorAll('input[name="branch"]');
-            var previewDesc = document.getElementById('previewBranchDesc');
-            var previewTotal = document.getElementById('previewBranchTotal');
-            var islandText = document.getElementById('regIslandSummary');
-
-            function syncBranchUI() {
-                var checked = document.querySelector('input[name="branch"]:checked');
-                if (!checked) return;
-                var label = checked.getAttribute('data-label');
-                var spp = checked.getAttribute('data-spp');
-                var total = checked.getAttribute('data-total');
-                if (previewDesc) {
-                    previewDesc.textContent = label + ': SPP Rp ' + spp + ' + Pendaftaran Rp 50.000';
-                }
-                if (previewTotal) {
-                    previewTotal.textContent = 'Rp ' + total;
-                }
-                if (islandText) {
-                    islandText.textContent = 'Pendaftaran Online \u2022 ' + label + ' (Rp ' + total + ')';
-                }
-            }
-            radios.forEach(function (r) { r.addEventListener('change', syncBranchUI); });
-            syncBranchUI();
-
-            // 3. Scroll-to-Bottom Gate for Tata Tertib
+            // 2. Scroll-to-Bottom Gate for Tata Tertib
             var scrollBox = document.getElementById('regTatibScrollBox');
             var hiddenScrolled = document.getElementById('regTatibScrolled');
             var agreeChk = document.getElementById('regAgreeCheckbox');

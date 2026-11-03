@@ -53,9 +53,19 @@ $globalAbsensiCleanup->cleanupMonthlyTeacherPhotos(false);
 $page   = $_POST['page'] ?? $_GET['page'] ?? 'auth';
 $action = $_POST['action'] ?? $_GET['action'] ?? 'index';
 
-// Validasi kelengkapan profil dasar siswa lama
+// Validasi pemilihan cabang studio & profil siswa
 if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'siswa') {
-    if (empty($_SESSION['user']['parent_name']) || empty($_SESSION['user']['phone'])) {
+    if (empty($_SESSION['user']['branch'])) {
+        if (!in_array($page, ['pilih_cabang', 'auth'], true)) {
+            $_SESSION['flash'] = [
+                'status' => 'warning',
+                'title'  => 'Pilih Cabang Studio',
+                'msg'    => 'Silakan tentukan cabang studio les Anda terlebih dahulu untuk mengaktifkan tagihan perdana.'
+            ];
+            header("Location: index.php?page=pilih_cabang");
+            exit;
+        }
+    } elseif (empty($_SESSION['user']['parent_name']) || empty($_SESSION['user']['phone'])) {
         if (!in_array($page, ['profile', 'auth', 'agree_tatib'], true)) {
             $_SESSION['flash'] = [
                 'status' => 'warning',
@@ -103,6 +113,20 @@ switch ($page) {
         require_once '../controllers/AuthController.php';
         $controller = new AuthController($db);
         $controller->agree_tatib();
+        break;
+
+    case 'pilih_cabang':
+        if (!isset($_SESSION['user'])) {
+            header("Location: index.php?page=auth");
+            exit;
+        }
+        require_once '../controllers/AuthController.php';
+        $controller = new AuthController($db);
+        if ($action === 'save_branch') {
+            $controller->save_branch();
+        } else {
+            $controller->pilih_cabang();
+        }
         break;
 
     // --------------------------- profile ---------------------------

@@ -731,6 +731,87 @@ textarea:focus-visible,
     }
 }
 
+/* Branch Activation & Selection (Langkah 2) */
+.branch-select-shell {
+    max-width: 860px;
+    margin: 40px auto;
+    padding: 0 16px;
+}
+
+.branch-select-card {
+    background-color: rgba(12, 12, 15, 0.92);
+    backdrop-filter: saturate(190%) blur(28px);
+    -webkit-backdrop-filter: saturate(190%) blur(28px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 28px;
+    padding: 38px 36px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.70);
+}
+
+.branch-option-card {
+    position: relative;
+    cursor: pointer;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.branch-option-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+}
+
+.branch-option-tile {
+    display: block;
+    background-color: rgba(18, 18, 22, 0.85);
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    padding: 22px 24px;
+    transition: all 0.28s var(--ease-apple-spring);
+}
+
+.branch-option-card input[type="radio"]:checked + .branch-option-tile {
+    background-color: rgba(255, 140, 36, 0.10);
+    border-color: var(--accent-orange);
+    box-shadow: 0 8px 24px rgba(255, 140, 36, 0.20);
+}
+
+.branch-option-card input[type="radio"]:focus-visible + .branch-option-tile {
+    outline: 2px solid var(--accent-orange);
+    outline-offset: 2px;
+}
+
+.branch-address-box {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 0.84rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.branch-address-box strong {
+    color: var(--text-primary);
+}
+
+.branch-maps-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    font-size: 0.82rem;
+    color: var(--accent-orange);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.branch-maps-link:hover {
+    text-decoration: underline;
+}
+
 @media (max-width: 639.98px) {
     .auth-shell {
         padding: 0 14px;

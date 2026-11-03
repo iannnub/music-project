@@ -13,13 +13,6 @@
 <body>
     <a href="#main-login" class="skip-link">Lewati ke Formulir Masuk</a>
 
-    <div class="auth-island-bar">
-        <div class="auth-dynamic-island">
-            <span class="island-pulse" aria-hidden="true"></span>
-            <span>KakYo Lesson &bull; Studio 1 Balung &amp; Studio 2 Jember Kota</span>
-        </div>
-    </div>
-
     <main id="main-login" class="auth-shell">
         <section class="showcase-panel" aria-labelledby="hero-title">
             <div class="showcase-bg-photo" aria-hidden="true"></div>

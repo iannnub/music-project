@@ -16,14 +16,18 @@ class AuthController {
                 'spp'              => 250000,
                 'registration_fee' => 50000,
                 'initial_total'    => 300000,
-                'address_hint'     => 'Jl. Puger (Dekat Dira Balung), Kec. Balung, Jember'
+                'address'          => 'PG7G+X8Q, Krajan Karang Anom, Balung Kulon, Kec. Balung, Kabupaten Jember, Jawa Timur 68161',
+                'maps_url'         => 'https://maps.app.goo.gl/KKKXVSHdrFctNxNJ8',
+                'address_hint'     => 'PG7G+X8Q, Krajan Karang Anom, Balung Kulon, Kec. Balung, Jember'
             ],
             'Jember' => [
                 'label'            => 'Studio 2 Jember Kota',
                 'spp'              => 350000,
                 'registration_fee' => 50000,
                 'initial_total'    => 400000,
-                'address_hint'     => 'Wilayah Kota Jember, Kabupaten Jember'
+                'address'          => 'VP2X+VRC Antirogo, Jember Regency, East Java',
+                'maps_url'         => 'https://maps.app.goo.gl/e1FxtYetwPjRBtbq8',
+                'address_hint'     => 'VP2X+VRC Antirogo, Jember Regency, East Java'
             ]
         ];
     }
@@ -137,9 +141,7 @@ class AuthController {
             exit;
         }
 
-        $tariffs = self::getBranchTariffs();
         $old = [
-            'branch'         => trim($_POST['branch'] ?? ''),
             'parent_name'    => trim($_POST['parent_name'] ?? ''),
             'phone'          => trim($_POST['phone'] ?? ''),
             'name'           => trim($_POST['name'] ?? ''),
@@ -159,9 +161,7 @@ class AuthController {
         $scrolledEnd = isset($_POST['tatib_scrolled']) && $_POST['tatib_scrolled'] === '1';
 
         $error = null;
-        if (!isset($tariffs[$old['branch']])) {
-            $error = 'Silakan pilih cabang kursus (Studio 1 Balung atau Studio 2 Jember Kota).';
-        } elseif ($old['parent_name'] === '' || $old['name'] === '' || $old['phone'] === '' || $old['address'] === '') {
+        if ($old['parent_name'] === '' || $old['name'] === '' || $old['phone'] === '' || $old['address'] === '') {
             $error = 'Harap lengkapi Nama Wali, Nomor WhatsApp, Nama Lengkap Siswa, dan Alamat.';
         } elseif (!in_array($old['gender'], ['Laki-laki', 'Perempuan'], true)) {
             $error = 'Silakan pilih Jenis Kelamin siswa.';
@@ -191,7 +191,6 @@ class AuthController {
             exit;
         }
 
-        $selectedTariff = $tariffs[$old['branch']];
         $cleanPhone = preg_replace('/[^0-9+]/', '', $old['phone']);
 
         try {
@@ -205,8 +204,8 @@ class AuthController {
                 'role'            => 'siswa',
                 'phone'           => $cleanPhone,
                 'parent_name'     => $old['parent_name'],
-                'branch'          => $old['branch'],
-                'spp_rate'        => $selectedTariff['spp'],
+                'branch'          => null,
+                'spp_rate'        => null,
                 'gender'          => $old['gender'],
                 'school_or_work'  => $old['school_or_work'],
                 'age'             => (int)$old['age'],
@@ -222,49 +221,20 @@ class AuthController {
                 throw new Exception('Gagal menyimpan akun siswa.');
             }
 
-            // Buat Tagihan Perdana otomatis (SPP Bulan Pertama + Biaya Pendaftaran Rp 50.000)
-            $pembayaranModel = new PembayaranModel($this->db);
-            $noteInvoice = sprintf(
-                'Tagihan Perdana %s: SPP Rp %s + Biaya Pendaftaran Rp %s (%s - %s, Pengajuan: %s %s)',
-                $selectedTariff['label'],
-                number_format($selectedTariff['spp'], 0, ',', '.'),
-                number_format($selectedTariff['registration_fee'], 0, ',', '.'),
-                $old['program'],
-                $old['instrument'],
-                $old['preferred_day'],
-                $old['preferred_time']
-            );
-
-            $invoiceOk = $pembayaranModel->create([
-                'student_id' => $newUserId,
-                'admin_id'   => null,
-                'month'      => (int)date('n'),
-                'year'       => (int)date('Y'),
-                'start_date' => date('Y-m-d'),
-                'end_date'   => date('Y-m-d', strtotime('+7 days')),
-                'amount'     => $selectedTariff['initial_total'],
-                'status'     => 'Belum Lunas',
-                'notes'      => $noteInvoice
-            ]);
-
-            if (!$invoiceOk) {
-                throw new Exception('Gagal menerbitkan tagihan perdana siswa.');
-            }
-
             $this->db->commit();
 
-            // Auto-login siswa baru ke Dashboard Siswa
+            // Auto-login siswa baru dan arahkan ke langkah pemilihan lokasi cabang studio
             $freshUser = $userModel->getById($newUserId);
             session_regenerate_id(true);
             $_SESSION['user'] = $freshUser;
             $_SESSION['LAST_ACTIVITY'] = time();
             $_SESSION['flash'] = [
                 'status' => 'success',
-                'title'  => 'Pendaftaran Berhasil',
-                'msg'    => 'Selamat bergabung di KakYo Lesson! Tagihan perdana ' . $selectedTariff['label'] . ' sebesar Rp ' . number_format($selectedTariff['initial_total'], 0, ',', '.') . ' telah diterbitkan.'
+                'title'  => 'Akun Berhasil Didaftarkan!',
+                'msg'    => 'Akun Anda telah aktif. Silakan pilih lokasi cabang studio les Anda untuk mengaktifkan tagihan perdana.'
             ];
 
-            header("Location: index.php?page=dashboard_siswa");
+            header("Location: index.php?page=pilih_cabang");
             exit;
         } catch (Exception $e) {
             if ($this->db->inTransaction()) {
@@ -273,6 +243,133 @@ class AuthController {
             $_SESSION['reg_error'] = 'Terjadi kendala saat memproses pendaftaran: ' . $e->getMessage();
             $_SESSION['reg_old']   = $old;
             header("Location: index.php?page=register");
+            exit;
+        }
+    }
+
+    // Halaman Aktivasi / Pemilihan Cabang Studio Kursus (Langkah 2 setelah registrasi)
+    public function pilih_cabang() {
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'siswa') {
+            header("Location: index.php?page=auth");
+            exit;
+        }
+
+        // Jika siswa sudah menentukan cabang, langsung ke Dashboard
+        if (!empty($_SESSION['user']['branch'])) {
+            header("Location: index.php?page=dashboard_siswa");
+            exit;
+        }
+
+        $tariffs = self::getBranchTariffs();
+        $student = $_SESSION['user'];
+        require_once '../views/auth/pilih_cabang.php';
+    }
+
+    // Proses Simpan Pilihan Cabang Studio & Pembuatan Tagihan Perdana Otomatis
+    public function save_branch() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header("Location: index.php?page=pilih_cabang");
+            exit;
+        }
+
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'siswa') {
+            header("Location: index.php?page=auth");
+            exit;
+        }
+
+        require_once '../helpers/CsrfHelper.php';
+        if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            die("CSRF token tidak valid");
+        }
+
+        $tariffs = self::getBranchTariffs();
+        $branch  = trim($_POST['branch'] ?? '');
+
+        if (!isset($tariffs[$branch])) {
+            $_SESSION['flash'] = [
+                'status' => 'warning',
+                'title'  => 'Pilih Cabang Studio',
+                'msg'    => 'Silakan pilih salah satu cabang studio: Studio 1 Balung atau Studio 2 Jember Kota.'
+            ];
+            header("Location: index.php?page=pilih_cabang");
+            exit;
+        }
+
+        $selectedTariff = $tariffs[$branch];
+        $userId = (int)$_SESSION['user']['id'];
+        $userModel = new UserModel($this->db);
+        require_once '../models/PembayaranModel.php';
+        $pembayaranModel = new PembayaranModel($this->db);
+
+        try {
+            $this->db->beginTransaction();
+
+            // 1. Simpan cabang studio dan tarif SPP siswa
+            $stmtUpd = $this->db->prepare("UPDATE users SET branch = :branch, spp_rate = :spp WHERE id = :id");
+            $stmtUpd->execute([
+                ':branch' => $branch,
+                ':spp'    => $selectedTariff['spp'],
+                ':id'     => $userId
+            ]);
+
+            // 2. Terbitkan Tagihan Perdana otomatis (jika belum ada tagihan terdaftar)
+            $stmtCheckPay = $this->db->prepare("SELECT id FROM payments WHERE student_id = ? LIMIT 1");
+            $stmtCheckPay->execute([$userId]);
+            $existingPayment = $stmtCheckPay->fetch();
+
+            if (!$existingPayment) {
+                $userProfile = $userModel->getById($userId);
+                $noteInvoice = sprintf(
+                    'Tagihan Perdana %s: SPP Rp %s + Biaya Pendaftaran Rp %s (%s - %s, Pengajuan: %s %s)',
+                    $selectedTariff['label'],
+                    number_format($selectedTariff['spp'], 0, ',', '.'),
+                    number_format($selectedTariff['registration_fee'], 0, ',', '.'),
+                    $userProfile['program'] ?? 'Reguler',
+                    $userProfile['instrument'] ?? 'Musik',
+                    $userProfile['preferred_day'] ?? '-',
+                    $userProfile['preferred_time'] ?? '-'
+                );
+
+                $invoiceOk = $pembayaranModel->create([
+                    'student_id' => $userId,
+                    'admin_id'   => null,
+                    'month'      => (int)date('n'),
+                    'year'       => (int)date('Y'),
+                    'start_date' => date('Y-m-d'),
+                    'end_date'   => date('Y-m-d', strtotime('+7 days')),
+                    'amount'     => $selectedTariff['initial_total'],
+                    'status'     => 'Belum Lunas',
+                    'notes'      => $noteInvoice
+                ]);
+
+                if (!$invoiceOk) {
+                    throw new Exception('Gagal menerbitkan tagihan perdana siswa.');
+                }
+            }
+
+            $this->db->commit();
+
+            // Perbarui data user dalam sesi
+            $_SESSION['user'] = $userModel->getById($userId);
+            $_SESSION['flash'] = [
+                'status' => 'success',
+                'title'  => 'Pendaftaran Lengkap!',
+                'msg'    => 'Selamat bergabung di KakYo Lesson! Anda memilih ' . $selectedTariff['label'] . '. Tagihan perdana sebesar Rp ' . number_format($selectedTariff['initial_total'], 0, ',', '.') . ' telah diterbitkan.'
+            ];
+
+            header("Location: index.php?page=dashboard_siswa");
+            exit;
+        } catch (Exception $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            $_SESSION['flash'] = [
+                'status' => 'error',
+                'title'  => 'Gagal Memproses Cabang',
+                'msg'    => $e->getMessage()
+            ];
+            header("Location: index.php?page=pilih_cabang");
             exit;
         }
     }
