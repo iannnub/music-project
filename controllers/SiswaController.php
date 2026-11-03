@@ -1,6 +1,8 @@
 <?php
-require_once '../models/AbsensiModel.php'; 
-require_once '../helpers/ImageHelper.php'; 
+require_once '../models/AbsensiModel.php';
+require_once '../models/GuruModel.php';
+require_once '../models/SettingsModel.php';
+require_once '../helpers/ImageHelper.php';
 
 class SiswaController {
     private $db;
@@ -10,22 +12,20 @@ class SiswaController {
     public function __construct($db) {
         $this->db = $db;
         require_once '../models/UserModel.php';
-        require_once '../models/KelasModel.php'; 
+        require_once '../models/KelasModel.php';
         $this->userModel = new UserModel($this->db);
         $this->classModel = new KelasModel($this->db);
     }
 
-    // --- 1. DASHBOARD & MANAJEMEN SISWA ---
     public function index() {
-        if ($_SESSION['user']['role'] == 'admin') {
-            $stmtSiswa = $this->db->prepare("SELECT * FROM users WHERE role = 'siswa' ORDER BY name ASC");
+        if ($_SESSION['user']['role'] === 'admin') {
+            $stmtSiswa = $this->db->prepare("SELECT * FROM users WHERE role = 'siswa' ORDER BY created_at DESC, name ASC");
             $stmtSiswa->execute();
             $siswa = $stmtSiswa->fetchAll();
 
-            $queryKelas = "SELECT c.*, u.name as teacher_name FROM classes c LEFT JOIN users u ON c.teacher_id = u.id ORDER BY c.name ASC";
-            $stmtKelas = $this->db->prepare($queryKelas);
+            $stmtKelas = $this->db->prepare("SELECT c.*, u.name as teacher_name FROM classes c LEFT JOIN users u ON c.teacher_id = u.id ORDER BY c.name ASC");
             $stmtKelas->execute();
-            $classes = $stmtKelas->fetchAll(); 
+            $classes = $stmtKelas->fetchAll();
 
             require_once '../views/layouts/header.php';
             require_once '../views/layouts/sidebar.php';
@@ -36,14 +36,19 @@ class SiswaController {
             $student_id = $_SESSION['user']['id'];
             require_once '../models/PembayaranModel.php';
             $pembayaranModel = new PembayaranModel($this->db);
+            $guruModel       = new GuruModel($this->db);
+            $settingsModel   = new SettingsModel($this->db);
 
-            // A. Ambil Jadwal & Status Absen
+            // A. Jadwal & Status Presensi Hari Ini (mendukung Private & Band Group)
             $queryJadwal = "SELECT cm.id as schedule_id, cm.day, cm.start_time, cm.end_time, 
-                                   c.name as class_name, c.type, u.name as teacher_name,
+                                   c.name as class_name, c.type, cb.name as band_name,
+                                   COALESCE(ut_band.name, u.name) as teacher_name,
                                    a.status as status_kehadiran, a.created_at as waktu_absen_masuk
                             FROM class_members cm
                             JOIN classes c ON cm.class_id = c.id
+                            LEFT JOIN class_bands cb ON cm.band_id = cb.id
                             JOIN users u ON c.teacher_id = u.id
+                            LEFT JOIN users ut_band ON cb.teacher_id = ut_band.id
                             LEFT JOIN attendances a ON cm.id = a.schedule_id 
                                                    AND a.student_id = :sid_join
                                                    AND a.date = CURRENT_DATE
@@ -55,52 +60,44 @@ class SiswaController {
             $jadwal_saya = $stmt->fetchAll();
 
             $data['next_class'] = null;
-            $hari_ini = date('l'); // English day name
             $map_hari = ['Monday'=>'Senin', 'Tuesday'=>'Selasa', 'Wednesday'=>'Rabu', 'Thursday'=>'Kamis', 'Friday'=>'Jumat', 'Saturday'=>'Sabtu', 'Sunday'=>'Minggu'];
-            $hari_indo = $map_hari[$hari_ini];
+            $hari_indo = $map_hari[date('l')];
             $jam_sekarang = date('H:i:s');
 
             foreach ($jadwal_saya as $j) {
-                if ($j['day'] == $hari_indo && $j['end_time'] >= $jam_sekarang) {
+                if ($j['day'] === $hari_indo && $j['end_time'] >= $jam_sekarang) {
                     $data['next_class'] = $j;
-                    break; // Ambil yang paling dekat jamnya (yang belum selesai)
+                    break;
                 }
             }
 
-            // B. Progress Terakhir
-            $queryProg = "SELECT * FROM progress_logs WHERE student_id = :sid ORDER BY date DESC LIMIT 1";
-            $stmt2 = $this->db->prepare($queryProg);
+            // B. Kurikulum Bab & Subbab + Catatan Progress Terakhir
+            $curriculum = $guruModel->getChaptersWithSubchapters($student_id);
+            $stmt2 = $this->db->prepare("SELECT * FROM progress_logs WHERE student_id = :sid ORDER BY date DESC LIMIT 1");
             $stmt2->execute([':sid' => $student_id]);
             $last_progress = $stmt2->fetch();
 
-            // C. Tugas Belum Dikerjakan (Logic Filter diperbaiki)
-            $queryPending = "SELECT assignments.*, classes.name as class_name 
-                             FROM assignments
-                             JOIN classes ON assignments.class_id = classes.id
-                             JOIN class_members ON classes.id = class_members.class_id
-                             LEFT JOIN submissions ON assignments.id = submissions.assignment_id 
-                                   AND submissions.student_id = :sid_join
-                             WHERE (class_members.student_id = :sid_where OR assignments.student_id = :sid_privat)
-                             AND submissions.id IS NULL
-                             GROUP BY assignments.id
-                             ORDER BY assignments.deadline ASC";
-            $stmt3 = $this->db->prepare($queryPending);
-            $stmt3->execute([':sid_join' => $student_id, ':sid_where' => $student_id, ':sid_privat' => $student_id]);
-            $tugas_pending = $stmt3->fetchAll();
+            // C. Link TikTok Latihan Global dari Admin
+            $tiktok_url   = $settingsModel->get('tiktok_practice_url', 'https://www.tiktok.com/@kakyo_lesson');
+            $tiktok_title = $settingsModel->get('tiktok_practice_title', 'Video Latihan & Dokumentasi Siswa KakYo Lesson');
+            $tiktok_desc  = $settingsModel->get('tiktok_practice_desc', 'Pantau video latihan rutin dan penampilan siswa langsung dari TikTok resmi KakYo Lesson.');
 
-            // D. Status SPP
-            $bulan_ini = date('n'); 
-            $tahun_ini = date('Y');
-            $data['is_lunas'] = $pembayaranModel->checkStatusSiswa($student_id, $bulan_ini, $tahun_ini);
-
-            // Mengirim variabel ke view
-            $data['jadwal_saya'] = $jadwal_saya;
+            // D. Status SPP & Tagihan Aktif
+            $bulan_ini = (int)date('n');
+            $tahun_ini = (int)date('Y');
+            $data['is_lunas']      = $pembayaranModel->checkStatusSiswa($student_id, $bulan_ini, $tahun_ini);
+            $data['all_payments']  = $pembayaranModel->getAllByStudent($student_id);
+            $data['jadwal_saya']   = $jadwal_saya;
+            $data['curriculum']    = $curriculum;
             $data['last_progress'] = $last_progress;
-            $data['tugas_pending'] = $tugas_pending;
+            $data['tiktok_url']    = $tiktok_url;
+            $data['tiktok_title']  = $tiktok_title;
+            $data['tiktok_desc']   = $tiktok_desc;
 
             $this->renderView('siswa/dashboard', $data);
         }
     }
+
     public function store() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
@@ -111,204 +108,183 @@ class SiswaController {
             http_response_code(403);
             die("CSRF token tidak valid");
         }
-        // 1. TANGKAP DATA JADWAL (Array)
-        $class_ids   = $_POST['class_id']; 
-        $days        = $_POST['day'];
-        $start_times = $_POST['start_time'];
-        $end_times   = $_POST['end_time'];
 
-    try {
-        $this->db->beginTransaction();
+        $class_ids   = array_filter($_POST['class_id'] ?? []);
+        $days        = $_POST['day'] ?? [];
+        $start_times = $_POST['start_time'] ?? [];
+        $end_times   = $_POST['end_time'] ?? [];
+        $branch      = $_POST['branch'] ?? null;
+        $spp_rate    = ($branch === 'Jember') ? 350000 : (($branch === 'Balung') ? 250000 : null);
 
-        // 2. TAHAP VALIDASI: CEK KONFLIK UNTUK SEMUA JADWAL YANG DIINPUT
-        // Prepare statement sekali di luar loop untuk efisiensi
-        $stmtTeacher = $this->db->prepare("SELECT teacher_id FROM classes WHERE id = ?");
-        foreach ($class_ids as $key => $class_id) {
-            // Ambil teacher_id untuk kelas ini
-            $stmtTeacher->execute([$class_id]);
-            $classData = $stmtTeacher->fetch();
-            $teacher_id = $classData['teacher_id'] ?? null;
+        try {
+            $this->db->beginTransaction();
 
-            if ($start_times[$key] >= $end_times[$key]) {
-                throw new Exception("Jam selesai harus lebih besar dari jam mulai pada baris ke-" . ($key + 1));
-            }
+            $stmtTeacher = $this->db->prepare("SELECT teacher_id FROM classes WHERE id = ?");
+            foreach ($class_ids as $key => $class_id) {
+                $stmtTeacher->execute([$class_id]);
+                $classData = $stmtTeacher->fetch();
+                $teacher_id = $classData['teacher_id'] ?? null;
 
-            // Validasi duplikat kelas dan bentrok waktu antar jadwal yang diinput bersamaan
-            for ($k = 0; $k < $key; $k++) {
-                if ($class_ids[$k] === $class_id) {
-                    throw new Exception("Kelas yang sama dipilih lebih dari satu kali!");
+                if ($start_times[$key] >= $end_times[$key]) {
+                    throw new Exception("Jam selesai harus lebih besar dari jam mulai pada baris ke-" . ($key + 1));
                 }
-                if ($days[$k] === $days[$key] && !($end_times[$k] <= $start_times[$key] || $start_times[$key] >= $end_times[$key])) {
-                    throw new Exception("Jadwal input ke-" . ($key + 1) . " bentrok dengan jadwal input ke-" . ($k + 1) . "!");
+
+                for ($k = 0; $k < $key; $k++) {
+                    if ($days[$k] === $days[$key] && !($end_times[$k] <= $start_times[$key] || $start_times[$key] >= $end_times[$key])) {
+                        throw new Exception("Jadwal input ke-" . ($key + 1) . " bentrok dengan jadwal input ke-" . ($k + 1) . ".");
+                    }
+                }
+
+                if ($teacher_id && $this->classModel->isConflict($teacher_id, $days[$key], $start_times[$key], $end_times[$key])) {
+                    throw new Exception("Jadwal di hari " . $days[$key] . " jam " . $start_times[$key] . " bentrok dengan jadwal Guru.");
                 }
             }
 
-            // Validasi Konflik Jadwal Guru
-            if ($this->classModel->isConflict($teacher_id, $days[$key], $start_times[$key], $end_times[$key])) {
-                // Jika ada salah satu yang bentrok, lempar exception untuk membatalkan semua
-                throw new Exception("Jadwal di hari " . $days[$key] . " jam " . $start_times[$key] . " bentrok dengan jadwal Guru!");
+            $userData = [
+                'username'    => trim($_POST['username'] ?? ''),
+                'name'        => trim($_POST['name'] ?? ''),
+                'email'       => trim($_POST['email'] ?? ''),
+                'password'    => password_hash($_POST['password'] ?? '', PASSWORD_DEFAULT),
+                'role'        => 'siswa',
+                'phone'       => trim($_POST['phone'] ?? ''),
+                'parent_name' => trim($_POST['parent_name'] ?? ''),
+                'branch'      => $branch,
+                'spp_rate'    => $spp_rate
+            ];
+
+            $newStudentId = $this->userModel->create($userData);
+            if (!$newStudentId) {
+                throw new Exception("Gagal membuat akun siswa. Username mungkin sudah digunakan.");
             }
-        }
 
-        // 3. SIMPAN AKUN SISWA
-        $userData = [
-            'username' => $_POST['username'],
-            'name'     => $_POST['name'],
-            'email'    => $_POST['email'],
-            'password' => password_hash($_POST['password'], PASSWORD_DEFAULT),
-            'role'     => 'siswa',
-            'phone'    => $_POST['phone'],
-            'parent_name' => $_POST['parent_name'] ?? null
-        ];
-
-        // create() harus mengembalikan lastInsertId
-        $newStudentId = $this->userModel->create($userData);
-
-        if (!$newStudentId) {
-            throw new Exception("Gagal membuat akun siswa. Username mungkin sudah digunakan.");
-        }
-
-        // 4. SIMPAN SEMUA JADWAL (PREPARE SEKALI DI LUAR LOOP)
-        $stmtInsertMember = $this->db->prepare("
-            INSERT INTO class_members (student_id, class_id, day, start_time, end_time) 
-            VALUES (?, ?, ?, ?, ?)
-        ");
-        foreach ($class_ids as $key => $class_id) {
-            $success = $stmtInsertMember->execute([
-                $newStudentId,
-                $class_id,
-                $days[$key],
-                $start_times[$key],
-                $end_times[$key]
-            ]);
-
-            if (!$success) {
-                throw new Exception("Gagal menyimpan plotting jadwal ke-" . ($key + 1));
+            if (!empty($class_ids)) {
+                $stmtInsertMember = $this->db->prepare("
+                    INSERT INTO class_members (student_id, class_id, day, start_time, end_time) 
+                    VALUES (?, ?, ?, ?, ?)
+                ");
+                foreach ($class_ids as $key => $class_id) {
+                    if (!$stmtInsertMember->execute([$newStudentId, $class_id, $days[$key], $start_times[$key], $end_times[$key]])) {
+                        throw new Exception("Gagal menyimpan plotting jadwal ke-" . ($key + 1));
+                    }
+                }
             }
+
+            // Jika Admin memilih cabang saat input manual, terbitkan juga tagihan perdana otomatis
+            if (in_array($branch, ['Balung', 'Jember'], true)) {
+                require_once '../models/PembayaranModel.php';
+                $pembayaranModel = new PembayaranModel($this->db);
+                $totalInitial = ($branch === 'Jember') ? 400000 : 300000;
+                $labelBranch  = ($branch === 'Jember') ? 'Studio 2 Jember Kota' : 'Studio 1 Balung';
+                $pembayaranModel->create([
+                    'student_id' => $newStudentId,
+                    'admin_id'   => $_SESSION['user']['id'],
+                    'month'      => (int)date('n'),
+                    'year'       => (int)date('Y'),
+                    'start_date' => date('Y-m-d'),
+                    'end_date'   => date('Y-m-d', strtotime('+7 days')),
+                    'amount'     => $totalInitial,
+                    'status'     => 'Belum Lunas',
+                    'notes'      => "Tagihan Perdana {$labelBranch}: SPP Rp " . number_format($spp_rate, 0, ',', '.') . " + Pendaftaran Rp 50.000"
+                ]);
+            }
+
+            $this->db->commit();
+
+            $_SESSION['flash'] = [
+                'status' => 'success',
+                'title'  => 'Siswa Ditambahkan',
+                'msg'    => 'Akun siswa berhasil dibuat.'
+            ];
+        } catch (Exception $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            $_SESSION['flash'] = [
+                'status' => 'error',
+                'title'  => 'Gagal Menyimpan',
+                'msg'    => $e->getMessage()
+            ];
         }
 
-        // Jika semua lancar, baru Commit ke database
-        $this->db->commit();
-
-        $_SESSION['flash'] = [
-            'status' => 'success',
-            'title'  => 'Pendaftaran Berhasil!',
-            'msg'    => 'Akun siswa berhasil dibuat dengan ' . count($class_ids) . ' jadwal latihan.'
-        ];
-
-    } catch (Exception $e) {
-        // Jika ada error/bentrok di tengah jalan, batalkan semua (Rollback)
-        $this->db->rollBack();
-        $_SESSION['flash'] = [
-            'status' => 'error',
-            'title'  => 'Gagal Mendaftar',
-            'msg'    => $e->getMessage()
-        ];
+        header("Location: index.php?page=siswa");
+        exit();
     }
 
-    header("Location: index.php?page=siswa");
-    exit();
-}
+    public function add_schedule_item() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            die("Metode request tidak diizinkan. Gunakan POST.");
+        }
+        require_once '../helpers/CsrfHelper.php';
+        if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            die("CSRF token tidak valid");
+        }
 
-// --- FITUR TAMBAH JADWAL SATUAN (Buat Siswa Lama) ---
-public function add_schedule_item() {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        http_response_code(405);
-        die("Metode request tidak diizinkan. Gunakan POST.");
-    }
-    require_once '../helpers/CsrfHelper.php';
-    if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
-        http_response_code(403);
-        die("CSRF token tidak valid");
-    }
-    $student_id = $_POST['student_id'];
-    $class_id   = $_POST['class_id'];
-        $day        = $_POST['day'];
-        $start_time = $_POST['start_time'];
-        $end_time   = $_POST['end_time'];
+        $student_id = (int)($_POST['student_id'] ?? 0);
+        $class_id   = (int)($_POST['class_id'] ?? 0);
+        $day        = $_POST['day'] ?? '';
+        $start_time = $_POST['start_time'] ?? '';
+        $end_time   = $_POST['end_time'] ?? '';
 
-        // 1. Ambil teacher_id dari kelas yang dipilih
+        if ($start_time >= $end_time) {
+            $_SESSION['flash'] = ['status' => 'warning', 'title' => 'Jam Tidak Valid', 'msg' => 'Jam selesai harus lebih besar dari jam mulai.'];
+            header("Location: index.php?page=siswa_manage_jadwal&id=" . $student_id);
+            exit();
+        }
+
         $stmt = $this->db->prepare("SELECT teacher_id FROM classes WHERE id = ?");
         $stmt->execute([$class_id]);
         $teacher_id = $stmt->fetch()['teacher_id'] ?? null;
 
-        // 1.5 Cek Apakah Siswa Sudah Ada di Kelas Tersebut
-        if ($this->classModel->isMember($class_id, $student_id)) {
-            $_SESSION['flash'] = [
-                'status' => 'warning',
-                'title'  => 'Sudah Terdaftar!',
-                'msg'    => 'Siswa sudah terdaftar pada kelas tersebut.'
-            ];
+        if ($teacher_id && $this->classModel->isConflict($teacher_id, $day, $start_time, $end_time)) {
+            $_SESSION['flash'] = ['status' => 'warning', 'title' => 'Jadwal Guru Bentrok', 'msg' => 'Guru pengampu sudah memiliki jadwal lain di jam tersebut.'];
             header("Location: index.php?page=siswa_manage_jadwal&id=" . $student_id);
             exit();
         }
 
-        // 2. Cek Konflik Jadwal Guru
-        if ($this->classModel->isConflict($teacher_id, $day, $start_time, $end_time)) {
-            $_SESSION['flash'] = [
-                'status' => 'warning',
-                'title'  => 'Jadwal Bentrok!',
-                'msg'    => 'Guru pengampu sudah memiliki jadwal lain di jam tersebut.'
-            ];
-            header("Location: index.php?page=siswa_manage_jadwal&id=" . $student_id);
-            exit();
-        }
-
-        // Cek Konflik Jadwal Siswa
         if ($this->classModel->isStudentConflict($student_id, $day, $start_time, $end_time)) {
-            $_SESSION['flash'] = [
-                'status' => 'warning',
-                'title'  => 'Jadwal Siswa Bentrok!',
-                'msg'    => 'Jadwal siswa bentrok dengan kelas lain di hari dan jam yang sama.'
-            ];
+            $_SESSION['flash'] = ['status' => 'warning', 'title' => 'Jadwal Siswa Bentrok', 'msg' => 'Jadwal siswa bentrok dengan sesi lain di hari dan jam yang sama.'];
             header("Location: index.php?page=siswa_manage_jadwal&id=" . $student_id);
             exit();
         }
 
-        // 3. Eksekusi Simpan ke class_members
-        $data = [
+        if ($this->classModel->addMember([
             'student_id' => $student_id,
             'class_id'   => $class_id,
             'day'        => $day,
             'start_time' => $start_time,
             'end_time'   => $end_time
-        ];
-
-        if ($this->classModel->addMember($data)) {
-            $_SESSION['flash'] = ['status' => 'success', 'title' => 'Berhasil', 'msg' => 'Jadwal tambahan telah didaftarkan.'];
+        ])) {
+            $_SESSION['flash'] = ['status' => 'success', 'title' => 'Jadwal Ditambahkan', 'msg' => 'Sesi latihan berhasil didaftarkan.'];
         } else {
-            $_SESSION['flash'] = ['status' => 'error', 'title' => 'Gagal', 'msg' => 'Terjadi kesalahan database.'];
+            $_SESSION['flash'] = ['status' => 'warning', 'title' => 'Duplikat Slot', 'msg' => 'Slot jadwal tersebut sudah terdaftar.'];
         }
 
         header("Location: index.php?page=siswa_manage_jadwal&id=" . $student_id);
         exit();
     }
 
-// --- FITUR HAPUS JADWAL SATUAN ---
-public function delete_schedule_item() {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        http_response_code(405);
-        die("Metode request tidak diizinkan. Gunakan POST.");
-    }
-    require_once '../helpers/CsrfHelper.php';
-    if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
-        http_response_code(403);
-        die("CSRF token tidak valid");
-    }
-    $id = (int)($_POST['id'] ?? 0);
-    $student_id = (int)($_POST['student_id'] ?? 0);
+    public function delete_schedule_item() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            die("Metode request tidak diizinkan. Gunakan POST.");
+        }
+        require_once '../helpers/CsrfHelper.php';
+        if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            die("CSRF token tidak valid");
+        }
+        $id = (int)($_POST['id'] ?? 0);
+        $student_id = (int)($_POST['student_id'] ?? 0);
 
-    // Eksekusi hapus baris di class_members
-    $stmt = $this->db->prepare("DELETE FROM class_members WHERE id = ?");
-    if ($stmt->execute([$id])) {
-        $_SESSION['flash'] = ['status' => 'success', 'title' => 'Terhapus', 'msg' => 'Sesi latihan berhasil dihapus dari daftar.'];
-    } else {
-        $_SESSION['flash'] = ['status' => 'error', 'title' => 'Gagal', 'msg' => 'Gagal menghapus data.'];
+        $stmt = $this->db->prepare("DELETE FROM class_members WHERE id = ?");
+        if ($stmt->execute([$id])) {
+            $_SESSION['flash'] = ['status' => 'success', 'title' => 'Terhapus', 'msg' => 'Sesi latihan berhasil dihapus dari daftar.'];
+        }
+        header("Location: index.php?page=siswa_manage_jadwal&id=" . $student_id);
+        exit();
     }
-
-    header("Location: index.php?page=siswa_manage_jadwal&id=" . $student_id);
-    exit();
-}
 
     public function update() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -320,125 +296,98 @@ public function delete_schedule_item() {
             http_response_code(403);
             die("CSRF token tidak valid");
         }
-        $id = $_POST['id'];
+        $id     = (int)($_POST['id'] ?? 0);
+        $branch = $_POST['branch'] ?? '';
+        $spp    = ($branch === 'Jember') ? 350000 : (($branch === 'Balung') ? 250000 : null);
+
         $data = [
-            'username' => $_POST['username'],
-            'name'     => $_POST['name'],
-            'email'    => $_POST['email'],
-            'phone'    => $_POST['phone'],
-            'parent_name' => $_POST['parent_name'] ?? null
+            'username'    => trim($_POST['username'] ?? ''),
+            'name'        => trim($_POST['name'] ?? ''),
+            'email'       => trim($_POST['email'] ?? ''),
+            'phone'       => trim($_POST['phone'] ?? ''),
+            'parent_name' => trim($_POST['parent_name'] ?? ''),
+            'branch'      => $branch,
+            'spp_rate'    => $spp
         ];
-        
+        if (isset($_POST['address'])) {
+            $data['address'] = trim($_POST['address']);
+        }
         if (!empty($_POST['password'])) {
             $data['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
         }
 
         if ($this->userModel->update($id, $data)) {
-            $_SESSION['flash'] = [
-                'status' => 'success',
-                'title'  => 'Updated!',
-                'msg'    => 'Data siswa berhasil diperbarui.'
-            ];
+            $_SESSION['flash'] = ['status' => 'success', 'title' => 'Data Siswa Diperbarui', 'msg' => 'Profil dan cabang siswa berhasil disimpan.'];
         } else {
-            $_SESSION['flash'] = [
-                'status' => 'error',
-                'title'  => 'Update Gagal',
-                'msg'    => 'Cek kembali data yang diinput (Username mungkin sudah ada).'
-            ];
+            $_SESSION['flash'] = ['status' => 'error', 'title' => 'Gagal Update', 'msg' => 'Periksa kembali username (mungkin sudah dipakai akun lain).'];
         }
         header("Location: index.php?page=siswa");
         exit();
     }
 
     public function manage_jadwal() {
-    $id_siswa = $_GET['id'];
-    
-    // 1. Ambil info nama siswa dari UserModel
-    $student = $this->userModel->getById($id_siswa); 
+        $id_siswa = (int)($_GET['id'] ?? 0);
+        $student = $this->userModel->getById($id_siswa);
+        $jadwal_aktif = $this->userModel->getStudentSchedule($id_siswa);
+        $all_classes = $this->classModel->getAll();
 
-    // 2. Ambil jadwal aktif siswa tersebut dari UserModel
-    $jadwal_aktif = $this->userModel->getStudentSchedule($id_siswa);
-
-    // 3. Ambil daftar semua kelas untuk pilihan dropdown (Pake KelasModel)
-    require_once '../models/KelasModel.php';
-    $kelasModel = new KelasModel($this->db);
-    $all_classes = $kelasModel->getAll();
-
-    // 4. Render View
-    require_once '../views/layouts/header.php';
-    require_once '../views/layouts/sidebar.php';
-    require_once '../views/layouts/topbar.php';
-    require_once '../views/admin/siswa/manage_jadwal.php'; 
-    require_once '../views/layouts/footer.php';
-}
-
-public function update_jadwal() {
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        require_once '../helpers/CsrfHelper.php';
-        if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
-            http_response_code(403);
-            die("CSRF token tidak valid");
-        }
-        $id_member = $_POST['id_member'];
-        $student_id = $_POST['student_id'];
-        
-        $data = [
-            'class_id'   => $_POST['class_id'],
-            'day'        => $_POST['day'],
-            'start_time' => $_POST['start_time'],
-            'end_time'   => $_POST['end_time']
-        ];
-
-        if ($data['start_time'] >= $data['end_time']) {
-            $_SESSION['flash'] = [
-                'status' => 'warning',
-                'title'  => 'Jam Tidak Valid!',
-                'msg'    => 'Jam selesai harus lebih besar dari jam mulai.'
-            ];
-            header("Location: index.php?page=siswa_manage_jadwal&id=" . $student_id);
-            exit();
-        }
-
-        if ($this->classModel->isScheduleConflict($data['class_id'], $data['day'], $data['start_time'], $data['end_time'], $id_member)) {
-            $_SESSION['flash'] = [
-                'status' => 'warning',
-                'title'  => 'Jadwal Guru Bentrok!',
-                'msg'    => 'Guru pengajar sudah memiliki kelas lain di hari dan rentang jam tersebut.'
-            ];
-            header("Location: index.php?page=siswa_manage_jadwal&id=" . $student_id);
-            exit();
-        }
-
-        if ($this->classModel->isStudentConflict($student_id, $data['day'], $data['start_time'], $data['end_time'], $id_member)) {
-            $_SESSION['flash'] = [
-                'status' => 'warning',
-                'title'  => 'Jadwal Siswa Bentrok!',
-                'msg'    => 'Jadwal siswa bentrok dengan kelas lain di hari dan jam yang sama.'
-            ];
-            header("Location: index.php?page=siswa_manage_jadwal&id=" . $student_id);
-            exit();
-        }
-
-        if ($this->userModel->updateJadwalSiswa($id_member, $data)) {
-            $_SESSION['flash'] = [
-                'status' => 'success',
-                'title'  => 'Jadwal Diperbarui',
-                'msg'    => 'Plotting kelas siswa telah berhasil diupdate.'
-            ];
-        } else {
-            $_SESSION['flash'] = [
-                'status' => 'error',
-                'title'  => 'Gagal Update',
-                'msg'    => 'Terjadi kesalahan sistem.'
-            ];
-        }
-        // Redirect kembali ke halaman manage agar admin bisa cek hasilnya
-        header("Location: index.php?page=siswa_manage_jadwal&id=" . $student_id);
-        exit();
+        require_once '../views/layouts/header.php';
+        require_once '../views/layouts/sidebar.php';
+        require_once '../views/layouts/topbar.php';
+        require_once '../views/admin/siswa/manage_jadwal.php';
+        require_once '../views/layouts/footer.php';
     }
-}
 
-    // --- FITUR HAPUS SISWA (ADMIN) ---
+    // Perbaikan P0 Fatal Error: Ambil teacher_id dari classes sebelum memanggil isConflict
+    public function update_jadwal() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            require_once '../helpers/CsrfHelper.php';
+            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+                http_response_code(403);
+                die("CSRF token tidak valid");
+            }
+            $id_member  = (int)($_POST['id_member'] ?? 0);
+            $student_id = (int)($_POST['student_id'] ?? 0);
+
+            $data = [
+                'class_id'   => (int)($_POST['class_id'] ?? 0),
+                'day'        => $_POST['day'] ?? '',
+                'start_time' => $_POST['start_time'] ?? '',
+                'end_time'   => $_POST['end_time'] ?? ''
+            ];
+
+            if ($data['start_time'] >= $data['end_time']) {
+                $_SESSION['flash'] = ['status' => 'warning', 'title' => 'Jam Tidak Valid', 'msg' => 'Jam selesai harus lebih besar dari jam mulai.'];
+                header("Location: index.php?page=siswa_manage_jadwal&id=" . $student_id);
+                exit();
+            }
+
+            $stmtCls = $this->db->prepare("SELECT teacher_id FROM classes WHERE id = ?");
+            $stmtCls->execute([$data['class_id']]);
+            $teacher_id = (int)($stmtCls->fetchColumn() ?: 0);
+
+            if ($teacher_id > 0 && $this->classModel->isConflict($teacher_id, $data['day'], $data['start_time'], $data['end_time'], $id_member)) {
+                $_SESSION['flash'] = ['status' => 'warning', 'title' => 'Jadwal Guru Bentrok', 'msg' => 'Guru pengajar sudah memiliki kelas lain di hari dan rentang jam tersebut.'];
+                header("Location: index.php?page=siswa_manage_jadwal&id=" . $student_id);
+                exit();
+            }
+
+            if ($this->classModel->isStudentConflict($student_id, $data['day'], $data['start_time'], $data['end_time'], $id_member)) {
+                $_SESSION['flash'] = ['status' => 'warning', 'title' => 'Jadwal Siswa Bentrok', 'msg' => 'Jadwal siswa bentrok dengan sesi lain di hari dan jam yang sama.'];
+                header("Location: index.php?page=siswa_manage_jadwal&id=" . $student_id);
+                exit();
+            }
+
+            if ($this->userModel->updateJadwalSiswa($id_member, $data)) {
+                $_SESSION['flash'] = ['status' => 'success', 'title' => 'Jadwal Diperbarui', 'msg' => 'Plotting jadwal latihan siswa berhasil diperbarui.'];
+            } else {
+                $_SESSION['flash'] = ['status' => 'error', 'title' => 'Gagal Update', 'msg' => 'Terjadi kesalahan saat menyimpan jadwal.'];
+            }
+            header("Location: index.php?page=siswa_manage_jadwal&id=" . $student_id);
+            exit();
+        }
+    }
+
     public function delete() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
@@ -450,278 +399,117 @@ public function update_jadwal() {
             die("CSRF token tidak valid");
         }
         $id = (int)($_POST['id'] ?? 0);
-        if ($id > 0) {
-            if ($this->userModel->delete($id)) {
-                $_SESSION['flash'] = [
-                    'status' => 'success',
-                    'title'  => 'Terhapus',
-                    'msg'    => 'Siswa dan seluruh datanya telah dibersihkan.'
-                ];
-            } else {
-                $_SESSION['flash'] = [
-                    'status' => 'error',
-                    'title'  => 'Gagal Hapus',
-                    'msg'    => 'Data gagal dihapus dari sistem.'
-                ];
-            }
+        if ($id > 0 && $this->userModel->delete($id)) {
+            $_SESSION['flash'] = ['status' => 'success', 'title' => 'Terhapus', 'msg' => 'Siswa dan seluruh datanya telah dihapus.'];
         }
         header("Location: index.php?page=siswa");
         exit();
     }
 
-    // --- 2. FITUR ABSENSI KAMERA & LOKASI ---
-    private function hitungJarak($lat1, $lon1, $lat2, $lon2) {
-        $earthRadius = 6371000; 
-        $latFrom = deg2rad($lat1); $lonFrom = deg2rad($lon1);
-        $latTo = deg2rad($lat2); $lonTo = deg2rad($lon2);
-        $latDelta = $latTo - $latFrom;
-        $lonDelta = $lonTo - $lonFrom;
-        $angle = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) + cos($latFrom) * cos($latTo) * pow(sin($lonDelta / 2), 2)));
-        return $angle * $earthRadius;
-    }
-
+    // Presensi Siswa Multi-Lokasi (Merekam lokasi dari perangkat pengguna + validasi kepemilikan jadwal)
     public function proses_absen() {
         $absensiModel = new AbsensiModel($this->db);
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            require_once '../helpers/CsrfHelper.php';
-            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
-                http_response_code(403);
-                die("CSRF token tidak valid");
-            }
-            $student_id = $_SESSION['user']['id'];
-            $schedule_id = $_POST['schedule_id']; 
-            
-            // Koordinat tetap ditangkap sebagai 0 agar tidak merusak struktur database
-            $lat_siswa = $_POST['lat'] ?? 0;
-            $long_siswa = $_POST['long'] ?? 0;
-            $tanggal_hari_ini = date('Y-m-d');
-
-            // 1. Validasi Double Absen (Tetap Dipertahankan demi Integritas Data)
-            if ($absensiModel->cekSudahAbsen($student_id, $schedule_id, $tanggal_hari_ini)) {
-                $_SESSION['flash'] = [
-                    'status' => 'warning', 
-                    'title' => 'Sudah Absen', 
-                    'msg' => 'Kamu sudah melakukan presensi hari ini.'
-                ];
-                header("Location: index.php?page=dashboard_siswa"); exit;
-            }
-
-            // 2. Simpan Data Absensi (Siswa presensi tanpa bukti foto)
-            try {
-                $data = [
-                    'schedule_id' => $schedule_id, 
-                    'student_id'  => $student_id, 
-                    'date'        => $tanggal_hari_ini,
-                    'photo'       => null, 
-                    'lat'         => $lat_siswa, 
-                    'long'        => $long_siswa
-                ];
-
-                if ($absensiModel->create($data)) {
-                    $_SESSION['flash'] = [
-                        'status' => 'success', 
-                        'title' => 'Berhasil!', 
-                        'msg' => 'Presensi kamu telah tercatat di sistem.'
-                    ];
-                } else {
-                    throw new Exception("Gagal menyimpan data ke database.");
-                }
-
-            } catch (Exception $e) {
-                $_SESSION['flash'] = [
-                    'status' => 'error', 
-                    'title' => 'Gagal Absen', 
-                    'msg' => 'Terjadi kesalahan teknis saat menyimpan data presensi.'
-                ];
-            }
-
-            header("Location: index.php?page=dashboard_siswa"); exit;
-        }
-    }
-
-    // --- 3. FITUR AKADEMIK: MATERI ---
-    public function materi() {
-    $student_id = $_SESSION['user']['id'];
-    $query = "SELECT materials.*, classes.name as class_name, users.name as teacher_name
-              FROM materials 
-              JOIN classes ON materials.class_id = classes.id
-              JOIN users ON classes.teacher_id = users.id
-              JOIN class_members ON classes.id = class_members.class_id
-              WHERE class_members.student_id = :student_id 
-              AND (materials.student_id IS NULL OR materials.student_id = :student_id_privat)
-              GROUP BY materials.id -- KUNCI: Biar gak duplikat kalau murid punya banyak jadwal
-              ORDER BY materials.created_at DESC";
-              
-    $stmt = $this->db->prepare($query);
-    $stmt->execute([
-        ':student_id' => $student_id,
-        ':student_id_privat' => $student_id
-    ]);
-    $materi = $stmt->fetchAll();
-
-    $this->renderView('siswa/materi', ['materi' => $materi]);
-}
-
-    // --- 4. FITUR AKADEMIK: TUGAS ---
-    public function tugas() {
-        $student_id = $_SESSION['user']['id'];
-        
-        // UPGRADE QUERY: Join ke tabel users (Teacher) untuk ambil GDrive Link
-        $query = "SELECT 
-                    assignments.*, 
-                    classes.name as class_name, 
-                    teacher.name as teacher_name,
-                    teacher.ig_link as teacher_ig, -- AMBIL LINK MASTER GURU
-                    submissions.status as submission_status, -- STATUS BARU (PENDING/VERIFIED)
-                    submissions.grade, 
-                    submissions.teacher_feedback, 
-                    submissions.submitted_at
-                  FROM assignments 
-                  JOIN classes ON assignments.class_id = classes.id
-                  JOIN users as teacher ON classes.teacher_id = teacher.id -- JOIN KE GURU
-                  LEFT JOIN class_members ON classes.id = class_members.class_id
-                  LEFT JOIN submissions ON assignments.id = submissions.assignment_id 
-                                        AND submissions.student_id = :sid_join
-                  WHERE (class_members.student_id = :sid_where OR assignments.student_id = :sid_where_privat)
-                  GROUP BY assignments.id
-                  ORDER BY assignments.deadline ASC";
-                  
-        $stmt = $this->db->prepare($query);
-        $stmt->execute([
-            ':sid_join' => $student_id, 
-            ':sid_where' => $student_id, 
-            ':sid_where_privat' => $student_id
-        ]);
-        $tugas = $stmt->fetchAll();
-
-        require_once '../views/layouts/header.php';
-        require_once '../views/layouts/sidebar.php';
-        require_once '../views/layouts/topbar.php';
-        require_once '../views/siswa/tugas.php'; 
-        require_once '../views/layouts/footer.php';
-    }
-
-    // --- FITUR BARU: HAPUS SETORAN TUGAS ---
-    public function hapus_setoran() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             require_once '../helpers/CsrfHelper.php';
             if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
                 http_response_code(403);
                 die("CSRF token tidak valid");
             }
-        }
-        $assignment_id = $_POST['id'] ?? $_GET['id'] ?? null;
-        if ($assignment_id) {
-            $student_id = $_SESSION['user']['id'];
+            $student_id  = (int)$_SESSION['user']['id'];
+            $schedule_id = (int)($_POST['schedule_id'] ?? 0);
+            $lat_siswa   = $_POST['lat'] ?? '0';
+            $long_siswa  = $_POST['long'] ?? '0';
+            $tanggal_hari_ini = date('Y-m-d');
 
-            // 1. Validasi: Cek apakah tugas sudah dinilai?
-            // Kita tidak boleh menghapus data yang sudah masuk tahap evaluasi (Integritas Data)
-            $queryCheck = "SELECT file_proof, grade FROM submissions WHERE assignment_id = ? AND student_id = ?";
-            $stmtCheck = $this->db->prepare($queryCheck);
-            $stmtCheck->execute([$assignment_id, $student_id]);
-            $submission = $stmtCheck->fetch();
-
-            if (!$submission) {
-                $_SESSION['flash'] = ['status' => 'error', 'title' => 'Gagal', 'msg' => 'Data setoran tidak ditemukan.'];
-                header("Location: index.php?page=siswa_tugas"); exit;
+            // Validasi anti-IDOR: Pastikan schedule_id benar-benar milik siswa yang login
+            $stmtOwn = $this->db->prepare("SELECT id FROM class_members WHERE id = ? AND student_id = ? LIMIT 1");
+            $stmtOwn->execute([$schedule_id, $student_id]);
+            if (!$stmtOwn->fetch()) {
+                http_response_code(403);
+                die("Akses ditolak: Jadwal tidak valid.");
             }
 
-            if (!empty($submission['grade'])) {
-                $_SESSION['flash'] = ['status' => 'warning', 'title' => 'Ditolak', 'msg' => 'Tugas sudah dinilai guru, tidak bisa dihapus!'];
-                header("Location: index.php?page=siswa_tugas"); exit;
+            if ($absensiModel->cekSudahAbsen($student_id, $schedule_id, $tanggal_hari_ini)) {
+                $_SESSION['flash'] = ['status' => 'warning', 'title' => 'Sudah Presensi', 'msg' => 'Kamu sudah melakukan presensi untuk kelas ini hari ini.'];
+                header("Location: index.php?page=dashboard_siswa");
+                exit;
             }
 
-            // 2. Hapus File Fisik (Jika ada)
-            if (!empty($submission['file_proof'])) {
-                $filePath = "../public/uploads/tugas/" . $submission['file_proof'];
-                if (file_exists($filePath)) {
-                    unlink($filePath); // Menghapus file dari server untuk menghemat storage
+            try {
+                if ($absensiModel->create([
+                    'schedule_id' => $schedule_id,
+                    'student_id'  => $student_id,
+                    'date'        => $tanggal_hari_ini,
+                    'photo'       => null,
+                    'lat'         => $lat_siswa,
+                    'long'        => $long_siswa
+                ])) {
+                    $_SESSION['flash'] = ['status' => 'success', 'title' => 'Presensi Tercatat', 'msg' => 'Kehadiran dan titik lokasi belajar kamu berhasil dicatat.'];
+                } else {
+                    throw new Exception("Gagal menyimpan data.");
                 }
+            } catch (Exception $e) {
+                $_SESSION['flash'] = ['status' => 'error', 'title' => 'Gagal Presensi', 'msg' => 'Terjadi kendala saat menyimpan presensi.'];
             }
 
-            // 3. Eksekusi Hapus Data dari Database
-            $queryDel = "DELETE FROM submissions WHERE assignment_id = ? AND student_id = ?";
-            $stmtDel = $this->db->prepare($queryDel);
-            
-            if ($stmtDel->execute([$assignment_id, $student_id])) {
-                $_SESSION['flash'] = ['status' => 'success', 'title' => 'Terhapus', 'msg' => 'Setoran tugas berhasil dibatalkan.'];
-            } else {
-                $_SESSION['flash'] = ['status' => 'error', 'title' => 'Gagal', 'msg' => 'Terjadi kesalahan database.'];
-            }
-
-            header("Location: index.php?page=siswa_tugas");
+            header("Location: index.php?page=dashboard_siswa");
             exit;
         }
     }
 
-    // --- 5. FITUR AKADEMIK: UPLOAD TUGAS ---
-    public function upload_tugas() {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            require_once '../helpers/CsrfHelper.php';
-            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
-                http_response_code(403);
-                die("CSRF token tidak valid");
-            }
-            $assignment_id = $_POST['assignment_id'];
-            $student_id = $_SESSION['user']['id'];
-            $notes = $_POST['notes'] ?? '';
+    public function materi() {
+        $student_id = $_SESSION['user']['id'];
+        $query = "SELECT materials.*, classes.name as class_name, users.name as teacher_name
+                  FROM materials 
+                  JOIN classes ON materials.class_id = classes.id
+                  JOIN users ON classes.teacher_id = users.id
+                  JOIN class_members ON classes.id = class_members.class_id
+                  WHERE class_members.student_id = :student_id 
+                  AND (materials.student_id IS NULL OR materials.student_id = :student_id_privat)
+                  GROUP BY materials.id
+                  ORDER BY materials.created_at DESC";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([':student_id' => $student_id, ':student_id_privat' => $student_id]);
+        $materi = $stmt->fetchAll();
 
-            // 1. Validasi: Cek apakah tugas ini sudah di-ACC (Selesai) oleh Guru?
-            $check = $this->db->prepare("SELECT status FROM submissions WHERE assignment_id = ? AND student_id = ?");
-            $check->execute([$assignment_id, $student_id]);
-            $existing = $check->fetch();
-
-            if ($existing && $existing['status'] == 'Selesai') {
-                $_SESSION['flash'] = [
-                    'status' => 'warning', 
-                    'title' => 'Terkunci', 
-                    'msg' => 'Tugas sudah di-ACC Guru dan tidak bisa diubah!'
-                ];
-                header("Location: index.php?page=siswa_tugas"); exit;
-            }
-
-            // 2. Logika Konfirmasi: Upsert (Update atau Insert) data submission
-            // Kita set status menjadi 'Menunggu Verifikasi'
-            if ($existing) {
-                // Jika sudah pernah konfirmasi tapi mau update catatan
-                $stmt = $this->db->prepare("UPDATE submissions SET 
-                                            notes = ?, 
-                                            status = 'Menunggu Verifikasi', 
-                                            submitted_at = NOW() 
-                                            WHERE assignment_id = ? AND student_id = ?");
-                $result = $stmt->execute([$notes, $assignment_id, $student_id]);
-            } else {
-                // Jika pertama kali konfirmasi
-                $stmt = $this->db->prepare("INSERT INTO submissions (assignment_id, student_id, status, notes, submitted_at) 
-                                            VALUES (?, ?, 'Menunggu Verifikasi', ?, NOW())");
-                $result = $stmt->execute([$assignment_id, $student_id, $notes]);
-            }
-
-            if ($result) {
-                $_SESSION['flash'] = [
-                    'status' => 'success', 
-                    'title' => 'Berhasil Konfirmasi', 
-                    'msg' => 'Status berubah: Menunggu Verifikasi Guru.'
-                ];
-            } else {
-                $_SESSION['flash'] = ['status' => 'error', 'title' => 'Gagal', 'msg' => 'Terjadi kesalahan sistem.'];
-            }
-            
-            header("Location: index.php?page=siswa_tugas"); exit;
-        }
+        $this->renderView('siswa/materi', ['materi' => $materi]);
     }
 
-    // --- 6. FITUR AKADEMIK: PROGRESS REPORT ---
+    // Halaman Video Latihan TikTok (Menggantikan menu Tugas lama)
+    public function tiktok() {
+        $settingsModel = new SettingsModel($this->db);
+        $this->renderView('siswa/tiktok', [
+            'tiktok_url'   => $settingsModel->get('tiktok_practice_url', 'https://www.tiktok.com/@kakyo_lesson'),
+            'tiktok_title' => $settingsModel->get('tiktok_practice_title', 'Video Latihan & Dokumentasi Siswa KakYo Lesson'),
+            'tiktok_desc'  => $settingsModel->get('tiktok_practice_desc', 'Pantau video latihan rutin, penampilan siswa, dan evaluasi praktik langsung dari kanal TikTok resmi KakYo Lesson.')
+        ]);
+    }
+
+    // Halaman Tata Tertib Siswa & Wali Murid + Unduh PDF Resmi
+    public function tata_tertib() {
+        $student_profile = $this->userModel->getById($_SESSION['user']['id']);
+        $this->renderView('siswa/tata_tertib', ['student_profile' => $student_profile]);
+    }
+
     public function progress() {
         $student_id = $_SESSION['user']['id'];
+        $guruModel = new GuruModel($this->db);
+        $curriculum = $guruModel->getChaptersWithSubchapters($student_id);
+
         $query = "SELECT progress_logs.*, classes.name as class_name, users.name as teacher_name 
-                  FROM progress_logs JOIN classes ON progress_logs.class_id = classes.id
+                  FROM progress_logs
+                  JOIN classes ON progress_logs.class_id = classes.id
                   JOIN users ON progress_logs.teacher_id = users.id
-                  WHERE progress_logs.student_id = :student_id ORDER BY progress_logs.date DESC";
+                  WHERE progress_logs.student_id = :student_id
+                  ORDER BY progress_logs.date DESC";
         $stmt = $this->db->prepare($query);
         $stmt->execute([':student_id' => $student_id]);
         $progress = $stmt->fetchAll();
-        $this->renderView('siswa/progress', ['progress' => $progress]);
+
+        $this->renderView('siswa/progress', [
+            'curriculum' => $curriculum,
+            'progress'   => $progress
+        ]);
     }
 
     private function renderView($viewPath, $data = []) {
@@ -733,42 +521,54 @@ public function update_jadwal() {
         require_once '../views/layouts/footer.php';
     }
 
-
-    // --- 7. FITUR: RIWAYAT ABSENSI ---
     public function riwayat_absensi() {
         $student_id = $_SESSION['user']['id'];
-        $query = "SELECT a.*, c.name as class_name, cm.start_time, cm.end_time
+        $query = "SELECT a.*, c.name as class_name, cb.name as band_name, cm.start_time, cm.end_time
                   FROM attendances a 
                   JOIN class_members cm ON a.schedule_id = cm.id
                   JOIN classes c ON cm.class_id = c.id
-                  WHERE a.student_id = :student_id ORDER BY a.created_at DESC";
+                  LEFT JOIN class_bands cb ON cm.band_id = cb.id
+                  WHERE a.student_id = :student_id
+                  ORDER BY a.date DESC, a.created_at DESC";
         $stmt = $this->db->prepare($query);
         $stmt->execute([':student_id' => $student_id]);
         $riwayat = $stmt->fetchAll();
         $this->renderView('siswa/riwayat_absensi', ['riwayat' => $riwayat]);
     }
 
-    // --- 8. FITUR: INFO PEMBAYARAN ---
     public function pembayaran() {
         $student_id = $_SESSION['user']['id'];
-        $query = "SELECT p.*, a.name as admin_name FROM payments p LEFT JOIN users a ON p.admin_id = a.id
-                  WHERE p.student_id = :sid ORDER BY p.year DESC, p.month DESC";
+        $student_profile = $this->userModel->getById($student_id);
+        $query = "SELECT p.*, a.name as admin_name
+                  FROM payments p
+                  LEFT JOIN users a ON p.admin_id = a.id
+                  WHERE p.student_id = :sid
+                  ORDER BY p.year DESC, p.month DESC, p.id DESC";
         $stmt = $this->db->prepare($query);
         $stmt->execute([':sid' => $student_id]);
         $pembayaran = $stmt->fetchAll();
-        $this->renderView('siswa/pembayaran', ['pembayaran' => $pembayaran]);
+        $this->renderView('siswa/pembayaran', [
+            'pembayaran'      => $pembayaran,
+            'student_profile' => $student_profile
+        ]);
     }
 
-    // --- 9. CETAK RAPORT ---
     public function cetak_raport() {
         $student_id = $_SESSION['user']['id'];
+        $guruModel  = new GuruModel($this->db);
+        $curriculum = $guruModel->getChaptersWithSubchapters($student_id);
+        $student_profile = $this->userModel->getById($student_id);
+
         $query = "SELECT progress_logs.*, classes.name as class_name, users.name as teacher_name 
-                  FROM progress_logs JOIN classes ON progress_logs.class_id = classes.id
+                  FROM progress_logs
+                  JOIN classes ON progress_logs.class_id = classes.id
                   JOIN users ON progress_logs.teacher_id = users.id
-                  WHERE progress_logs.student_id = :student_id ORDER BY progress_logs.date ASC";
+                  WHERE progress_logs.student_id = :student_id
+                  ORDER BY progress_logs.date ASC";
         $stmt = $this->db->prepare($query);
         $stmt->execute([':student_id' => $student_id]);
         $progress = $stmt->fetchAll();
+
         require_once '../views/siswa/cetak_raport.php';
     }
 }

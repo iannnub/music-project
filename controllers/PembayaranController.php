@@ -1,6 +1,7 @@
 <?php
 require_once '../models/PembayaranModel.php';
-require_once '../models/UserModel.php'; 
+require_once '../models/UserModel.php';
+require_once '../helpers/CsrfHelper.php';
 
 class PembayaranController {
     private $pembayaranModel;
@@ -12,7 +13,7 @@ class PembayaranController {
     }
 
     public function index() {
-        $pembayaran = $this->pembayaranModel->getAllGrouped(); 
+        $pembayaran = $this->pembayaranModel->getAllGrouped();
         $siswa = $this->userModel->getAllByRole('siswa');
 
         require_once '../views/layouts/header.php';
@@ -24,9 +25,13 @@ class PembayaranController {
 
     public function detail() {
         if (isset($_GET['student_id'])) {
-            $student_id = $_GET['student_id'];
+            $student_id = (int)$_GET['student_id'];
             $student = $this->userModel->getById($student_id);
-            $history = $this->pembayaranModel->getAllByStudent($student_id); 
+            if (!$student) {
+                header("Location: index.php?page=pembayaran");
+                exit();
+            }
+            $history = $this->pembayaranModel->getAllByStudent($student_id);
 
             require_once '../views/layouts/header.php';
             require_once '../views/layouts/sidebar.php';
@@ -35,17 +40,17 @@ class PembayaranController {
             require_once '../views/layouts/footer.php';
         } else {
             header("Location: index.php?page=pembayaran");
+            exit();
         }
     }
 
     public function store() {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            require_once '../helpers/CsrfHelper.php';
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
                 http_response_code(403);
                 die("CSRF token tidak valid");
             }
-            $rawAmount = $_POST['amount'];
+            $rawAmount = $_POST['amount'] ?? '';
             $cleanAmount = preg_replace('/[^0-9]/', '', $rawAmount);
 
             if (empty($cleanAmount) || (int)$cleanAmount <= 0) {
@@ -54,7 +59,7 @@ class PembayaranController {
                     'title'  => 'Nominal Tidak Valid',
                     'msg'    => 'Nominal pembayaran harus lebih dari Rp 0.'
                 ];
-                header("Location: index.php?page=pembayaran_detail&student_id=" . $_POST['student_id']);
+                header("Location: index.php?page=pembayaran_detail&student_id=" . (int)$_POST['student_id']);
                 exit();
             }
 
@@ -64,26 +69,26 @@ class PembayaranController {
                     'title'  => 'Tagihan Sudah Ada',
                     'msg'    => 'Tagihan untuk periode bulan dan tahun ini sudah tercatat sebelumnya.'
                 ];
-                header("Location: index.php?page=pembayaran_detail&student_id=" . $_POST['student_id']);
+                header("Location: index.php?page=pembayaran_detail&student_id=" . (int)$_POST['student_id']);
                 exit();
             }
 
             $data = [
-                'student_id' => $_POST['student_id'],
+                'student_id' => (int)$_POST['student_id'],
                 'admin_id'   => $_SESSION['user']['id'],
-                'month'      => $_POST['month'],
-                'year'       => $_POST['year'],
+                'month'      => (int)$_POST['month'],
+                'year'       => (int)$_POST['year'],
                 'start_date' => $_POST['start_date'],
                 'end_date'   => $_POST['end_date'],
                 'amount'     => $cleanAmount,
-                'status'     => $_POST['status'],
-                'notes'      => $_POST['notes'] ?? ''
+                'status'     => $_POST['status'] ?? 'Belum Lunas',
+                'notes'      => trim($_POST['notes'] ?? '')
             ];
 
             if ($this->pembayaranModel->create($data)) {
                 $_SESSION['flash'] = [
                     'status' => 'success',
-                    'title'  => 'Transaksi Berhasil!',
+                    'title'  => 'Transaksi Berhasil',
                     'msg'    => 'Data pembayaran siswa telah berhasil dicatat.'
                 ];
             } else {
@@ -112,13 +117,13 @@ class PembayaranController {
             if ($this->pembayaranModel->deleteAllByStudent($student_id)) {
                 $_SESSION['flash'] = [
                     'status' => 'success',
-                    'title'  => 'Berhasil!',
+                    'title'  => 'Riwayat Dihapus',
                     'msg'    => 'Seluruh riwayat pembayaran siswa telah dihapus.'
                 ];
             } else {
                 $_SESSION['flash'] = [
                     'status' => 'error',
-                    'title'  => 'Gagal!',
+                    'title'  => 'Gagal Menghapus',
                     'msg'    => 'Terjadi kesalahan saat menghapus data.'
                 ];
             }
@@ -128,25 +133,27 @@ class PembayaranController {
     }
 
     public function update() {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            require_once '../helpers/CsrfHelper.php';
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
                 http_response_code(403);
                 die("CSRF token tidak valid");
             }
-            $id = $_POST['id'];
-            $rawAmount = $_POST['amount'];
+            $id = (int)($_POST['id'] ?? 0);
+            $rawAmount = $_POST['amount'] ?? '';
             $cleanAmount = preg_replace('/[^0-9]/', '', $rawAmount);
-            $student_id = $_POST['student_id'];
+            $student_id = (int)($_POST['student_id'] ?? 0);
+
+            $existing = $this->pembayaranModel->getById($id);
+            $notes = isset($_POST['notes']) ? trim($_POST['notes']) : ($existing['notes'] ?? '');
 
             $data = [
-                'month'      => $_POST['month'],
-                'year'       => $_POST['year'],
+                'month'      => (int)$_POST['month'],
+                'year'       => (int)$_POST['year'],
                 'start_date' => $_POST['start_date'],
                 'end_date'   => $_POST['end_date'],
                 'amount'     => $cleanAmount,
                 'status'     => $_POST['status'],
-                'notes'      => $_POST['notes'] ?? ''
+                'notes'      => $notes
             ];
 
             if ($this->pembayaranModel->update($id, $data)) {
@@ -185,7 +192,7 @@ class PembayaranController {
             }
 
             if ($student_id) {
-                header("Location: index.php?page=pembayaran_detail&student_id=" . $student_id);
+                header("Location: index.php?page=pembayaran_detail&student_id=" . (int)$student_id);
             } else {
                 header("Location: index.php?page=pembayaran");
             }
@@ -193,10 +200,9 @@ class PembayaranController {
         }
     }
 
-
     public function cetak() {
         if (isset($_GET['id'])) {
-            $data = $this->pembayaranModel->getById($_GET['id']);
+            $data = $this->pembayaranModel->getById((int)$_GET['id']);
             if (!$data) {
                 die("Data transaksi pembayaran tidak ditemukan.");
             }

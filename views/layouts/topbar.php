@@ -1,51 +1,71 @@
-<?php 
-    // Inisialisasi data dari session
-    $user_name   = $_SESSION['user']['name'] ?? 'User';
-    $foto_db     = $_SESSION['user']['photo_profile'] ?? '';
-    $path_foto   = 'uploads/profil/' . $foto_db;
-    $default_img = 'assets/sb-admin-2/img/undraw_profile.svg';
+<?php
+$user_name   = $_SESSION['user']['name'] ?? 'Pengguna';
+$user_role   = $_SESSION['user']['role'] ?? 'siswa';
+$user_branch = $_SESSION['user']['branch'] ?? '';
+$foto_db     = $_SESSION['user']['photo_profile'] ?? '';
+$path_foto   = 'uploads/profil/' . $foto_db;
+$default_img = 'assets/sb-admin-2/img/undraw_profile.svg';
 
-    // Cek apakah file ada dan kolom tidak kosong
-    if (!empty($foto_db) && file_exists($path_foto)) {
-        $img_src = $path_foto;
-    } else {
-        $img_src = $default_img;
-    }
+$img_src = (!empty($foto_db) && file_exists($path_foto)) ? $path_foto : $default_img;
+
+$roleBadgeLabel = 'Portal Siswa';
+if ($user_role === 'admin') {
+    $roleBadgeLabel = 'Studio Control';
+} elseif ($user_role === 'guru') {
+    $roleBadgeLabel = 'Portal Mentor';
+} elseif (!empty($user_branch)) {
+    $roleBadgeLabel = ($user_branch === 'Jember') ? 'Studio 2 Jember' : 'Studio 1 Balung';
+}
 ?>
 
 <div id="content-wrapper" class="d-flex flex-column">
     <div id="content">
-        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-            
-            <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+        <header class="navbar navbar-expand topbar mb-4 static-top">
+
+            <button id="sidebarToggleTop" class="btn d-md-none mr-2" type="button" aria-label="Buka menu navigasi">
                 <i class="fa fa-bars"></i>
             </button>
 
-            <ul class="navbar-nav ml-auto">
-                <div class="topbar-divider d-none d-sm-block"></div>
+            <div class="dynamic-island-wrap">
+                <button type="button" class="dynamic-island" id="dynamicIslandPill" aria-label="Status sistem KakYo Lesson">
+                    <span class="dynamic-island-dot" aria-hidden="true"></span>
+                    <span id="dynamicIslandLabel"><?= htmlspecialchars($roleBadgeLabel); ?></span>
+                    <span class="dynamic-island-extra tabular-nums" id="dynamicIslandClock"><?= date('H:i'); ?> WIB</span>
+                </button>
+            </div>
+
+            <ul class="navbar-nav ml-auto align-items-center">
+                <li role="presentation" class="d-none d-sm-block">
+                    <div class="topbar-divider"></div>
+                </li>
 
                 <li class="nav-item dropdown no-arrow">
-                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button"
                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        
-                        <span class="mr-2 d-none d-lg-inline text-gray-600 small font-weight-bold">
+                        <span class="mr-2 d-none d-lg-inline small font-weight-bold text-white">
                             <?= htmlspecialchars($user_name); ?>
                         </span>
-
-                        <img class="img-profile rounded-circle border shadow-sm" src="<?= $img_src; ?>" style="object-fit: cover; width: 32px; height: 32px;">
+                        <img class="img-profile rounded-circle border" src="<?= htmlspecialchars($img_src); ?>" alt="Foto profil <?= htmlspecialchars($user_name); ?>" width="34" height="34" style="object-fit: cover; width: 34px; height: 34px;">
                     </a>
-                    
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
                         <a class="dropdown-item" href="index.php?page=profile">
-                            <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                            <i class="fas fa-user fa-sm fa-fw mr-2 text-primary"></i>
                             Profil Saya
                         </a>
+                        <?php if ($user_role === 'siswa'): ?>
+                        <a class="dropdown-item" href="index.php?page=siswa_tatib">
+                            <i class="fas fa-file-pdf fa-sm fa-fw mr-2 text-primary"></i>
+                            Tata Tertib (PDF)
+                        </a>
+                        <?php endif; ?>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="index.php?page=auth&action=logout">
-                            <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Logout
+                            <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-danger"></i>
+                            Keluar
                         </a>
                     </div>
                 </li>
             </ul>
-        </nav>
+        </header>
+        <main id="main-content">

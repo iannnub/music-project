@@ -6,12 +6,13 @@ class PembayaranModel {
         $this->db = $db;
     }
 
-    // Ambil Semua Data Pembayaran (Join ke Siswa & Admin + Ambil Nomor HP)
+    // Ambil Semua Data Pembayaran (Join ke Siswa & Admin + Ambil Nomor HP & Cabang)
     public function getAll() {
         $query = "SELECT payments.*, 
                          siswa.name as student_name, 
                          siswa.username as student_nis,
-                         siswa.phone as student_phone, 
+                         siswa.phone as student_phone,
+                         siswa.branch as student_branch,
                          admin.name as admin_name
                   FROM payments
                   JOIN users as siswa ON payments.student_id = siswa.id
@@ -30,9 +31,10 @@ class PembayaranModel {
                       VALUES (:sid, :aid, :m, :y, :s_date, :e_date, :amt, :stat, :notes, :pdate)";
             
             $stmt = $this->db->prepare($query);
+            $pdate = ($data['status'] === 'Lunas') ? date('Y-m-d H:i:s') : null;
             return $stmt->execute([
                 ':sid'    => $data['student_id'],
-                ':aid'    => $data['admin_id'],
+                ':aid'    => !empty($data['admin_id']) ? $data['admin_id'] : null,
                 ':m'      => $data['month'],
                 ':y'      => $data['year'],
                 ':s_date' => $data['start_date'],
@@ -40,7 +42,7 @@ class PembayaranModel {
                 ':amt'    => $data['amount'],
                 ':stat'   => $data['status'],
                 ':notes'  => $data['notes'],
-                ':pdate'  => date('Y-m-d H:i:s')
+                ':pdate'  => $pdate
             ]);
         } catch (PDOException $e) {
             return false;
@@ -48,52 +50,71 @@ class PembayaranModel {
     }
 
     // Ambil Semua Riwayat Pembayaran khusus 1 Siswa
-public function getAllByStudent($student_id) {
-    $query = "SELECT payments.*, 
-                     siswa.name as student_name, 
-                     siswa.phone as student_phone, 
-                     admin.name as admin_name
-              FROM payments
-              JOIN users as siswa ON payments.student_id = siswa.id
-              LEFT JOIN users as admin ON payments.admin_id = admin.id
-              WHERE payments.student_id = ?
-              ORDER BY payments.year DESC, payments.month DESC";
-    
-    $stmt = $this->db->prepare($query);
-    $stmt->execute([$student_id]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-public function deleteAllByStudent($student_id) {
-    try {
-        $query = "DELETE FROM payments WHERE student_id = ?";
+    public function getAllByStudent($student_id) {
+        $query = "SELECT payments.*, 
+                         siswa.name as student_name, 
+                         siswa.phone as student_phone,
+                         siswa.branch as student_branch,
+                         siswa.spp_rate as student_spp_rate,
+                         admin.name as admin_name
+                  FROM payments
+                  JOIN users as siswa ON payments.student_id = siswa.id
+                  LEFT JOIN users as admin ON payments.admin_id = admin.id
+                  WHERE payments.student_id = ?
+                  ORDER BY payments.year DESC, payments.month DESC, payments.id DESC";
+        
         $stmt = $this->db->prepare($query);
-        return $stmt->execute([$student_id]);
-    } catch (PDOException $e) {
-        return false;
+        $stmt->execute([$student_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-}
 
+    public function deleteAllByStudent($student_id) {
+        try {
+            $query = "DELETE FROM payments WHERE student_id = ?";
+            $stmt = $this->db->prepare($query);
+            return $stmt->execute([$student_id]);
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    // LEFT JOIN agar siswa baru yang mendaftar mandiri (belum masuk kelas) langsung terlihat tagihan perdananya
     public function getAllGrouped() {
         $query = "SELECT 
                     u.id AS student_id, 
-                    u.name AS nama_siswa, 
-                    c.name AS nama_kelas,
-                    -- Mengambil range tanggal terakhir sebagai info periode
-                    MAX(CONCAT(DATE_FORMAT(p.start_date, '%d/%m/%y'), ' - ', DATE_FORMAT(p.end_date, '%d/%m/%y'))) AS periode_terakhir,
-                    -- Status Global Siswa
+                    u.name AS nama_siswa,
+                    u.branch AS branch,
+                    u.spp_rate AS spp_rate,
+                    u.program AS program,
+                    u.instrument AS instrument,
+                    COALESCE(
+                        GROUP_CONCAT(DISTINCT CASE WHEN cb.name IS NOT NULL THEN CONCAT(c.name, ' - ', cb.name) ELSE c.name END SEPARATOR ', '),
+                        CASE WHEN u.instrument IS NOT NULL THEN CONCAT('Pendaftar Baru (', u.instrument, ')') ELSE 'Belum Plotting Kelas' END
+                    ) AS nama_kelas,
+                    (SELECT CONCAT(DATE_FORMAT(p2.start_date, '%d/%m/%y'), ' - ', DATE_FORMAT(p2.end_date, '%d/%m/%y'))
+                     FROM payments p2
+                     WHERE p2.student_id = u.id
+                     ORDER BY p2.year DESC, p2.month DESC, p2.id DESC
+                     LIMIT 1) AS periode_terakhir,
                     CASE 
-                        WHEN COUNT(CASE WHEN p.status = 'Belum Lunas' THEN 1 END) > 0 THEN 'Ada Tunggakan'
-                        WHEN COUNT(p.id) = 0 THEN 'Belum Ada Tagihan'
+                        WHEN COUNT(DISTINCT CASE WHEN p.status = 'Belum Lunas' THEN p.id END) > 0 THEN 'Ada Tunggakan'
+                        WHEN COUNT(DISTINCT p.id) = 0 THEN 'Belum Ada Tagihan'
                         ELSE 'Lunas'
                     END AS status_global
                 FROM users u
-                JOIN class_members cm ON u.id = cm.student_id
-                JOIN classes c ON cm.class_id = c.id
+                LEFT JOIN class_members cm ON u.id = cm.student_id
+                LEFT JOIN classes c ON cm.class_id = c.id
+                LEFT JOIN class_bands cb ON cm.band_id = cb.id
                 LEFT JOIN payments p ON u.id = p.student_id
                 WHERE u.role = 'siswa'
-                GROUP BY u.id, c.name
-                ORDER BY u.name ASC";
+                GROUP BY u.id
+                ORDER BY 
+                    CASE 
+                        WHEN COUNT(DISTINCT CASE WHEN p.status = 'Belum Lunas' THEN p.id END) > 0 THEN 1
+                        WHEN COUNT(DISTINCT p.id) = 0 THEN 2
+                        ELSE 3
+                    END ASC,
+                    u.name ASC";
         
         $stmt = $this->db->prepare($query);
         $stmt->execute();
@@ -103,9 +124,9 @@ public function deleteAllByStudent($student_id) {
     // Update Pembayaran
     public function update($id, $data) {
         try {
-            // Update juga start_date dan end_date-nya
+            $pdateSql = ($data['status'] === 'Lunas') ? ", payment_date = COALESCE(payment_date, NOW())" : "";
             $query = "UPDATE payments 
-                      SET month=:m, year=:y, start_date=:s_date, end_date=:e_date, amount=:amt, status=:stat, notes=:notes 
+                      SET month=:m, year=:y, start_date=:s_date, end_date=:e_date, amount=:amt, status=:stat, notes=:notes{$pdateSql}
                       WHERE id=:id";
             
             $stmt = $this->db->prepare($query);
@@ -130,6 +151,7 @@ public function deleteAllByStudent($student_id) {
                          siswa.name as student_name, 
                          siswa.username as student_nis,
                          siswa.phone as student_phone,
+                         siswa.branch as student_branch,
                          admin.name as admin_name
                   FROM payments 
                   JOIN users as siswa ON payments.student_id = siswa.id
@@ -141,13 +163,12 @@ public function deleteAllByStudent($student_id) {
     }
 
     public function checkStatusSiswa($student_id, $month, $year) {
-    // Mengecek apakah sudah ada record pembayaran yang LUNAS untuk bulan & tahun ini
-    $query = "SELECT status FROM payments 
-              WHERE student_id = ? AND month = ? AND year = ? AND status = 'Lunas'";
-    $stmt = $this->db->prepare($query);
-    $stmt->execute([$student_id, $month, $year]);
-    return $stmt->rowCount() > 0; // Mengembalikan true jika lunas
-}
+        $query = "SELECT status FROM payments 
+                  WHERE student_id = ? AND month = ? AND year = ? AND status = 'Lunas'";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$student_id, $month, $year]);
+        return $stmt->rowCount() > 0;
+    }
 
     public function checkExisting($student_id, $month, $year, $exclude_id = null) {
         $query = "SELECT COUNT(*) FROM payments WHERE student_id = ? AND month = ? AND year = ?";

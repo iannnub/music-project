@@ -1,0 +1,23 @@
+# KakYo Lesson (Music Course & Development)
+
+> KakYo Lesson adalah lembaga kursus musik profesional di Kabupaten Jember, Jawa Timur (dikelola oleh Yanuar Yose Armando) yang melayani program les musik Private dan Reguler/Group Band di Studio 1 Balung serta Studio 2 Jember Kota untuk instrumen Vokal, Gitar, Bass, Piano/Keyboard, Biola, dan Drum dengan pemantauan kurikulum Bab/Subbab digital serta raport evaluasi siswa.
+
+## Lokasi Cabang & Tarif Resmi
+- **Studio 1 Balung**: Jl. Puger (Dekat Dira Balung), Kec. Balung, Kabupaten Jember, Jawa Timur. Tarif: SPP Rp 250.000/bulan + Biaya Pendaftaran Rp 50.000 (Tagihan perdana Rp 300.000).
+- **Studio 2 Jember Kota**: Wilayah Kota Jember, Kabupaten Jember, Jawa Timur. Tarif: SPP Rp 350.000/bulan + Biaya Pendaftaran Rp 50.000 (Tagihan perdana Rp 400.000).
+
+## Program & Instrumen Pembelajaran
+- **Program**: Kelas Private (1-on-1 bersama mentor) dan Kelas Group / Band Combo.
+- **Bidang Les**: Vokal, Gitar Akustik/Elektrik, Bass, Piano/Keyboard, Drum, Biola, dan Band Combo.
+- **Sistem Evaluasi**: Kurikulum terstruktur berbasis Bab dan Subbab per siswa dengan persentase pencapaian otomatis pada Raport Hasil Belajar, presensi real-time berbasis lokasi pengguna, serta dokumentasi video latihan siswa di kanal resmi TikTok KakYo Lesson.
+
+## Halaman Publik & Dokumen Resmi
+- [Portal Login Siswa, Wali Murid & Mentor](/index.php?page=auth): Akses jadwal, presensi, kurikulum Bab/Subbab, raport, dan pembayaran SPP.
+- [Formulir Pendaftaran Siswa Baru](/index.php?page=register): Pendaftaran mandiri siswa baru untuk cabang Studio 1 Balung dan Studio 2 Jember Kota.
+- [Tata Tertib Siswa dan Wali Murid (PDF Resmi)](/assets/docs/Tata_Tertib_Siswa_dan_Wali_Murid_KakYo_Lesson.pdf): Pedoman resmi kegiatan belajar, administrasi SPP, ketidakhadiran H-2, dan hak siswa/wali murid.
+
+## Kontak Resmi Pengelola
+- Owner: Yanuar Yose Armando
+- WhatsApp Admin: +62 856-4669-0615
+- Instagram: https://www.instagram.com/kakyo_lesson
+- TikTok: https://www.tiktok.com/@kakyo_lesson

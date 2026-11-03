@@ -1,10 +1,9 @@
 <?php
 // cron/process_alpha.php
-// Script CLI / Cron Job untuk kalkulasi Alpha Siswa dan Guru harian.
-// Rekomendasi jadwal eksekusi: setiap pukul 00:01 WIB (0 0 * * *)
+// Script CLI / Cron Job untuk kalkulasi Alpha Siswa & Guru harian + pembersihan foto absen guru setiap tanggal 1.
+// Rekomendasi jadwal eksekusi: setiap pukul 00:05 WIB (5 0 * * *)
 
 if (php_sapi_name() !== 'cli' && (!isset($_GET['key']) || !defined('CRON_TOKEN'))) {
-    // Jika dipanggil via browser/HTTP, harus memiliki token rahasia
     require_once __DIR__ . '/../config/database.php';
     if (!isset($_GET['key']) || !hash_equals(CRON_TOKEN, $_GET['key'])) {
         http_response_code(403);
@@ -22,7 +21,8 @@ try {
     $absensiModel = new AbsensiModel($db);
     $absensiModel->autoProcessAlpha();
     $absensiModel->autoProcessTeacherAlpha();
-    echo "[" . date('Y-m-d H:i:s') . "] Kalkulasi alpha siswa dan guru selesai diproses.\n";
+    $cleanedPhotos = $absensiModel->cleanupMonthlyTeacherPhotos(true);
+    echo "[" . date('Y-m-d H:i:s') . "] Kalkulasi alpha selesai. Foto absen guru bulan lalu dibersihkan: {$cleanedPhotos} file.\n";
 } catch (Exception $e) {
     echo "[" . date('Y-m-d H:i:s') . "] Terjadi kesalahan: " . $e->getMessage() . "\n";
     exit(1);

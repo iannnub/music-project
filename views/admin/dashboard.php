@@ -1,36 +1,39 @@
-<div class="container-fluid text-dark">
+<div class="container-fluid">
     <?php
-        // 1. Logika Sapaan Dinamis (Greeting)
-        $hour = date('H');
+        $hour = (int)date('H');
         if ($hour >= 5 && $hour < 11) $greeting = "Selamat Pagi";
         elseif ($hour >= 11 && $hour < 15) $greeting = "Selamat Siang";
         elseif ($hour >= 15 && $hour < 18) $greeting = "Selamat Sore";
-        else $greeting = "Selamat Malam ";
+        else $greeting = "Selamat Malam";
+
+        $tiktokUrl   = $appSettings['tiktok_practice_url'] ?? 'https://www.tiktok.com/@kakyo_lesson';
+        $tiktokTitle = $appSettings['tiktok_practice_title'] ?? 'Video Latihan & Dokumentasi Siswa KakYo Lesson';
+        $tiktokDesc  = $appSettings['tiktok_practice_desc'] ?? 'Pantau perkembangan latihan anak melalui video dokumentasi resmi KakYo Lesson di TikTok.';
     ?>
 
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <div>
-            <h1 class="h3 mb-1 text-gray-900 font-weight-bold"><?= $greeting; ?>, Admin!</h1>
-            <p class="text-muted small mb-0">Pantau operasional KakYo Lesson hari ini.</p>
+            <h1 class="h3 mb-1 font-weight-bold"><?= $greeting; ?>, Admin!</h1>
+            <p class="text-muted small mb-0">Ringkasan operasional studio Balung &amp; Jember Kota hari ini.</p>
         </div>
-        <div class="text-right">
-            <a href="index.php?page=laporan_keuangan" class="btn btn-primary btn-sm rounded-pill px-4 shadow-sm mr-2 mb-2 mb-sm-0">
-                <i class="fas fa-download fa-sm mr-1"></i> Generate Report
+        <div class="mt-3 mt-sm-0 d-flex flex-wrap align-items-center" style="gap: 10px;">
+            <a href="index.php?page=laporan_keuangan" class="btn btn-primary btn-sm px-4">
+                <i class="fas fa-file-invoice-dollar fa-sm mr-1"></i> Laporan Keuangan
             </a>
-            <span class="badge badge-white border shadow-sm px-3 py-2 rounded-pill text-primary d-none d-md-inline-block">
-                <i class="fas fa-calendar-day mr-1"></i> <?= date('l, d F Y'); ?>
+            <span class="lg-badge lg-badge-orange d-none d-md-inline-flex">
+                <i class="fas fa-calendar-day"></i> <?= date('d M Y'); ?>
             </span>
         </div>
     </div>
 
     <div class="row">
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-0 shadow-sm border-left-primary h-100 py-2 stat-card">
+            <div class="card border-left-primary h-100 py-2 stat-card">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Siswa</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?= number_format($counts['siswa']); ?></div>
+                            <div class="h4 mb-0 font-weight-bold" style="font-variant-numeric: tabular-nums;"><?= number_format($counts['siswa']); ?></div>
                         </div>
                         <div class="col-auto">
                             <div class="icon-circle bg-primary-soft text-primary">
@@ -43,12 +46,12 @@
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-0 shadow-sm border-left-success h-100 py-2 stat-card">
+            <div class="card border-left-success h-100 py-2 stat-card">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Guru</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?= number_format($counts['guru']); ?></div>
+                            <div class="h4 mb-0 font-weight-bold" style="font-variant-numeric: tabular-nums;"><?= number_format($counts['guru']); ?></div>
                         </div>
                         <div class="col-auto">
                             <div class="icon-circle bg-success-soft text-success">
@@ -61,16 +64,16 @@
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-0 shadow-sm border-left-info h-100 py-2 stat-card">
+            <div class="card border-left-info h-100 py-2 stat-card">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Kelas Aktif</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?= number_format($counts['kelas']); ?></div>
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Kelas &amp; Band Aktif</div>
+                            <div class="h4 mb-0 font-weight-bold" style="font-variant-numeric: tabular-nums;"><?= number_format($counts['kelas']); ?></div>
                         </div>
                         <div class="col-auto">
                             <div class="icon-circle bg-info-soft text-info">
-                                <i class="fas fa-music"></i>
+                                <i class="fas fa-guitar"></i>
                             </div>
                         </div>
                     </div>
@@ -79,16 +82,16 @@
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-0 shadow-sm border-left-warning h-100 py-2 stat-card">
+            <div class="card border-left-warning h-100 py-2 stat-card">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Belum Lunas</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?= number_format($counts['pending_payment']); ?></div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Tagihan Belum Lunas</div>
+                            <div class="h4 mb-0 font-weight-bold" style="font-variant-numeric: tabular-nums;"><?= number_format($counts['pending_payment']); ?></div>
                         </div>
                         <div class="col-auto">
-                            <div class="icon-circle bg-warning-soft text-warning animate__animated animate__pulse animate__infinite">
-                                <i class="fas fa-money-bill-wave"></i>
+                            <div class="icon-circle bg-warning-soft text-warning">
+                                <i class="fas fa-wallet"></i>
                             </div>
                         </div>
                     </div>
@@ -97,34 +100,80 @@
         </div>
     </div>
 
+    <!-- Pengaturan Link TikTok Latihan Siswa (Menggantikan Fitur Tugas Lama) -->
     <div class="row">
-        <div class="col-xl-8 col-lg-7">
-            <div class="card border-0 shadow-sm mb-4 rounded-lg overflow-hidden">
-                <div class="card-header bg-white py-3 d-flex flex-row align-items-center justify-content-between border-0">
-                    <h6 class="m-0 font-weight-bold text-dark"><i class="fas fa-chart-line mr-2 text-primary"></i>Grafik Pemasukan SPP (<?= date('Y'); ?>)</h6>
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header py-3 d-flex flex-wrap align-items-center justify-content-between">
+                    <h2 class="h6 m-0 font-weight-bold text-primary">
+                        <i class="fas fa-play-circle mr-2"></i>Pengaturan Tautan TikTok Latihan Siswa &amp; Wali Murid
+                    </h2>
+                    <a href="<?= htmlspecialchars($tiktokUrl); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary btn-sm mt-2 mt-sm-0">
+                        <i class="fas fa-external-link-alt mr-1"></i> Uji Buka Tautan TikTok
+                    </a>
                 </div>
                 <div class="card-body">
-                    <div class="chart-area">
-                        <canvas id="myAreaChart"></canvas>
+                    <form action="index.php?page=admin_settings" method="POST">
+                        <?= CsrfHelper::formField(); ?>
+                        <div class="row">
+                            <div class="col-lg-5 mb-3">
+                                <label for="tiktok_practice_url" class="small font-weight-bold text-uppercase">URL TikTok Latihan Resmi <span class="text-danger">*</span></label>
+                                <input type="url" id="tiktok_practice_url" name="tiktok_practice_url" class="form-control" required
+                                       placeholder="https://www.tiktok.com/@kakyo_lesson"
+                                       value="<?= htmlspecialchars($tiktokUrl); ?>">
+                                <small class="text-muted">Tautan ini langsung muncul pada menu Video Latihan TikTok di akun seluruh siswa/orang tua.</small>
+                            </div>
+                            <div class="col-lg-4 mb-3">
+                                <label for="tiktok_practice_title" class="small font-weight-bold text-uppercase">Judul Kartu di Dashboard Siswa</label>
+                                <input type="text" id="tiktok_practice_title" name="tiktok_practice_title" class="form-control"
+                                       placeholder="Video Latihan Siswa KakYo Lesson"
+                                       value="<?= htmlspecialchars($tiktokTitle); ?>">
+                            </div>
+                            <div class="col-lg-3 mb-3 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary btn-block font-weight-bold">
+                                    <i class="fas fa-save mr-1"></i> Simpan Tautan TikTok
+                                </button>
+                            </div>
+                            <div class="col-12">
+                                <label for="tiktok_practice_desc" class="small font-weight-bold text-uppercase">Pesan Pengantar untuk Orang Tua / Siswa</label>
+                                <input type="text" id="tiktok_practice_desc" name="tiktok_practice_desc" class="form-control"
+                                       value="<?= htmlspecialchars($tiktokDesc); ?>">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h2 class="h6 m-0 font-weight-bold"><i class="fas fa-chart-line mr-2 text-primary"></i>Grafik Pemasukan SPP (<?= date('Y'); ?>)</h2>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area" style="height: 300px;">
+                        <canvas id="myAreaChart" aria-label="Grafik Pemasukan SPP Tahunan" role="img"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="col-xl-4 col-lg-5">
-            <div class="card border-0 shadow-sm mb-4 rounded-lg overflow-hidden">
-                <div class="card-header bg-white py-3 d-flex flex-row align-items-center justify-content-between border-0">
-                    <h6 class="m-0 font-weight-bold text-dark"><i class="fas fa-chart-pie mr-2 text-info"></i>Rasio Kehadiran</h6>
+            <div class="card mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h2 class="h6 m-0 font-weight-bold"><i class="fas fa-chart-pie mr-2 text-primary"></i>Rasio Kehadiran Siswa</h2>
                 </div>
                 <div class="card-body pt-0">
-                    <div class="chart-pie pt-4 pb-2">
-                        <canvas id="myPieChart"></canvas>
+                    <div class="chart-pie pt-4 pb-2" style="height: 245px;">
+                        <canvas id="myPieChart" aria-label="Diagram Rasio Kehadiran Siswa" role="img"></canvas>
                     </div>
-                    <div class="mt-4 text-center small font-weight-bold d-flex flex-wrap justify-content-center">
-                        <span class="mr-3 mb-2"><i class="fas fa-circle text-primary mr-1"></i> Hadir</span>
-                        <span class="mr-3 mb-2"><i class="fas fa-circle text-success mr-1"></i> Izin</span>
-                        <span class="mr-3 mb-2"><i class="fas fa-circle text-info mr-1"></i> Sakit</span>
-                        <span class="mb-2"><i class="fas fa-circle text-danger mr-1"></i> Alpha</span>
+                    <div class="mt-3 text-center small font-weight-bold d-flex flex-wrap justify-content-center" style="gap: 12px;">
+                        <span><i class="fas fa-circle text-primary mr-1"></i> Hadir</span>
+                        <span><i class="fas fa-circle text-success mr-1"></i> Izin</span>
+                        <span><i class="fas fa-circle text-info mr-1"></i> Sakit</span>
+                        <span><i class="fas fa-circle text-danger mr-1"></i> Alpha</span>
                     </div>
                 </div>
             </div>
@@ -133,112 +182,94 @@
 
     <div class="row">
         <div class="col-12 mb-4">
-            <div class="card border-0 shadow-sm rounded-lg overflow-hidden">
-                <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between border-0">
-                    <h6 class="m-0 font-weight-bold text-dark">
+            <div class="card">
+                <div class="card-header py-3 d-flex align-items-center justify-content-between">
+                    <h2 class="h6 m-0 font-weight-bold">
                         <i class="fas fa-history mr-2 text-primary"></i>Aktivitas Terbaru
-                    </h6>
-                    <a href="index.php?page=pembayaran" class="btn btn-link btn-sm text-decoration-none font-weight-bold">Lihat Semua</a>
+                    </h2>
+                    <a href="index.php?page=pembayaran" class="btn btn-outline-primary btn-sm">Lihat Pembayaran</a>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="bg-light text-muted small text-uppercase">
-                            <tr>
-                                <th class="pl-4 border-0">Waktu</th>
-                                <th class="border-0">User</th>
-                                <th class="border-0">Aktivitas</th>
-                                <th class="border-0">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (empty($recentActivities)): ?>
+                        <table class="table table-hover mb-0">
+                            <thead>
                                 <tr>
-                                    <td colspan="4" class="text-center py-4 text-muted italic small">Belum ada aktivitas hari ini.</td>
+                                    <th class="pl-4">Waktu</th>
+                                    <th>Pengguna</th>
+                                    <th>Aktivitas</th>
+                                    <th>Status</th>
                                 </tr>
-                            <?php else: ?>
-                                <?php foreach ($recentActivities as $act): ?>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($recentActivities)): ?>
                                     <tr>
-                                        <td class="pl-4 align-middle small">
-                                            <span class="text-dark font-weight-bold"><?= date('H:i', strtotime($act['created_at'])); ?></span>
-                                            <div class="text-muted" style="font-size: 10px;"><?= date('d/m/Y', strtotime($act['created_at'])); ?></div>
-                                        </td>
-                                        <td class="align-middle">
-                                            <div class="d-flex align-items-center">
-                                                <div class="avatar-sm mr-2 bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px; font-size: 12px; font-weight: bold;">
-                                                    <?= strtoupper(substr($act['user_name'], 0, 1)); ?>
+                                        <td colspan="4" class="text-center py-4 text-muted small">Belum ada aktivitas tercatat hari ini.</td>
+                                    </tr>
+                                <?php else: ?>
+                                    <?php foreach ($recentActivities as $act): ?>
+                                        <tr>
+                                            <td class="pl-4 align-middle small" style="font-variant-numeric: tabular-nums;">
+                                                <span class="font-weight-bold"><?= date('H:i', strtotime($act['created_at'])); ?></span>
+                                                <div class="text-muted" style="font-size: 11px;"><?= date('d/m/Y', strtotime($act['created_at'])); ?></div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="mr-2 bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 12px; font-weight: 800;">
+                                                        <?= htmlspecialchars(strtoupper(substr($act['user_name'], 0, 1))); ?>
+                                                    </div>
+                                                    <span class="font-weight-bold small"><?= htmlspecialchars($act['user_name']); ?></span>
                                                 </div>
-                                                <span class="font-weight-bold small text-dark"><?= htmlspecialchars($act['user_name']); ?></span>
-                                            </div>
-                                        </td>
-                                        <td class="align-middle">
-                                            <span class="small text-dark"><?= htmlspecialchars($act['description']); ?></span>
-                                        </td>
-                                        <td class="align-middle">
-                                            <?php if ($act['type'] == 'payment'): ?>
-                                                <?php if ($act['payment_status'] == 'Lunas'): ?>
-                                                    <span class="badge badge-success-soft text-success px-3 py-1 rounded-pill small">
-                                                        <i class="fas fa-check-circle mr-1"></i> Lunas
-                                                    </span>
+                                            </td>
+                                            <td class="align-middle">
+                                                <span class="small"><?= htmlspecialchars($act['description']); ?></span>
+                                            </td>
+                                            <td class="align-middle">
+                                                <?php if ($act['type'] == 'payment'): ?>
+                                                    <?php if ($act['payment_status'] == 'Lunas'): ?>
+                                                        <span class="lg-badge lg-badge-green">
+                                                            <i class="fas fa-check-circle"></i> Lunas
+                                                        </span>
+                                                    <?php else: ?>
+                                                        <span class="lg-badge lg-badge-orange">
+                                                            <i class="fas fa-clock"></i> Belum Lunas
+                                                        </span>
+                                                    <?php endif; ?>
                                                 <?php else: ?>
-                                                    <span class="badge badge-warning-soft text-warning px-3 py-1 rounded-pill small font-weight-bold">
-                                                        <i class="fas fa-clock mr-1"></i> Belum Lunas
+                                                    <span class="lg-badge lg-badge-orange">
+                                                        <i class="fas fa-user-check"></i> Hadir
                                                     </span>
                                                 <?php endif; ?>
-                                            <?php else: ?>
-                                                <span class="badge badge-primary-soft text-primary px-3 py-1 rounded-pill small">
-                                                    <i class="fas fa-user-check mr-1"></i> Hadir
-                                                1</span>
-                                            <?php endif; ?>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
 </div>
 
 <style>
-    .stat-card { border-radius: 12px; transition: transform 0.2s ease; cursor: default; }
-    .stat-card:hover { transform: translateY(-3px); }
-    
-    .icon-circle { 
-        height: 45px; width: 45px; 
-        display: flex; align-items: center; 
-        justify-content: center; border-radius: 50%; 
-        font-size: 1.2rem;
+    .icon-circle {
+        height: 46px;
+        width: 46px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 1.15rem;
     }
-
-    .rounded-lg { border-radius: 15px !important; }
-
-    /* Soft Backgrounds untuk Icon & Badge */
-    .bg-primary-soft { background-color: rgba(78, 115, 223, 0.1); }
-    .bg-success-soft { background-color: rgba(28, 200, 138, 0.1); }
-    .bg-info-soft { background-color: rgba(54, 185, 204, 0.1); }
-    .bg-warning-soft { background-color: rgba(246, 194, 62, 0.1); }
-    .badge-success-soft { background-color: rgba(28, 200, 138, 0.1); }
-    .badge-primary-soft { background-color: rgba(78, 115, 223, 0.1); }
-
-    .border-left-primary { border-left: 4px solid #4e73df !important; }
-    .border-left-success { border-left: 4px solid #1cc88a !important; }
-    .border-left-info { border-left: 4px solid #36b9cc !important; }
-    .border-left-warning { border-left: 4px solid #f6c23e !important; }
-
     canvas { max-width: 100% !important; }
 </style>
 
 <script src="assets/sb-admin-2/vendor/chart.js/Chart.min.js"></script>
 <script>
-// --- 1. KONFIGURASI UMUM ---
-Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-Chart.defaults.global.defaultFontColor = '#858796';
+Chart.defaults.global.defaultFontFamily = 'Plus Jakarta Sans, Nunito, -apple-system, BlinkMacSystemFont, sans-serif';
+Chart.defaults.global.defaultFontColor = '#B4B4BE';
 
-// Fungsi format Rupiah
 function number_format(number, decimals, dec_point, thousands_sep) {
   number = (number + '').replace(',', '').replace(' ', '');
   var n = !isFinite(+number) ? 0 : +number,
@@ -261,91 +292,106 @@ function number_format(number, decimals, dec_point, thousands_sep) {
   return s.join(dec);
 }
 
-// --- 2. DATA DARI PHP KE JS ---
 var incomeData = <?= json_encode($incomeData); ?>;
-var pieData = <?= json_encode($pieData); ?>; // [Hadir, Izin, Sakit, Alpha]
+var pieData = <?= json_encode($pieData); ?>;
 
-// --- 3. RENDER AREA CHART (PEMASUKAN) ---
 var ctx = document.getElementById("myAreaChart");
-var myLineChart = new Chart(ctx, {
-  type: 'line',
-  data: {
-    labels: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"],
-    datasets: [{
-      label: "Pemasukan",
-      lineTension: 0.3,
-      backgroundColor: "rgba(78, 115, 223, 0.05)",
-      borderColor: "rgba(78, 115, 223, 1)",
-      pointRadius: 3,
-      pointBackgroundColor: "rgba(78, 115, 223, 1)",
-      pointBorderColor: "rgba(78, 115, 223, 1)",
-      pointHoverRadius: 3,
-      pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
-      pointHoverBorderColor: "rgba(78, 115, 223, 1)",
-      pointHitRadius: 10,
-      pointBorderWidth: 2,
-      data: incomeData, // Data Dinamis
-    }],
-  },
-  options: {
-    maintainAspectRatio: false,
-    layout: { padding: { left: 10, right: 25, top: 25, bottom: 0 } },
-    scales: {
-      xAxes: [{ time: { unit: 'date' }, gridLines: { display: false, drawBorder: false }, ticks: { maxTicksLimit: 7 } }],
-      yAxes: [{ ticks: { maxTicksLimit: 5, padding: 10, callback: function(value, index, values) { return 'Rp' + number_format(value); } }, gridLines: { color: "rgb(234, 236, 244)", zeroLineColor: "rgb(234, 236, 244)", drawBorder: false, borderDash: [2], zeroLineBorderDash: [2] } }],
+if (ctx) {
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"],
+      datasets: [{
+        label: "Pemasukan",
+        lineTension: 0.32,
+        backgroundColor: "rgba(255, 140, 36, 0.14)",
+        borderColor: "#FF8C24",
+        pointRadius: 3.5,
+        pointBackgroundColor: "#FF8C24",
+        pointBorderColor: "#09090B",
+        pointHoverRadius: 5,
+        pointHoverBackgroundColor: "#FFA048",
+        pointHoverBorderColor: "#FFFFFF",
+        pointHitRadius: 10,
+        pointBorderWidth: 2,
+        data: incomeData
+      }]
     },
-    legend: { display: false },
-    tooltips: {
-      backgroundColor: "rgb(255,255,255)",
-      bodyFontColor: "#858796",
-      titleMarginBottom: 10,
-      titleFontColor: '#6e707e',
-      titleFontSize: 14,
-      borderColor: '#dddfeb',
-      borderWidth: 1,
-      xPadding: 15,
-      yPadding: 15,
-      displayColors: false,
-      intersect: false,
-      mode: 'index',
-      caretPadding: 10,
-      callbacks: {
-        label: function(tooltipItem, chart) {
-          var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
-          return datasetLabel + ': Rp' + number_format(tooltipItem.yLabel);
+    options: {
+      maintainAspectRatio: false,
+      layout: { padding: { left: 10, right: 20, top: 20, bottom: 0 } },
+      scales: {
+        xAxes: [{ gridLines: { display: false, drawBorder: false }, ticks: { maxTicksLimit: 12, fontColor: '#B4B4BE' } }],
+        yAxes: [{
+          ticks: {
+            maxTicksLimit: 5,
+            padding: 10,
+            fontColor: '#B4B4BE',
+            callback: function(value) { return 'Rp ' + number_format(value); }
+          },
+          gridLines: {
+            color: "rgba(255, 255, 255, 0.08)",
+            zeroLineColor: "rgba(255, 255, 255, 0.14)",
+            drawBorder: false,
+            borderDash: [3]
+          }
+        }]
+      },
+      legend: { display: false },
+      tooltips: {
+        backgroundColor: "#141418",
+        bodyFontColor: "#FFFFFF",
+        titleMarginBottom: 8,
+        titleFontColor: '#FF8C24',
+        titleFontSize: 13,
+        borderColor: 'rgba(255, 140, 36, 0.45)',
+        borderWidth: 1,
+        xPadding: 14,
+        yPadding: 12,
+        displayColors: false,
+        intersect: false,
+        mode: 'index',
+        caretPadding: 10,
+        callbacks: {
+          label: function(tooltipItem, chart) {
+            var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+            return datasetLabel + ': Rp ' + number_format(tooltipItem.yLabel);
+          }
         }
       }
     }
-  }
-});
+  });
+}
 
-// --- 4. RENDER PIE CHART (KEHADIRAN) ---
-var ctx = document.getElementById("myPieChart");
-var myPieChart = new Chart(ctx, {
-  type: 'doughnut',
-  data: {
-    labels: ["Hadir", "Izin", "Sakit", "Alpha"],
-    datasets: [{
-      data: pieData, // Data Dinamis
-      backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#e74a3b'],
-      hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf', '#c0392b'],
-      hoverBorderColor: "rgba(234, 236, 244, 1)",
-    }],
-  },
-  options: {
-    maintainAspectRatio: false,
-    tooltips: {
-      backgroundColor: "rgb(255,255,255)",
-      bodyFontColor: "#858796",
-      borderColor: '#dddfeb',
-      borderWidth: 1,
-      xPadding: 15,
-      yPadding: 15,
-      displayColors: false,
-      caretPadding: 10,
+var ctxPie = document.getElementById("myPieChart");
+if (ctxPie) {
+  new Chart(ctxPie, {
+    type: 'doughnut',
+    data: {
+      labels: ["Hadir", "Izin", "Sakit", "Alpha"],
+      datasets: [{
+        data: pieData,
+        backgroundColor: ['#FF8C24', '#34D399', '#38BDF8', '#F87171'],
+        hoverBackgroundColor: ['#FFA048', '#10B981', '#0EA5E9', '#EF4444'],
+        borderColor: '#141418',
+        borderWidth: 2
+      }]
     },
-    legend: { display: false },
-    cutoutPercentage: 80,
-  },
-});
+    options: {
+      maintainAspectRatio: false,
+      tooltips: {
+        backgroundColor: "#141418",
+        bodyFontColor: "#FFFFFF",
+        borderColor: 'rgba(255, 255, 255, 0.16)',
+        borderWidth: 1,
+        xPadding: 14,
+        yPadding: 12,
+        displayColors: true,
+        caretPadding: 10
+      },
+      legend: { display: false },
+      cutoutPercentage: 76
+    }
+  });
+}
 </script>

@@ -1,0 +1,37 @@
+User-agent: *
+Allow: /index.php?page=auth
+Allow: /index.php?page=register
+Allow: /assets/
+Allow: /llms.txt
+Allow: /sitemap.xml
+Disallow: /index.php?page=dashboard
+Disallow: /index.php?page=guru
+Disallow: /index.php?page=siswa
+Disallow: /index.php?page=kelas
+Disallow: /index.php?page=jadwal
+Disallow: /index.php?page=pembayaran
+Disallow: /index.php?page=laporan
+Disallow: /uploads/
+
+# AI Search & Answer Engine Crawlers (GEO Enabled)
+User-agent: GPTBot
+Allow: /index.php?page=auth
+Allow: /index.php?page=register
+Allow: /llms.txt
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://kakyolesson.infinityfreeapp.com/sitemap.xml

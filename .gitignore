@@ -24,3 +24,6 @@ Thumbs.db
 # Temp files
 /temp/
 /cache/
+
+# Root working PDF source (served copy lives in public/assets/docs/)
+/Tata_Tertib_Siswa_dan_Wali_Murid_KakYo_Lesson.pdf

@@ -14,7 +14,7 @@
     <div class="row">
         <?php if (empty($tugas)): ?>
             <div class="col-12 text-center py-5">
-                <img src="assets/sb-admin-2/img/undraw_posting_photo.svg" width="180" class="mb-3" style="opacity: 0.5">
+                <img src="assets/sb-admin-2/img/undraw_posting_photo.svg" alt="Ilustrasi tugas kosong" width="180" class="mb-3" style="opacity: 0.5">
                 <h5 class="text-gray-500 font-weight-bold">Hore! Tidak ada tugas aktif saat ini.</h5>
             </div>
         <?php else: ?>
@@ -111,7 +111,7 @@
                     </div>
                 </div>
 
-                <<div class="modal fade" id="modalKonfirmasi<?= $t['id']; ?>" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal fade" id="modalKonfirmasi<?= $t['id']; ?>" tabindex="-1" role="dialog" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered" role="document">
                         <div class="modal-content border-0 shadow-lg">
                             <div class="modal-header bg-dark text-white border-0">

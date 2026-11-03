@@ -1,90 +1,102 @@
-<div class="container-fluid text-dark">
+<div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <div>
-            <h1 class="h3 mb-1 text-gray-900 font-weight-bold">Riwayat Absensi Siswa</h1>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb bg-transparent p-0 small">
-                    <li class="breadcrumb-item"><a href="index.php?page=guru_riwayat">Riwayat Siswa</a></li>
-                    <li class="breadcrumb-item active text-gray-500" aria-current="page"><?= htmlspecialchars($siswa['name']); ?></li>
-                </ol>
-            </nav>
+            <h1 class="h3 mb-1 font-weight-bold">Riwayat Kehadiran Siswa</h1>
+            <p class="text-muted small mb-0">Detail presensi terverifikasi untuk <strong><?= htmlspecialchars($siswa['name']); ?></strong>.</p>
         </div>
-        <a href="index.php?page=guru_riwayat" class="btn btn-secondary btn-sm shadow-sm rounded-pill px-3">
+        <a href="index.php?page=guru_riwayat" class="btn btn-secondary btn-sm px-3 mt-2 mt-sm-0">
             <i class="fas fa-arrow-left fa-sm mr-1"></i> Kembali ke Daftar
         </a>
     </div>
 
     <div class="row">
         <div class="col-xl-3 col-md-4 mb-4">
-            <div class="card shadow-sm mb-4 border-0 rounded-lg overflow-hidden">
-                <div class="card-body text-center py-5">
-                    <div class="mb-4">
-                        <img class="img-profile rounded-circle border shadow-sm" 
-                             src="<?= !empty($siswa['photo_profile']) ? BASE_URL . 'uploads/profil/' . $siswa['photo_profile'] : BASE_URL . 'assets/sb-admin-2/img/undraw_profile.svg'; ?>" 
-                             style="width: 120px; height: 120px; object-fit: cover;"
+            <div class="card">
+                <div class="card-body text-center py-4">
+                    <div class="mb-3">
+                        <img class="img-profile rounded-circle"
+                             alt="Foto profil <?= htmlspecialchars($siswa['name']); ?>"
+                             src="<?= !empty($siswa['photo_profile']) ? BASE_URL . 'uploads/profil/' . htmlspecialchars($siswa['photo_profile']) : BASE_URL . 'assets/sb-admin-2/img/undraw_profile.svg'; ?>"
+                             style="width: 108px; height: 108px; object-fit: cover; border: 2px solid rgba(255,140,36,0.45);"
                              onerror="this.src='<?= BASE_URL ?>assets/sb-admin-2/img/undraw_profile.svg'">
                     </div>
-                    
-                    <h5 class="font-weight-bold text-gray-900 mb-2"><?= htmlspecialchars($siswa['name']); ?></h5>
-                    <span class="badge badge-primary-soft text-primary small px-3 mb-0">Active Student</span>
-                    
+
+                    <h5 class="font-weight-bold mb-2"><?= htmlspecialchars($siswa['name']); ?></h5>
+                    <span class="lg-badge lg-badge-orange">Siswa Aktif</span>
+
                     <hr class="my-4">
-                    
+
                     <div class="text-center">
                         <div class="small font-weight-bold text-muted text-uppercase mb-1">Total Sesi Tercatat</div>
-                        <div class="h4 font-weight-bold text-primary mb-0"><?= count($history); ?> Kali</div>
+                        <div class="h4 font-weight-bold text-primary mb-0" style="font-variant-numeric: tabular-nums;"><?= count($history); ?> Pertemuan</div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="col-xl-9 col-md-8">
-            <div class="card shadow-sm mb-4 border-0 rounded-lg overflow-hidden">
-                <div class="card-header py-3 bg-white border-bottom-0">
-                    <h6 class="m-0 font-weight-bold text-dark"><i class="fas fa-list-alt mr-2 text-primary"></i>Laporan Absensi Terverifikasi</h6>
+            <div class="card mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-list-alt mr-2"></i>Catatan Kehadiran &amp; Lokasi Belajar</h6>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover text-dark" id="dataTableDetail" width="100%" cellspacing="0">
-                            <thead class="bg-light text-center small font-weight-bold text-uppercase text-muted">
-                                <tr>
-                                    <th class="border-0">Tanggal & Waktu</th>
-                                    <th class="border-0">Kelas</th>
-                                    <th class="border-0">Status</th>
-                                    <th class="border-0">Aksi</th>
+                        <table class="table table-bordered table-hover" id="dataTableDetail" width="100%" cellspacing="0">
+                            <thead>
+                                <tr class="text-center small font-weight-bold text-uppercase">
+                                    <th>Tanggal &amp; Waktu</th>
+                                    <th>Kelas / Band</th>
+                                    <th>Lokasi</th>
+                                    <th>Status</th>
+                                    <th>Koreksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($history as $h): 
-                                    // Penentuan warna badge berdasarkan status asli dari database
-                                    $status_class = "badge-success";
-                                    $status_label = $h['status'];
-                                    
-                                    if ($h['status'] == 'Izin' || $h['status'] == 'Sakit') {
-                                        $status_class = "badge-info";
-                                    } elseif ($h['status'] == 'Ditolak') {
-                                        $status_class = "badge-danger";
+                                <?php foreach ($history as $h):
+                                    $badgeCls = 'lg-badge-green';
+                                    $statusLabel = $h['status'];
+                                    if ($h['status'] === 'Izin' || $h['status'] === 'Sakit') {
+                                        $badgeCls = 'lg-badge-orange';
+                                    } elseif ($h['status'] === 'Ditolak') {
+                                        $badgeCls = 'lg-badge-red';
+                                        $statusLabel = 'Alpha';
                                     }
+                                    $hasGps = ((float)($h['location_lat'] ?? 0) != 0.0 || (float)($h['location_long'] ?? 0) != 0.0);
                                 ?>
                                 <tr>
-                                    <td class="align-middle text-center">
-                                        <div class="font-weight-bold text-gray-800"><?= date('d M Y', strtotime($h['date'])); ?></div>
+                                    <td class="align-middle text-center" style="font-variant-numeric: tabular-nums;">
+                                        <div class="font-weight-bold"><?= date('d M Y', strtotime($h['date'])); ?></div>
                                         <small class="text-muted"><i class="far fa-clock mr-1"></i><?= date('H:i', strtotime($h['created_at'])); ?> WIB</small>
                                     </td>
                                     <td class="align-middle text-center">
-                                        <span class="small font-weight-bold text-uppercase text-primary"><?= htmlspecialchars($h['class_name']); ?></span>
-                                    </td>
-                                    <td class="align-middle text-center">
-                                        <span class="badge <?= $status_class; ?> px-3 py-2 rounded-pill shadow-xs small font-weight-bold">
-                                            <?= $status_label; ?>
+                                        <span class="font-weight-bold text-primary">
+                                            <?= htmlspecialchars($h['class_name']); ?>
+                                            <?= !empty($h['band_name']) ? ' (' . htmlspecialchars($h['band_name']) . ')' : ''; ?>
                                         </span>
                                     </td>
                                     <td class="align-middle text-center">
-                                        <button type="button" class="btn btn-white btn-sm shadow-sm rounded-circle text-primary btn-edit-absen" 
-                                                data-toggle="modal" 
+                                        <?php if ($hasGps): ?>
+                                            <a href="https://www.google.com/maps?q=<?= rawurlencode($h['location_lat'] . ',' . $h['location_long']); ?>"
+                                               target="_blank" rel="noopener noreferrer"
+                                               class="btn btn-outline-primary btn-sm py-1 px-2">
+                                                <i class="fas fa-map-marker-alt mr-1"></i> Peta
+                                            </a>
+                                        <?php else: ?>
+                                            <span class="text-muted small">-</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <span class="lg-badge <?= $badgeCls; ?>"><?= htmlspecialchars($statusLabel); ?></span>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <button type="button"
+                                                class="btn btn-warning btn-sm btn-circle btn-edit-absen"
+                                                title="Koreksi Status Kehadiran"
+                                                aria-label="Koreksi status tanggal <?= date('d M Y', strtotime($h['date'])); ?>"
+                                                data-toggle="modal"
                                                 data-target="#modalEditAbsen"
-                                                data-id="<?= $h['id']; ?>"
-                                                data-status="<?= $h['status']; ?>"
+                                                data-id="<?= (int)$h['id']; ?>"
+                                                data-status="<?= htmlspecialchars($h['status']); ?>"
                                                 data-date="<?= date('d M Y', strtotime($h['date'])); ?>">
                                             <i class="fas fa-edit"></i>
                                         </button>
@@ -100,30 +112,29 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalEditAbsen" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="modalEditAbsen" tabindex="-1" role="dialog" aria-labelledby="lblEditAbsen" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content border-0 shadow-lg rounded-lg">
-            <div class="modal-header border-bottom-0">
-                <h5 class="modal-title font-weight-bold text-dark">Koreksi Status Kehadiran</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title font-weight-bold" id="lblEditAbsen">Koreksi Status Kehadiran</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <!-- Form diarahkan ke action update_status -->
             <form action="index.php?page=guru_riwayat_detail&action=update_status" method="POST">
                 <div class="modal-body py-4">
                     <?= CsrfHelper::formField(); ?>
                     <input type="hidden" name="id_absensi" id="edit_id_absensi">
-                    <input type="hidden" name="student_id" value="<?= $student_id; ?>">
+                    <input type="hidden" name="student_id" value="<?= (int)$student_id; ?>">
 
                     <div class="text-center mb-4">
                         <div class="small text-muted text-uppercase mb-1">Sesi Tanggal</div>
-                        <div class="h5 font-weight-bold text-gray-900" id="display_date"></div>
+                        <div class="h5 font-weight-bold text-primary" id="display_date"></div>
                     </div>
 
-                    <div class="form-group px-3">
-                        <label class="small font-weight-bold text-uppercase text-muted">Status Baru:</label>
-                        <select name="status" id="edit_status" class="form-control custom-select shadow-none" required>
+                    <div class="form-group mb-0">
+                        <label for="edit_status" class="small font-weight-bold text-uppercase">Status Kehadiran Baru</label>
+                        <select name="status" id="edit_status" class="form-control" required>
                             <option value="Hadir">Hadir</option>
                             <option value="Izin">Izin</option>
                             <option value="Sakit">Sakit</option>
@@ -131,43 +142,21 @@
                         </select>
                     </div>
                 </div>
-                <div class="modal-footer border-top-0 bg-light p-3">
-                    <button type="button" class="btn btn-light rounded-pill px-4 font-weight-bold" data-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4 font-weight-bold shadow-sm">Simpan Perubahan</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary font-weight-bold">Simpan Perubahan</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-
-
-<style>
-    .badge-primary-soft { background-color: rgba(78, 115, 223, 0.1); color: #4e73df; }
-    .table thead th { font-size: 11px; letter-spacing: 0.5px; border-bottom: 0; }
-    .table-bordered { border: 1px solid #eaecf4; }
-    .rounded-lg { border-radius: 12px !important; }
-    .shadow-xs { box-shadow: 0 .125rem .25rem rgba(0,0,0,.075)!important; }
-    .breadcrumb-item + .breadcrumb-item::before { content: ">" !important; }
-    .btn-white { background-color: #fff; border: 1px solid #eaecf4; }
-    .btn-white:hover { background-color: #f8f9fc; color: #4e73df; }
-    .custom-select { border-radius: 10px; height: 45px; border: 1px solid #d1d3e2; }
-</style>
-
 <script>
 $(document).ready(function() {
     $('.btn-edit-absen').on('click', function() {
-        const id = $(this).data('id');
-        const status = $(this).data('status');
-        const date = $(this).data('date');
-
-        // Masukkan data ke dalam elemen modal
-        $('#edit_id_absensi').val(id);
-        $('#display_date').text(date);
-        
-        // Pilih status yang sesuai di dropdown
-        // Pastikan nilai value di <option> sesuai dengan status di database
-        $('#edit_status').val(status);
+        $('#edit_id_absensi').val($(this).data('id'));
+        $('#display_date').text($(this).data('date'));
+        $('#edit_status').val($(this).data('status'));
     });
 });
 </script>

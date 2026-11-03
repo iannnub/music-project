@@ -1,48 +1,42 @@
-🎸 KakYo Lesson - Integrated Management System
-KakYo Lesson adalah platform manajemen kursus musik berbasis web yang dirancang dengan arsitektur MVC (Model-View-Controller) untuk skalabilitas dan kemudahan pemeliharaan. Aplikasi ini menggabungkan fungsionalitas sistem informasi manajemen dengan antarmuka modern bertema musik yang fokus pada konversi pendaftaran siswa.
+# KakYo Lesson - Sistem Manajemen Kursus Musik Terpadu
 
-✨ Fitur Utama (UI/UX Focused)
-Dynamic Landing Promo: Panel promosi kiri yang responsif, menampilkan nilai jual kursus secara persuasif.
+KakYo Lesson adalah aplikasi manajemen kursus musik berbasis web dengan arsitektur MVC (Model-View-Controller) PHP Native untuk Studio 1 Balung dan Studio 2 Jember Kota. Sistem ini mengelola pendaftaran siswa mandiri, penjadwalan kelas privat dan band, presensi multi-lokasi, kurikulum raport berbasis Bab dan Subbab, serta administrasi keuangan dan gaji pengajar.
 
-Seamless Login Experience: Form login dengan efek Blurred Echo dan Floating Shapes yang meminimalisir user fatigue.
+## Fitur Utama
 
-Social Proof Integration: Akses cepat ke TikTok, WhatsApp, dan Instagram untuk membangun trust calon siswa.
+- **Registrasi Siswa Mandiri Multi-Cabang**: Pendaftaran online dengan kalkulasi tagihan perdana otomatis sesuai cabang (`Studio 1 Balung`: SPP Rp 250.000 + Pendaftaran Rp 50.000; `Studio 2 Jember Kota`: SPP Rp 350.000 + Pendaftaran Rp 50.000) serta validasi wajib baca Tata Tertib Siswa & Wali Murid.
+- **Presensi Live GPS Multi-Lokasi**: Absensi pengajar dan siswa berbasis foto kamera dan titik koordinat aktual pengguna tanpa batasan satu radius titik studio, mendukung operasional lintas cabang.
+- **Manajemen Kelas Privat & Grup Band**: Pengelolaan kelas 1-on-1 serta kelas grup terstruktur dalam unit Band (`Band 1`, `Band 2`, dan seterusnya) lengkap dengan anggota siswa per band.
+- **Kurikulum Bab & Subbab + Cetak Raport A4**: Pengajar menyusun materi per Bab dan Subbab untuk tiap siswa dengan kalkulasi persentase penguasaan otomatis dan fitur cetak Raport A4.
+- **Rekap Gaji Pengajar & Pembersihan Foto Bulanan**: Perhitungan gaji pengajar otomatis, konfirmasi manual admin bagi pengajar yang terlambat atau lupa absen, pratinjau foto bukti absen, dan penghapusan otomatis file foto bulan sebelumnya setiap tanggal 1 tanpa menghapus riwayat gaji di database.
+- **Portal Video Latihan TikTok**: Integrasi tautan video latihan resmi KakYo Lesson yang dikelola Admin untuk dipantau siswa dan wali murid.
+- **Antarmuka Dark Liquid Glass**: Tema gelap solid (`#09090B`), aksen oranye (`#FF8C24`), dan putih bersih (`#FFFFFF`) tanpa gradasi, dilengkapi navigasi *Dynamic Island* dan transisi halaman modern.
 
-MVC Architecture: Pemisahan logika bisnis dan tampilan yang rapi, memudahkan dalam pengembangan fitur absensi dan manajemen nilai di masa depan.
+## Tech Stack
 
-Responsive Layout: Optimal diakses melalui Desktop maupun perangkat Mobile (Smartphone).
+- **Backend**: PHP 8.x (Native MVC, PDO Prepared Statements, CSRF Protection, Session Hardening)
+- **Database**: MySQL / MariaDB (`db/migration_v2_client_updates.sql`)
+- **Frontend**: HTML5, Custom CSS3 (`liquid-glass.css`), Bootstrap 4, DataTables, SweetAlert2, FontAwesome 5
 
-🛠️ Tech Stack & Architecture
-Core Technologies
-Language: PHP 8.x (Native MVC).
+## Panduan Pembaruan Database (v2)
 
-Database: MySQL.
+Jalankan skrip migrasi berikut melalui phpMyAdmin atau MySQL CLI sebelum menggunakan fitur terbaru:
 
-Frontend: Bootstrap 4, SB Admin 2 Template, Custom CSS3.
+```sql
+SOURCE db/migration_v2_client_updates.sql;
+```
 
-Icons: FontAwesome 5.
+Untuk pembersihan otomatis foto absensi guru setiap awal bulan serta pemrosesan status Alpha harian via Cron:
 
-UI/UX Principles Applied
-Glassmorphism: Memberikan efek kedalaman pada card login menggunakan backdrop-filter.
+```bash
+php cron/process_alpha.php
+```
 
-Visual Continuity: Sinkronisasi background antar-section untuk pengalaman visual yang tidak terputus.
+## Kontak Studio
 
-Micro-Interactions: Animasi pada benefit cards dan floating shapes untuk meningkatkan interaktivitas.
-![alt text](image.png)
+- **Studio 1 Balung**: Jln. Puger (Dekat Dira Balung), Kabupaten Jember
+- **Studio 2 Jember Kota**: Kota Jember, Jawa Timur
+- **WhatsApp**: +62 851-7986-1126
+- **Instagram**: `@kakyo_lesson`
 
-[ ] Implementasi sistem absensi otomatis untuk guru dan siswa.
-
-[ ] Dashboard analitik perkembangan skill musik siswa (SI-based reporting).
-
-[ ] Integrasi Payment Gateway untuk pembayaran iuran bulanan.
-
-🤝 Kontak & Kontribusi
-Proyek ini dibuat untuk kebutuhan manajemen internal KakYo Lesson.
-
-📍 Alamat: Jln Puger - Dekat Dira Balung
-
-📱 WhatsApp: +62 851-7986-1126
-
-📸 Instagram: @kakyo_lesson
-
-Created with 💙 by a Septian Putra (iannnub).
+Created by Septian Putra (iannnub).
