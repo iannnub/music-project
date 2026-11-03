@@ -12,7 +12,7 @@
 
 :root {
     --bg-canvas: #09090B;
-    --bg-panel: #111115;
+    --bg-panel: rgba(18, 18, 24, 0.84);
     --glass-fill: rgba(20, 20, 26, 0.78);
     --glass-fill-elevated: rgba(28, 28, 36, 0.88);
     --glass-border: rgba(255, 255, 255, 0.14);
@@ -33,7 +33,12 @@
     box-sizing: border-box;
 }
 
-html, body {
+html {
+    min-height: 100%;
+    background-color: var(--bg-canvas);
+}
+
+body {
     min-height: 100dvh;
     background-color: var(--bg-canvas);
     color: var(--text-body);
@@ -41,6 +46,32 @@ html, body {
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
     overflow-x: clip;
+    position: relative;
+}
+
+/* Page Wallpaper Backdrop (using user photo bg.jpeg) */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background-image: url('../img/bg.jpeg');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    transform: scale(1.02);
+}
+
+/* Solid Ambient Tint Scrim for Contrast (Zero Gradients) */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-color: rgba(9, 9, 11, 0.72);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    pointer-events: none;
 }
 
 .skip-link {
@@ -145,6 +176,8 @@ textarea:focus-visible,
 .showcase-panel {
     position: relative;
     background-color: var(--bg-panel);
+    backdrop-filter: saturate(190%) blur(26px);
+    -webkit-backdrop-filter: saturate(190%) blur(26px);
     border: 1px solid var(--glass-border);
     border-radius: 28px;
     padding: 36px;
@@ -155,10 +188,10 @@ textarea:focus-visible,
 .showcase-bg-photo {
     position: absolute;
     inset: 0;
-    background-image: url('../img/login.webp');
+    background-image: url('../img/bg.jpeg');
     background-size: cover;
     background-position: center;
-    opacity: 0.18;
+    opacity: 0.16;
     pointer-events: none;
 }
 
