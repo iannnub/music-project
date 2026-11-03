@@ -812,6 +812,95 @@ textarea:focus-visible,
     text-decoration: underline;
 }
 
+/* Studio Address Information Block in Registration Form */
+.register-studio-info {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+    padding: 16px 18px;
+    margin-bottom: 22px;
+}
+
+.register-studio-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.register-studio-title {
+    font-size: 0.86rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.register-studio-badge {
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: var(--accent-orange);
+    background-color: rgba(255, 140, 36, 0.12);
+    padding: 3px 10px;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 140, 36, 0.25);
+}
+
+.register-branch-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.register-branch-item {
+    background-color: rgba(10, 10, 14, 0.70);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.register-branch-name {
+    font-size: 0.94rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.register-branch-addr {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.45;
+    margin-bottom: 8px;
+    flex-grow: 1;
+}
+
+.register-branch-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.80rem;
+    font-weight: 700;
+    color: var(--accent-orange);
+    text-decoration: none;
+    transition: color 0.18s ease;
+}
+
+.register-branch-link:hover {
+    color: #FFA44D;
+    text-decoration: underline;
+}
+
 @media (max-width: 639.98px) {
     .auth-shell {
         padding: 0 14px;
@@ -820,6 +909,7 @@ textarea:focus-visible,
     .feature-grid,
     .branch-summary-grid,
     .branch-radio-grid,
+    .register-branch-grid,
     .field-grid-2 {
         grid-template-columns: 1fr;
     }

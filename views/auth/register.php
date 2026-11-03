@@ -76,6 +76,55 @@
                     <input type="text" id="websiteUrlTrap" name="website_url" tabindex="-1" autocomplete="off">
                 </div>
 
+                <!-- Lokasi Cabang Studio KakYo Lesson (Alamat Lengkap) -->
+                <div class="register-studio-info" aria-labelledby="regStudioTitle">
+                    <div class="register-studio-header">
+                        <span id="regStudioTitle" class="register-studio-title">
+                            <i class="fas fa-map-marked-alt" style="color:var(--accent-orange);" aria-hidden="true"></i>
+                            Lokasi Cabang Studio KakYo Lesson
+                        </span>
+                        <span class="register-studio-badge">
+                            2 Lokasi Studio
+                        </span>
+                    </div>
+
+                    <div class="register-branch-grid">
+                        <div class="register-branch-item">
+                            <div>
+                                <div class="register-branch-name">
+                                    <i class="fas fa-music" style="color:#FF8C24;font-size:0.85rem;" aria-hidden="true"></i>
+                                    Studio 1 Balung
+                                </div>
+                                <div class="register-branch-addr">
+                                    PG7G+X8Q, Krajan Karang Anom, Balung Kulon, Kec. Balung, Kabupaten Jember, Jawa Timur 68161
+                                </div>
+                            </div>
+                            <a href="https://maps.app.goo.gl/KKKXVSHdrFctNxNJ8" target="_blank" rel="noopener noreferrer" class="register-branch-link">
+                                <i class="fas fa-external-link-alt" aria-hidden="true"></i> Buka Petunjuk Arah
+                            </a>
+                        </div>
+
+                        <div class="register-branch-item">
+                            <div>
+                                <div class="register-branch-name">
+                                    <i class="fas fa-guitar" style="color:#38BDF8;font-size:0.85rem;" aria-hidden="true"></i>
+                                    Studio 2 Jember Kota
+                                </div>
+                                <div class="register-branch-addr">
+                                    VP2X+VRC Antirogo, Jember Regency, East Java
+                                </div>
+                            </div>
+                            <a href="https://maps.app.goo.gl/e1FxtYetwPjRBtbq8" target="_blank" rel="noopener noreferrer" class="register-branch-link">
+                                <i class="fas fa-external-link-alt" aria-hidden="true"></i> Buka Petunjuk Arah
+                            </a>
+                        </div>
+                    </div>
+                    <div style="font-size:0.78rem;color:#8A8A96;margin-top:10px;line-height:1.4;">
+                        <i class="fas fa-info-circle" style="color:#FF8C24;margin-right:4px;" aria-hidden="true"></i>
+                        Pilihan cabang studio tempat Anda belajar dikonfirmasi sesudah akun selesai didaftarkan.
+                    </div>
+                </div>
+
                 <!-- 1. Identitas Wali & Siswa -->
                 <div class="field-grid-2">
                     <div class="field-group">
