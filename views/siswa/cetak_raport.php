@@ -117,7 +117,7 @@
         <div class="kop">
             <h1>KAKYO LESSON</h1>
             <p>Studio 1 Balung &amp; Studio 2 Jember Kota, Kabupaten Jember, Jawa Timur</p>
-            <p>WhatsApp: 0856-4669-0615 | Program Kursus: Piano, Vokal, Gitar, Bass, Drum, Biola</p>
+            <p>WhatsApp: 0856-4669-0615 | Program Kursus: Piano, Vokal, Gitar, Bass, Drum</p>
         </div>
 
         <div class="title">Raport Capaian Kurikulum &amp; Perkembangan Siswa</div>

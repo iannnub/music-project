@@ -176,7 +176,7 @@
                         <select id="regInstrument" name="instrument" class="field-select" required>
                             <option value="">Pilih Bidang Musik</option>
                             <?php
-                            $instruments = ['Vokal', 'Piano / Keyboard', 'Gitar Akustik / Elektrik', 'Bass', 'Drum', 'Biola', 'Band Combo'];
+                            $instruments = ['Vokal', 'Piano / Keyboard', 'Gitar Akustik / Elektrik', 'Bass', 'Drum', 'Band Combo'];
                             foreach ($instruments as $inst):
                             ?>
                                 <option value="<?= htmlspecialchars($inst); ?>" <?= (($reg_old['instrument'] ?? '') === $inst) ? 'selected' : ''; ?>>

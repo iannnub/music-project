@@ -17,7 +17,7 @@ $canonicalUrl  = BASE_URL . ($activePageKey === 'register' ? 'index.php?page=reg
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= htmlspecialchars($resolvedTitle); ?></title>
-<meta name="description" content="KakYo Lesson menyediakan kursus musik Private dan Band di Studio 1 Balung & Studio 2 Jember Kota untuk Vokal, Gitar, Bass, Piano, Biola, dan Drum.">
+<meta name="description" content="KakYo Lesson menyediakan kursus musik Private dan Band di Studio 1 Balung & Studio 2 Jember Kota untuk Vokal, Gitar, Bass, Piano, dan Drum.">
 <meta name="keywords" content="kursus musik jember, les musik balung, les musik jember kota, kakyo lesson, belajar gitar jember, les vokal jember, les piano jember">
 <meta name="author" content="Yanuar Yose Armando - KakYo Lesson">
 <meta name="theme-color" content="#09090B">
@@ -57,7 +57,7 @@ $canonicalUrl  = BASE_URL . ($activePageKey === 'register' ? 'index.php?page=reg
   "alternateName": "KakYo Lesson Music Course & Development",
   "url": <?= json_encode(BASE_URL); ?>,
   "logo": <?= json_encode(BASE_URL . 'assets/img/logo-fix.png'); ?>,
-  "description": "Lembaga kursus musik Private dan Band Combo di Studio 1 Balung serta Studio 2 Jember Kota untuk instrumen Vokal, Gitar, Bass, Piano/Keyboard, Biola, dan Drum.",
+  "description": "Lembaga kursus musik Private dan Band Combo di Studio 1 Balung serta Studio 2 Jember Kota untuk instrumen Vokal, Gitar, Bass, Piano/Keyboard, dan Drum.",
   "founder": {
     "@type": "Person",
     "name": "Yanuar Yose Armando"

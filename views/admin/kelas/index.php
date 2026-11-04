@@ -134,7 +134,6 @@
                                     <option value="Drum">Drum</option>
                                     <option value="Vokal">Vokal</option>
                                     <option value="Band Combo">Band Combo</option>
-                                    <option value="Biola">Biola</option>
                                 </select>
                             </div>
                         </div>
@@ -207,7 +206,6 @@
                                     <option value="Drum">Drum</option>
                                     <option value="Vokal">Vokal</option>
                                     <option value="Band Combo">Band Combo</option>
-                                    <option value="Biola">Biola</option>
                                 </select>
                             </div>
                         </div>

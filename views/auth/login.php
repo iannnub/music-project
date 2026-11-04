@@ -28,7 +28,7 @@
                 </h1>
 
                 <p class="hero-lead">
-                    Kursus musik Private, Band Combo, dan Home Course untuk Vokal, Gitar, Bass, Piano/Keyboard, Biola, dan Drum dengan kurikulum Bab/Subbab terukur serta evaluasi raport digital.
+                    Kursus musik Private, Band Combo, dan Home Course untuk Vokal, Gitar, Bass, Piano/Keyboard, dan Drum dengan kurikulum Bab/Subbab terukur serta evaluasi raport digital.
                 </p>
 
                 <div class="feature-grid">
