@@ -78,7 +78,7 @@ $canonicalUrl  = BASE_URL . ($activePageKey === 'register' ? 'index.php?page=reg
         "addressRegion": "Jawa Timur",
         "addressCountry": "ID"
       },
-      "priceRange": "Rp 250.000/bulan + Rp 50.000 pendaftaran"
+      "priceRange": "$$"
     },
     {
       "@type": "MusicSchool",
@@ -89,7 +89,7 @@ $canonicalUrl  = BASE_URL . ($activePageKey === 'register' ? 'index.php?page=reg
         "addressRegion": "Jawa Timur",
         "addressCountry": "ID"
       },
-      "priceRange": "Rp 350.000/bulan + Rp 50.000 pendaftaran"
+      "priceRange": "$$"
     }
   ]
 }

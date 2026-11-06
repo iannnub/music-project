@@ -50,16 +50,16 @@
                     </div>
                 </div>
 
-                <div class="branch-summary-grid" aria-label="Informasi Tarif Cabang">
+                <div class="branch-summary-grid" aria-label="Informasi Lokasi Studio">
                     <div class="branch-summary-card">
-                        <span class="branch-tag">Studio 1 Balung</span>
-                        <div class="branch-price">Rp 250.000 <small style="font-weight:500;font-size:0.78rem;color:#B4B4BE;">/ bulan</small></div>
-                        <div class="branch-sub">+ Rp 50.000 biaya pendaftaran awal</div>
+                        <span class="branch-tag"><i class="fas fa-map-marker-alt" aria-hidden="true"></i> Studio 1 Balung</span>
+                        <div class="branch-price" style="font-size:1.02rem;font-weight:700;">Fasilitas Studio Lengkap</div>
+                        <div class="branch-sub">Krajan Karang Anom, Balung &bull; Ruang akustik ber-AC, alat band &amp; instrumen lengkap</div>
                     </div>
                     <div class="branch-summary-card">
-                        <span class="branch-tag">Studio 2 Jember Kota</span>
-                        <div class="branch-price">Rp 350.000 <small style="font-weight:500;font-size:0.78rem;color:#B4B4BE;">/ bulan</small></div>
-                        <div class="branch-sub">+ Rp 50.000 biaya pendaftaran awal</div>
+                        <span class="branch-tag"><i class="fas fa-map-marker-alt" aria-hidden="true"></i> Studio 2 Jember Kota</span>
+                        <div class="branch-price" style="font-size:1.02rem;font-weight:700;">Akses Strategis Pusat Kota</div>
+                        <div class="branch-sub">Kawasan Antirogo, Jember Kota &bull; Lokasi mudah dijangkau &amp; jadwal belajar fleksibel</div>
                     </div>
                 </div>
 
