@@ -108,9 +108,15 @@
 <body>
     <?php
         $branchCode = $student_profile['branch'] ?? '';
-        $branchText = ($branchCode === 'Jember')
-            ? 'Studio 2 Jember Kota'
-            : (($branchCode === 'Balung') ? 'Studio 1 Balung' : 'KakYo Lesson Jember');
+        if ($branchCode === 'Jember') {
+            $branchText = 'Studio 2 Jember Kota';
+        } elseif ($branchCode === 'Balung') {
+            $branchText = 'Studio 1 Balung';
+        } elseif ($branchCode === 'Home Course') {
+            $branchText = 'Home Course (Privat ke Rumah Siswa)';
+        } else {
+            $branchText = 'KakYo Lesson Jember';
+        }
         $overallPercent = (int)($curriculum['overall_percent'] ?? 0);
     ?>
     <div class="container">

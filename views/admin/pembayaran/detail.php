@@ -1,10 +1,11 @@
 <?php
+$studentBranch = $student['branch'] ?? '';
 $defaultSpp = !empty($student['spp_rate'])
     ? (int)$student['spp_rate']
-    : (($student['branch'] ?? '') === 'Jember' ? 350000 : 250000);
-$branchLabel = ($student['branch'] ?? '') === 'Jember'
+    : ($studentBranch === 'Jember' ? 350000 : ($studentBranch === 'Home Course' ? 0 : 250000));
+$branchLabel = ($studentBranch === 'Jember')
     ? 'Studio 2 Jember Kota'
-    : (($student['branch'] ?? '') === 'Balung' ? 'Studio 1 Balung' : 'Cabang Belum Dipilih');
+    : (($studentBranch === 'Balung') ? 'Studio 1 Balung' : (($studentBranch === 'Home Course') ? 'Home Course (Privat ke Rumah)' : 'Cabang Belum Dipilih'));
 ?>
 <div class="container-fluid">
     <style>

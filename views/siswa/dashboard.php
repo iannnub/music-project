@@ -34,7 +34,26 @@ $overallPct = (int)($curriculum['overall_percent'] ?? 0);
     <!-- Banner Status Tagihan SPP & Pendaftaran (Tanpa Gradasi) -->
     <div class="row mb-4">
         <div class="col-12">
-            <?php if ($unpaidCount === 0 && $is_lunas): ?>
+            <?php 
+            $userBranch = $_SESSION['user']['branch'] ?? '';
+            if ($userBranch === 'Home Course' && $unpaidCount === 0): ?>
+                <div class="card border-left-success" style="border-left-color: #22C55E !important;">
+                    <div class="card-body py-3">
+                        <div class="row align-items-center">
+                            <div class="col-auto"><i class="fab fa-whatsapp fa-2x" style="color: #22C55E;"></i></div>
+                            <div class="col">
+                                <h2 class="h6 font-weight-bold mb-0" style="color: #22C55E;">Program Home Course (Guru Datang ke Rumah)</h2>
+                                <small class="text-muted">Tarif SPP dan jadwal belajar disepakati langsung bersama Admin via WhatsApp. Mentor datang langsung ke kediaman Anda.</small>
+                            </div>
+                            <div class="col-auto mt-2 mt-sm-0">
+                                <a href="https://wa.me/6285646690615" target="_blank" rel="noopener noreferrer" class="btn btn-sm px-3 font-weight-bold" style="background-color: #16A34A; color: #FFFFFF; border: none;">
+                                    <i class="fab fa-whatsapp mr-1"></i> Hubungi Admin WA
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php elseif ($unpaidCount === 0 && $is_lunas): ?>
                 <div class="card border-left-success">
                     <div class="card-body py-3">
                         <div class="row align-items-center">

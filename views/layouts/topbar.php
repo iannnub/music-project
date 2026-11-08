@@ -14,7 +14,15 @@ if ($user_role === 'admin') {
 } elseif ($user_role === 'guru') {
     $roleBadgeLabel = 'Portal Mentor';
 } elseif (!empty($user_branch)) {
-    $roleBadgeLabel = ($user_branch === 'Jember') ? 'Studio 2 Jember' : 'Studio 1 Balung';
+    if ($user_branch === 'Jember') {
+        $roleBadgeLabel = 'Studio 2 Jember';
+    } elseif ($user_branch === 'Balung') {
+        $roleBadgeLabel = 'Studio 1 Balung';
+    } elseif ($user_branch === 'Home Course') {
+        $roleBadgeLabel = 'Home Course';
+    } else {
+        $roleBadgeLabel = $user_branch;
+    }
 }
 ?>
 

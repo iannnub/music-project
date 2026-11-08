@@ -38,9 +38,9 @@
                         <div class="branch-sub">Lengkapi identitas siswa, wali, program musik, dan persetujuan Tata Tertib kursus.</div>
                     </div>
                     <div class="branch-summary-card">
-                        <span class="branch-tag"><i class="fas fa-map-marker-alt" aria-hidden="true"></i> Tahap 2: Pilih Lokasi Studio</span>
-                        <div class="branch-price">Studio 1 Balung / Studio 2 Jember</div>
-                        <div class="branch-sub">Tentukan cabang studio les sesudah akun aktif untuk menerbitkan tagihan perdana.</div>
+                        <span class="branch-tag"><i class="fas fa-map-marker-alt" aria-hidden="true"></i> Tahap 2: Lokasi Studio / Home Course</span>
+                        <div class="branch-price">Studio Balung / Jember / Home Course</div>
+                        <div class="branch-sub">Tentukan cabang studio atau opsi Home Course (guru datang ke rumah) sesudah akun aktif.</div>
                     </div>
                 </div>
 
@@ -76,15 +76,15 @@
                     <input type="text" id="websiteUrlTrap" name="website_url" tabindex="-1" autocomplete="off">
                 </div>
 
-                <!-- Lokasi Cabang Studio KakYo Lesson (Alamat Lengkap) -->
+                <!-- Lokasi Cabang Studio KakYo Lesson (Alamat Lengkap) & Opsi Home Course -->
                 <div class="register-studio-info" aria-labelledby="regStudioTitle">
                     <div class="register-studio-header">
                         <span id="regStudioTitle" class="register-studio-title">
                             <i class="fas fa-map-marked-alt" style="color:var(--accent-orange);" aria-hidden="true"></i>
-                            Lokasi Cabang Studio KakYo Lesson
+                            Pilihan Tempat Belajar KakYo Lesson
                         </span>
                         <span class="register-studio-badge">
-                            2 Lokasi Studio
+                            2 Studio &bull; Home Course
                         </span>
                     </div>
 
@@ -121,7 +121,7 @@
                     </div>
                     <div style="font-size:0.78rem;color:#8A8A96;margin-top:10px;line-height:1.4;">
                         <i class="fas fa-info-circle" style="color:#FF8C24;margin-right:4px;" aria-hidden="true"></i>
-                        Pilihan cabang studio tempat Anda belajar dikonfirmasi sesudah akun selesai didaftarkan.
+                        Pilihan cabang studio atau Home Course (guru datang ke rumah) dikonfirmasi pada Tahap 2 sesudah akun selesai didaftarkan.
                     </div>
                 </div>
 
@@ -169,6 +169,7 @@
                         <select id="regProgram" name="program" class="field-select" required>
                             <option value="Private" <?= (($reg_old['program'] ?? 'Private') === 'Private') ? 'selected' : ''; ?>>Private (Solo 1-on-1)</option>
                             <option value="Reguler / Group Band" <?= (($reg_old['program'] ?? '') === 'Reguler / Group Band') ? 'selected' : ''; ?>>Reguler / Group Band</option>
+                            <option value="Home Course" <?= (($reg_old['program'] ?? '') === 'Home Course') ? 'selected' : ''; ?>>Home Course (Guru Datang ke Rumah)</option>
                         </select>
                     </div>
                     <div class="field-group">

@@ -28,6 +28,15 @@ class AuthController {
                 'address'          => 'VP2X+VRC Antirogo, Jember Regency, East Java',
                 'maps_url'         => 'https://maps.app.goo.gl/e1FxtYetwPjRBtbq8',
                 'address_hint'     => 'VP2X+VRC Antirogo, Jember Regency, East Java'
+            ],
+            'Home Course' => [
+                'label'            => 'Home Course (Guru Datang ke Rumah)',
+                'spp'              => null,
+                'registration_fee' => null,
+                'initial_total'    => null,
+                'address'          => 'Kediaman / Rumah Siswa',
+                'maps_url'         => null,
+                'address_hint'     => 'Mentor datang langsung ke alamat rumah siswa (Tarif kesepakatan WA)'
             ]
         ];
     }
@@ -290,13 +299,12 @@ class AuthController {
             $_SESSION['flash'] = [
                 'status' => 'warning',
                 'title'  => 'Pilih Cabang Studio',
-                'msg'    => 'Silakan pilih salah satu cabang studio: Studio 1 Balung atau Studio 2 Jember Kota.'
+                'msg'    => 'Silakan pilih salah satu opsi: Studio 1 Balung, Studio 2 Jember Kota, atau Home Course.'
             ];
             header("Location: index.php?page=pilih_cabang");
             exit;
         }
 
-        $selectedTariff = $tariffs[$branch];
         $userId = (int)$_SESSION['user']['id'];
         $userModel = new UserModel($this->db);
         require_once '../models/PembayaranModel.php';
@@ -304,6 +312,49 @@ class AuthController {
 
         try {
             $this->db->beginTransaction();
+
+            if ($branch === 'Home Course') {
+                // Home Course: Simpan cabang 'Home Course', spp_rate null (kesepakatan via WhatsApp), tanpa tagihan otomatis
+                $stmtUpd = $this->db->prepare("UPDATE users SET branch = :branch, spp_rate = NULL WHERE id = :id");
+                $stmtUpd->execute([
+                    ':branch' => 'Home Course',
+                    ':id'     => $userId
+                ]);
+
+                $this->db->commit();
+
+                // Perbarui sesi siswa
+                $_SESSION['user'] = $userModel->getById($userId);
+                $userProfile = $_SESSION['user'];
+
+                $_SESSION['flash'] = [
+                    'status' => 'success',
+                    'title'  => 'Pendaftaran Home Course Berhasil!',
+                    'msg'    => 'Akun Anda aktif. Anda diarahkan ke WhatsApp Admin untuk kesepakatan tarif SPP dan jadwal belajar.'
+                ];
+
+                // Direct redirect ke WhatsApp Admin KakYo Lesson
+                $adminPhone = '6285646690615';
+                $waLines = [
+                    "Halo Admin KakYo Lesson, saya sudah mendaftar akun siswa baru di website:",
+                    "• Nama Siswa: " . ($userProfile['name'] ?? '-'),
+                    "• Nama Wali: " . ($userProfile['parent_name'] ?? '-'),
+                    "• Username: @" . ($userProfile['username'] ?? '-'),
+                    "• Program: Home Course (Guru Datang ke Rumah)",
+                    "• Instrumen: " . ($userProfile['instrument'] ?? '-'),
+                    "• Pengajuan Jadwal: " . ($userProfile['preferred_day'] ?? '-') . " (" . ($userProfile['preferred_time'] ?? '-') . ")",
+                    "• Alamat Rumah: " . ($userProfile['address'] ?? '-'),
+                    "",
+                    "Saya ingin konfirmasi pendaftaran akun dan kesepakatan tarif SPP Home Course. Terima kasih!"
+                ];
+                $waMsg = implode("\n", $waLines);
+                $waUrl = "https://wa.me/{$adminPhone}?text=" . rawurlencode($waMsg);
+
+                header("Location: " . $waUrl);
+                exit;
+            }
+
+            $selectedTariff = $tariffs[$branch];
 
             // 1. Simpan cabang studio dan tarif SPP siswa
             $stmtUpd = $this->db->prepare("UPDATE users SET branch = :branch, spp_rate = :spp WHERE id = :id");

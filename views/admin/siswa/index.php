@@ -51,6 +51,9 @@
                                     <?php elseif (($s['branch'] ?? '') === 'Balung'): ?>
                                         <span class="lg-badge lg-badge-green">Studio 1 Balung</span>
                                         <div class="small text-muted mt-1">SPP Rp 250.000/bln</div>
+                                    <?php elseif (($s['branch'] ?? '') === 'Home Course'): ?>
+                                        <span class="lg-badge" style="background:#064E3B;color:#34D399;border:1px solid #059669;">Home Course</span>
+                                        <div class="small text-muted mt-1"><?= !empty($s['spp_rate']) ? 'SPP Rp ' . number_format($s['spp_rate'], 0, ',', '.') . '/bln' : 'Kesepakatan WA'; ?></div>
                                     <?php else: ?>
                                         <span class="lg-badge lg-badge-muted">Belum Ditentukan</span>
                                     <?php endif; ?>
@@ -135,10 +138,11 @@
                         <div class="col-md-6">
                             <h6 class="font-weight-bold text-primary mb-3">Identitas &amp; Cabang Studio</h6>
                             <div class="form-group">
-                                <label class="small font-weight-bold text-uppercase">Cabang Studio (Otomatis Buat Tagihan Perdana) <span class="text-danger">*</span></label>
+                                <label class="small font-weight-bold text-uppercase">Cabang Studio / Home Course <span class="text-danger">*</span></label>
                                 <select class="form-control" name="branch" required>
                                     <option value="Balung">Studio 1 Balung (Rp 250rb SPP + Rp 50rb Daftar)</option>
                                     <option value="Jember">Studio 2 Jember Kota (Rp 350rb SPP + Rp 50rb Daftar)</option>
+                                    <option value="Home Course">Home Course (Tarif Kesepakatan WA - Tanpa Tagihan Otomatis)</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -248,11 +252,12 @@
                 <div class="modal-body">
                     <input type="hidden" name="id" id="edit_id">
                     <div class="form-group">
-                        <label class="small font-weight-bold text-uppercase">Cabang Studio</label>
+                        <label class="small font-weight-bold text-uppercase">Cabang Studio / Home Course</label>
                         <select class="form-control" name="branch" id="edit_branch">
                             <option value="">-- Pilih Cabang --</option>
                             <option value="Balung">Studio 1 Balung (SPP Rp 250.000)</option>
                             <option value="Jember">Studio 2 Jember Kota (SPP Rp 350.000)</option>
+                            <option value="Home Course">Home Course (Tarif Kesepakatan WA)</option>
                         </select>
                     </div>
                     <div class="form-group">

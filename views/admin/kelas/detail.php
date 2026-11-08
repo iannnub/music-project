@@ -125,7 +125,7 @@
                                                         </td>
                                                         <td class="align-middle">
                                                             <?php if (!empty($bm['branch'])): ?>
-                                                                <span class="lg-badge lg-badge-orange"><?= ($bm['branch'] === 'Jember') ? 'Studio 2 Jember Kota' : 'Studio 1 Balung'; ?></span>
+                                                                <span class="lg-badge lg-badge-orange"><?= ($bm['branch'] === 'Jember') ? 'Studio 2 Jember Kota' : (($bm['branch'] === 'Home Course') ? 'Home Course' : 'Studio 1 Balung'); ?></span>
                                                             <?php else: ?>
                                                                 <span class="text-muted small">-</span>
                                                             <?php endif; ?>

@@ -120,12 +120,46 @@
                             </div>
                         </span>
                     </label>
+
+                    <!-- Option 3: Home Course (Guru Datang ke Rumah) -->
+                    <label class="branch-option-card">
+                        <input
+                            type="radio"
+                            name="branch"
+                            value="Home Course"
+                            data-label="Home Course (Guru Datang ke Rumah)"
+                            data-spp="-"
+                            data-reg="-"
+                            data-total="Kesepakatan WA"
+                            data-desc="Tarif SPP dan biaya belajar disepakati langsung bersama Admin via WhatsApp sesuai jarak rumah Anda."
+                            required>
+                        <span class="branch-option-tile">
+                            <span style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px;">
+                                <span style="font-size:1.15rem;font-weight:800;color:#FFFFFF;">Home Course (Privat ke Rumah)</span>
+                                <span style="display:inline-flex;align-items:center;gap:6px;font-size:0.82rem;font-weight:700;color:#34D399;background-color:rgba(52,211,153,0.12);padding:4px 10px;border-radius:100px;">
+                                    <i class="fas fa-home" aria-hidden="true"></i> Guru ke Rumah
+                                </span>
+                            </span>
+                            <div style="font-size:1rem;font-weight:700;color:#34D399;margin-bottom:2px;">
+                                Tarif Kesepakatan Jarak <span style="font-size:0.85rem;color:#B4B4BE;font-weight:500;">(Negosiasi &amp; Deal via WhatsApp Admin)</span>
+                            </div>
+                            <div class="branch-address-box">
+                                <div style="display:flex;align-items:flex-start;gap:8px;">
+                                    <i class="fab fa-whatsapp" style="color:#25D366;margin-top:4px;font-size:1.1rem;" aria-hidden="true"></i>
+                                    <div>
+                                        <strong>Lokasi Belajar:</strong> Rumah Siswa (<?= htmlspecialchars($student['address'] ?? 'Alamat Terdaftar'); ?>)<br>
+                                        <span style="color:#B4B4BE;font-size:0.82rem;">Mentor datang langsung ke kediaman Anda. Rincian SPP dan jadwal belajar disepakati langsung bersama Admin KakYo Lesson via WhatsApp (tanpa tagihan otomatis di web).</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </span>
+                    </label>
                 </div>
 
                 <!-- Invoice Preview Box -->
-                <div class="invoice-preview-box" aria-live="polite" style="margin-top:12px;margin-bottom:24px;">
+                <div class="invoice-preview-box" id="branchCalcBox" aria-live="polite" style="margin-top:12px;margin-bottom:24px;">
                     <div>
-                        <div style="font-size:0.76rem;font-weight:700;text-transform:uppercase;color:#B4B4BE;letter-spacing:0.04em;">
+                        <div id="branchCalcTitle" style="font-size:0.76rem;font-weight:700;text-transform:uppercase;color:#B4B4BE;letter-spacing:0.04em;">
                             Estimasi Tagihan Perdana Otomatis
                         </div>
                         <div id="branchCalcDesc" style="font-size:0.92rem;color:#F4F4F5;margin-top:2px;">
@@ -142,7 +176,7 @@
                     Pengajuan Jadwal Anda: <strong style="color:#FFFFFF;"><?= htmlspecialchars($student['preferred_day'] ?? '-'); ?> (<?= htmlspecialchars($student['preferred_time'] ?? '-'); ?>)</strong> &bull; Instrumen: <strong style="color:#FFFFFF;"><?= htmlspecialchars($student['instrument'] ?? '-'); ?></strong>
                 </div>
 
-                <button type="submit" class="btn-orange-solid w-full" style="font-size:1.02rem;padding:14px 24px;">
+                <button type="submit" id="btnSubmitBranch" class="btn-orange-solid w-full" style="font-size:1.02rem;padding:14px 24px;">
                     <i class="fas fa-check-circle" aria-hidden="true"></i>
                     <span>Konfirmasi Cabang &amp; Terbitkan Tagihan</span>
                 </button>
@@ -159,15 +193,44 @@
             var radios = document.querySelectorAll('input[name="branch"]');
             var descEl = document.getElementById('branchCalcDesc');
             var totalEl = document.getElementById('branchCalcTotal');
+            var titleEl = document.getElementById('branchCalcTitle');
+            var submitBtn = document.getElementById('btnSubmitBranch');
 
             function updateCalc() {
                 var checked = document.querySelector('input[name="branch"]:checked');
                 if (!checked) return;
+                var val = checked.value;
                 var label = checked.getAttribute('data-label');
                 var desc = checked.getAttribute('data-desc');
                 var total = checked.getAttribute('data-total');
-                if (descEl) descEl.textContent = label + ': ' + desc;
-                if (totalEl) totalEl.textContent = 'Rp ' + total;
+
+                if (val === 'Home Course') {
+                    if (titleEl) titleEl.textContent = 'Estimasi Tagihan: Kesepakatan WhatsApp';
+                    if (descEl) descEl.textContent = 'Home Course: ' + desc;
+                    if (totalEl) {
+                        totalEl.textContent = 'Deal di WA';
+                        totalEl.style.fontSize = '1.15rem';
+                        totalEl.style.color = '#34D399';
+                    }
+                    if (submitBtn) {
+                        submitBtn.innerHTML = '<i class="fab fa-whatsapp" aria-hidden="true"></i> <span>Konfirmasi &amp; Hubungi Admin via WhatsApp</span>';
+                        submitBtn.style.backgroundColor = '#16A34A';
+                        submitBtn.style.borderColor = '#22C55E';
+                    }
+                } else {
+                    if (titleEl) titleEl.textContent = 'Estimasi Tagihan Perdana Otomatis';
+                    if (descEl) descEl.textContent = label + ': ' + desc;
+                    if (totalEl) {
+                        totalEl.textContent = 'Rp ' + total;
+                        totalEl.style.fontSize = '1.35rem';
+                        totalEl.style.color = '#FF8C24';
+                    }
+                    if (submitBtn) {
+                        submitBtn.innerHTML = '<i class="fas fa-check-circle" aria-hidden="true"></i> <span>Konfirmasi Cabang &amp; Terbitkan Tagihan</span>';
+                        submitBtn.style.backgroundColor = 'var(--accent-orange)';
+                        submitBtn.style.borderColor = 'var(--accent-orange)';
+                    }
+                }
             }
 
             radios.forEach(function (r) {

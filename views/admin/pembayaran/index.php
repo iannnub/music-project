@@ -41,6 +41,9 @@
                                 <?php elseif ($branch === 'Balung'): ?>
                                     <span class="lg-badge lg-badge-green">Studio 1 Balung</span>
                                     <div class="small text-muted mt-1" style="font-variant-numeric: tabular-nums;">SPP Rp 250.000</div>
+                                <?php elseif ($branch === 'Home Course'): ?>
+                                    <span class="lg-badge" style="background:#064E3B;color:#34D399;border:1px solid #059669;">Home Course</span>
+                                    <div class="small text-muted mt-1">Kesepakatan WA</div>
                                 <?php else: ?>
                                     <span class="lg-badge lg-badge-muted">Reguler</span>
                                 <?php endif; ?>

@@ -1,8 +1,14 @@
 <?php
 $branch = $student_profile['branch'] ?? '';
-$branchLabel = ($branch === 'Jember')
-    ? 'Studio 2 Jember Kota (SPP Rp 350.000/bln)'
-    : (($branch === 'Balung') ? 'Studio 1 Balung (SPP Rp 250.000/bln)' : 'Reguler KakYo Lesson');
+if ($branch === 'Jember') {
+    $branchLabel = 'Studio 2 Jember Kota (SPP Rp 350.000/bln)';
+} elseif ($branch === 'Balung') {
+    $branchLabel = 'Studio 1 Balung (SPP Rp 250.000/bln)';
+} elseif ($branch === 'Home Course') {
+    $branchLabel = 'Home Course (Tarif Kesepakatan WA)';
+} else {
+    $branchLabel = 'Reguler KakYo Lesson';
+}
 ?>
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -71,7 +77,20 @@ $branchLabel = ($branch === 'Jember')
             <div class="col-12">
                 <div class="card text-center py-5">
                     <div class="card-body">
-                        <p class="text-muted mb-0">Belum ada data tagihan tercatat pada akun ini.</p>
+                        <?php if ($branch === 'Home Course'): ?>
+                            <div class="mb-3">
+                                <i class="fab fa-whatsapp fa-3x" style="color:#22C55E;"></i>
+                            </div>
+                            <h5 class="font-weight-bold text-white mb-2">Program Home Course (Guru Datang ke Rumah)</h5>
+                            <p class="text-muted mb-3" style="max-width: 550px; margin: 0 auto;">
+                                Nominal SPP dan jadwal belajar disepakati langsung bersama Admin KakYo Lesson via WhatsApp sesuai jarak kediaman Anda. Tagihan resmi akan diterbitkan oleh Admin sesudah kesepakatan tercapai.
+                            </p>
+                            <a href="https://wa.me/6285646690615" target="_blank" rel="noopener noreferrer" class="btn btn-sm px-4 py-2 font-weight-bold" style="background-color: #16A34A; color: #FFFFFF; border: none;">
+                                <i class="fab fa-whatsapp mr-1"></i> Hubungi Admin via WhatsApp
+                            </a>
+                        <?php else: ?>
+                            <p class="text-muted mb-0">Belum ada data tagihan tercatat pada akun ini.</p>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
