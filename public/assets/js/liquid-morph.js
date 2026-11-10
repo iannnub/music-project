@@ -105,5 +105,49 @@
         if (window.MutationObserver && document.body) {
             new MutationObserver(patchThirdPartyA11y).observe(document.body, { childList: true, subtree: true });
         }
+        // 5. Dark Mode / Light Mode Tactile Switcher
+        function getCurrentTheme() {
+            return document.documentElement.getAttribute('data-theme') || 'dark';
+        }
+
+        function syncThemeLabels(theme) {
+            var isDark = theme === 'dark';
+            var metaColor = document.getElementById('metaThemeColor');
+            if (metaColor) {
+                metaColor.setAttribute('content', isDark ? '#09090B' : '#F4F5F7');
+            }
+            var dropdownLabel = document.getElementById('themeToggleDropdownText');
+            if (dropdownLabel) {
+                dropdownLabel.textContent = isDark ? 'Mode Terang' : 'Mode Gelap';
+            }
+            document.querySelectorAll('.theme-toggle-btn').forEach(function (btn) {
+                btn.setAttribute('title', isDark ? 'Beralih ke Mode Terang' : 'Beralih ke Mode Gelap');
+                btn.setAttribute('aria-label', isDark ? 'Beralih ke Mode Terang' : 'Beralih ke Mode Gelap');
+            });
+        }
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            document.documentElement.classList.remove('dark-theme', 'light-theme');
+            document.documentElement.classList.add(theme + '-theme');
+            try {
+                localStorage.setItem('kakyo_theme', theme);
+            } catch (e) {}
+            syncThemeLabels(theme);
+        }
+
+        // Initialize state on DOM ready
+        syncThemeLabels(getCurrentTheme());
+
+        // Event delegation for all theme toggle buttons
+        document.addEventListener('click', function (e) {
+            var toggleBtn = e.target.closest('.theme-toggle-btn, #themeToggleBtn, #themeToggleDropdown');
+            if (toggleBtn) {
+                e.preventDefault();
+                var current = getCurrentTheme();
+                var next = (current === 'light') ? 'dark' : 'light';
+                setTheme(next);
+            }
+        });
     });
 })();

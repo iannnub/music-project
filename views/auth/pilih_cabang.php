@@ -13,6 +13,13 @@
 <body>
     <a href="#main-branch-select" class="skip-link">Lewati ke Pilihan Cabang</a>
 
+    <div class="auth-top-action-bar">
+        <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Ganti mode gelap atau terang" title="Ganti Mode Gelap / Terang">
+            <i class="fas fa-sun theme-icon-sun" aria-hidden="true"></i>
+            <i class="fas fa-moon theme-icon-moon" aria-hidden="true"></i>
+        </button>
+    </div>
+
     <main id="main-branch-select" class="branch-select-shell">
         <div class="branch-select-card">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
@@ -239,6 +246,7 @@
             updateCalc();
         })();
     </script>
+    <script src="<?= BASE_URL; ?>assets/js/liquid-morph.js" defer></script>
 </body>
 
 </html>

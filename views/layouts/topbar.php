@@ -43,6 +43,14 @@ if ($user_role === 'admin') {
             </div>
 
             <ul class="navbar-nav ml-auto align-items-center">
+                <!-- Theme Toggle Button (Dark / Light Mode) -->
+                <li class="nav-item mr-2">
+                    <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Ganti mode gelap atau terang" title="Ganti Mode Gelap / Terang">
+                        <i class="fas fa-sun theme-icon-sun" aria-hidden="true"></i>
+                        <i class="fas fa-moon theme-icon-moon" aria-hidden="true"></i>
+                    </button>
+                </li>
+
                 <li role="presentation" class="d-none d-sm-block">
                     <div class="topbar-divider"></div>
                 </li>
@@ -67,6 +75,10 @@ if ($user_role === 'admin') {
                             Tata Tertib (PDF)
                         </a>
                         <?php endif; ?>
+                        <button type="button" class="dropdown-item" id="themeToggleDropdown">
+                            <i class="fas fa-adjust fa-sm fa-fw mr-2 text-warning"></i>
+                            <span id="themeToggleDropdownText">Mode Terang</span>
+                        </button>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="index.php?page=auth&action=logout">
                             <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-danger"></i>

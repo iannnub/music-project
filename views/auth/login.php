@@ -13,6 +13,13 @@
 <body>
     <a href="#main-login" class="skip-link">Lewati ke Formulir Masuk</a>
 
+    <div class="auth-top-action-bar">
+        <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Ganti mode gelap atau terang" title="Ganti Mode Gelap / Terang">
+            <i class="fas fa-sun theme-icon-sun" aria-hidden="true"></i>
+            <i class="fas fa-moon theme-icon-moon" aria-hidden="true"></i>
+        </button>
+    </div>
+
     <main id="main-login" class="auth-shell">
         <section class="showcase-panel" aria-labelledby="hero-title">
             <div class="showcase-bg-photo" aria-hidden="true"></div>
@@ -167,6 +174,7 @@
             }
         })();
     </script>
+    <script src="<?= BASE_URL; ?>assets/js/liquid-morph.js" defer></script>
 </body>
 
 </html>

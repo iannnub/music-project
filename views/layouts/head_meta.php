@@ -20,7 +20,20 @@ $canonicalUrl  = BASE_URL . ($activePageKey === 'register' ? 'index.php?page=reg
 <meta name="description" content="KakYo Lesson menyediakan kursus musik Private dan Band di Studio 1 Balung & Studio 2 Jember Kota untuk Vokal, Gitar, Bass, Piano, dan Drum.">
 <meta name="keywords" content="kursus musik jember, les musik balung, les musik jember kota, kakyo lesson, belajar gitar jember, les vokal jember, les piano jember">
 <meta name="author" content="Yanuar Yose Armando - KakYo Lesson">
-<meta name="theme-color" content="#09090B">
+<meta name="theme-color" content="#09090B" id="metaThemeColor">
+<script>
+    (function () {
+        try {
+            var savedTheme = localStorage.getItem('kakyo_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.documentElement.classList.add(savedTheme + '-theme');
+            var metaColor = document.getElementById('metaThemeColor');
+            if (metaColor) {
+                metaColor.setAttribute('content', (savedTheme === 'light') ? '#F4F5F7' : '#09090B');
+            }
+        } catch (e) {}
+    })();
+</script>
 
 <meta property="og:type" content="website">
 <meta property="og:locale" content="id_ID">
