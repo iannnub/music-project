@@ -62,7 +62,7 @@ $canonicalUrl  = BASE_URL . ($activePageKey === 'register' ? 'index.php?page=reg
     "@type": "Person",
     "name": "Yanuar Yose Armando"
   },
-  "telephone": "+62-856-4669-0615",
+  "telephone": "+62-851-7986-1126",
   "sameAs": [
     "https://www.instagram.com/kakyo_lesson",
     "https://www.tiktok.com/@kakyo_lesson"

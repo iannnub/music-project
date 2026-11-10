@@ -334,7 +334,7 @@ class AuthController {
                 ];
 
                 // Direct redirect ke WhatsApp Admin KakYo Lesson
-                $adminPhone = '6285646690615';
+                $adminPhone = '6285179861126';
                 $waLines = [
                     "Halo Admin KakYo Lesson, saya sudah mendaftar akun siswa baru di website:",
                     "• Nama Siswa: " . ($userProfile['name'] ?? '-'),

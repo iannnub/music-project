@@ -83,7 +83,7 @@
                     <a href="https://www.tiktok.com/@kakyo_lesson" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="TikTok Resmi KakYo Lesson">
                         <i class="fab fa-tiktok" aria-hidden="true"></i>
                     </a>
-                    <a href="https://wa.me/6285646690615" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Hubungi Admin KakYo Lesson melalui WhatsApp">
+                    <a href="https://wa.me/6285179861126" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Hubungi Admin KakYo Lesson melalui WhatsApp">
                         <i class="fab fa-whatsapp" aria-hidden="true"></i>
                     </a>
                     <a href="https://www.instagram.com/kakyo_lesson" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Instagram Resmi KakYo Lesson">
@@ -147,7 +147,7 @@
                     Belum punya akun siswa? <a href="index.php?page=register">Daftar Siswa Baru</a>
                 </div>
                 <div>
-                    Lupa kata sandi? <a href="https://wa.me/6285646690615?text=Halo%20Admin%20KakYo%20Lesson,%20saya%20butuh%20bantuan%20reset%20kata%20sandi%20akun." target="_blank" rel="noopener noreferrer">Hubungi Admin</a>
+                    Lupa kata sandi? <a href="https://wa.me/6285179861126?text=Halo%20Admin%20KakYo%20Lesson,%20saya%20butuh%20bantuan%20reset%20kata%20sandi%20akun." target="_blank" rel="noopener noreferrer">Hubungi Admin</a>
                 </div>
             </div>
         </section>

@@ -56,7 +56,7 @@
         <div class="kop-surat">
             <h2>KAKYO LESSON</h2>
             <p>Krajan Lor, Balung Kulon, Kec. Balung, Kabupaten Jember, Jawa Timur 68161</p>
-            <p>Email: admin@kakyolesson.com | Telp: 0856-4669-0615</p>
+            <p>Email: admin@kakyolesson.com | WhatsApp / Telp: 0851-7986-1126</p>
         </div>
 
         <h4 class="receipt-title">Kwitansi Pembayaran Resmi</h4>

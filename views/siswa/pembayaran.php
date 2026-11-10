@@ -51,7 +51,7 @@ if ($branch === 'Jember') {
                                         </div>
                                         <div>
                                             <small class="text-muted d-block font-weight-bold text-uppercase" style="font-size: 10px;">DANA / E-Wallet</small>
-                                            <span class="h6 font-weight-bold mb-0" style="font-variant-numeric: tabular-nums;">085646690615</span>
+                                            <span class="h6 font-weight-bold mb-0" style="font-variant-numeric: tabular-nums;">085179861126</span>
                                         </div>
                                     </div>
                                 </div>
@@ -85,7 +85,7 @@ if ($branch === 'Jember') {
                             <p class="text-muted mb-3" style="max-width: 550px; margin: 0 auto;">
                                 Nominal SPP dan jadwal belajar disepakati langsung bersama Admin KakYo Lesson via WhatsApp sesuai jarak kediaman Anda. Tagihan resmi akan diterbitkan oleh Admin sesudah kesepakatan tercapai.
                             </p>
-                            <a href="https://wa.me/6285646690615" target="_blank" rel="noopener noreferrer" class="btn btn-sm px-4 py-2 font-weight-bold" style="background-color: #16A34A; color: #FFFFFF; border: none;">
+                            <a href="https://wa.me/6285179861126" target="_blank" rel="noopener noreferrer" class="btn btn-sm px-4 py-2 font-weight-bold" style="background-color: #16A34A; color: #FFFFFF; border: none;">
                                 <i class="fab fa-whatsapp mr-1"></i> Hubungi Admin via WhatsApp
                             </a>
                         <?php else: ?>

@@ -46,7 +46,7 @@ $overallPct = (int)($curriculum['overall_percent'] ?? 0);
                                 <small class="text-muted">Tarif SPP dan jadwal belajar disepakati langsung bersama Admin via WhatsApp. Mentor datang langsung ke kediaman Anda.</small>
                             </div>
                             <div class="col-auto mt-2 mt-sm-0">
-                                <a href="https://wa.me/6285646690615" target="_blank" rel="noopener noreferrer" class="btn btn-sm px-3 font-weight-bold" style="background-color: #16A34A; color: #FFFFFF; border: none;">
+                                <a href="https://wa.me/6285179861126" target="_blank" rel="noopener noreferrer" class="btn btn-sm px-3 font-weight-bold" style="background-color: #16A34A; color: #FFFFFF; border: none;">
                                     <i class="fab fa-whatsapp mr-1"></i> Hubungi Admin WA
                                 </a>
                             </div>
