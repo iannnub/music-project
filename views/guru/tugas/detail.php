@@ -142,10 +142,10 @@
 </div>
 
 <style>
-    .badge-primary-soft { background-color: rgba(78, 115, 223, 0.1); color: #4e73df; }
+    .badge-primary-soft { background-color: var(--accent-orange-soft); color: var(--accent-orange); }
     .shadow-xs { box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.04); }
     .italic { font-style: italic; }
     .table thead th { border-bottom: none; border-top: none; }
-    .table td { border-top: 1px solid #f8f9fc; }
+
     .animate__pulse { --animate-duration: 2s; }
 </style>

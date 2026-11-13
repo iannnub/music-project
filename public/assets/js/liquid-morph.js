@@ -35,9 +35,21 @@
         function updateIslandClock() {
             if (!islandClock) return;
             var now = new Date();
-            var hh = String(now.getHours()).padStart(2, '0');
-            var mm = String(now.getMinutes()).padStart(2, '0');
-            islandClock.textContent = hh + ':' + mm + ' WIB';
+            try {
+                var wibStr = new Intl.DateTimeFormat('en-GB', {
+                    timeZone: 'Asia/Jakarta',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                }).format(now);
+                islandClock.textContent = wibStr + ' WIB';
+            } catch (err) {
+                var utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
+                var wibDate = new Date(utcMs + (7 * 3600000));
+                var hh = String(wibDate.getHours()).padStart(2, '0');
+                var mm = String(wibDate.getMinutes()).padStart(2, '0');
+                islandClock.textContent = hh + ':' + mm + ' WIB';
+            }
         }
         updateIslandClock();
         setInterval(updateIslandClock, 30000);

@@ -1,4 +1,4 @@
-<div class="container-fluid text-dark">
+<div class="container-fluid">
 
     <div class="d-print-none mb-4">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -104,7 +104,7 @@
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table table-bordered-print text-dark" width="100%" cellspacing="0">
+                    <table class="table table-bordered-print" width="100%" cellspacing="0">
                         <thead>
                             <tr class="bg-gray-100 text-center small text-uppercase font-weight-bold">
                                 <th width="5%">No</th>
@@ -166,9 +166,9 @@
 </div>
 
 <style>
-    .bg-light-soft { background-color: rgba(248, 249, 252, 0.6); }
-    .table-bordered-print { border: 1px solid #e3e6f0; color: #000 !important; }
-    .table-bordered-print th, .table-bordered-print td { border: 1px solid #e3e6f0; padding: 12px 10px; vertical-align: middle; }
+    .bg-light-soft { background-color: var(--bg-glass-subtle); }
+    .table-bordered-print { border: 1px solid var(--border-glass); color: var(--text-body); }
+    .table-bordered-print th, .table-bordered-print td { border: 1px solid var(--border-glass); padding: 12px 10px; vertical-align: middle; }
     .rounded-lg { border-radius: 12px !important; }
     .badge-status { font-size: 0.85rem; letter-spacing: 1px; }
     .italic { font-style: italic; }

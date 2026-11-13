@@ -42,7 +42,7 @@
                                    style="background: <?= $isSelected ? 'rgba(255,140,36,0.16)' : 'rgba(255,255,255,0.03)'; ?>; border: 1px solid <?= $isSelected ? 'rgba(255,140,36,0.55)' : 'rgba(255,255,255,0.09)'; ?>;">
                                     <div class="d-flex align-items-center justify-content-between">
                                         <div class="pr-2">
-                                            <div class="font-weight-bold student-name <?= $isSelected ? 'text-primary' : 'text-white'; ?>">
+                                            <div class="font-weight-bold student-name <?= $isSelected ? 'text-primary' : ''; ?>">
                                                 <?= htmlspecialchars($s['name']); ?>
                                             </div>
                                             <?php if (!empty($s['band_names'])): ?>
@@ -199,7 +199,7 @@
                                                         </button>
                                                     </form>
                                                     <div>
-                                                        <div class="font-weight-bold <?= $done ? 'text-success' : 'text-white'; ?>">
+                                                        <div class="font-weight-bold <?= $done ? 'text-success' : ''; ?>">
                                                             <?= htmlspecialchars($sb['title']); ?>
                                                             <?php if ($done): ?>
                                                                 <span class="lg-badge lg-badge-green ml-1" style="font-size: 0.65rem;">Tuntas</span>

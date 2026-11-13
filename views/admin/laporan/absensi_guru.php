@@ -343,7 +343,7 @@ $isAdminRole = (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] ==
                 <button type="button" class="close" data-dismiss="modal" aria-label="Tutup"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body text-center">
-                <img id="imgPreviewFotoGuru" src="" alt="Foto bukti absensi guru" class="img-fluid rounded mb-3" style="max-height: 380px; border: 1px solid rgba(255,255,255,0.14);">
+                <img id="imgPreviewFotoGuru" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Foto bukti absensi guru" class="img-fluid rounded mb-3" style="max-height: 380px; border: 1px solid rgba(255,255,255,0.14);">
                 <h6 id="lblTeacherFotoGuru" class="font-weight-bold mb-1"></h6>
                 <p id="lblDateFotoGuru" class="text-muted small mb-2"></p>
                 <a id="lnkMapsFotoGuru" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary btn-sm d-none">

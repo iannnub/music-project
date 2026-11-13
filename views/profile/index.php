@@ -157,7 +157,7 @@
             </div>
             <div class="modal-body p-0 text-center">
                 <div style="max-height: 450px; width: 100%;">
-                    <img id="image_to_crop" alt="Pratinjau pemotongan foto profil" style="max-width: 100%;">
+                    <img id="image_to_crop" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Pratinjau pemotongan foto profil" style="max-width: 100%;">
                 </div>
             </div>
             <div class="modal-footer">

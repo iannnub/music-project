@@ -62,7 +62,7 @@ if ($needsTatibGate):
                         </div>
                         <div class="custom-control custom-checkbox">
                             <input type="checkbox" class="custom-control-input" id="chkModalAgreeTatib" name="agree_tatib" value="1" disabled required>
-                            <label class="custom-control-label text-white font-weight-bold" for="chkModalAgreeTatib">
+                            <label class="custom-control-label font-weight-bold" for="chkModalAgreeTatib">
                                 Saya (Siswa / Wali Murid) telah membaca, memahami, dan bersedia mematuhi seluruh Tata Tertib KakYo Lesson.
                             </label>
                         </div>

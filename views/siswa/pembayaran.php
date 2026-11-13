@@ -81,7 +81,7 @@ if ($branch === 'Jember') {
                             <div class="mb-3">
                                 <i class="fab fa-whatsapp fa-3x" style="color:#22C55E;"></i>
                             </div>
-                            <h5 class="font-weight-bold text-white mb-2">Program Home Course (Guru Datang ke Rumah)</h5>
+                            <h5 class="font-weight-bold mb-2">Program Home Course (Guru Datang ke Rumah)</h5>
                             <p class="text-muted mb-3" style="max-width: 550px; margin: 0 auto;">
                                 Nominal SPP dan jadwal belajar disepakati langsung bersama Admin KakYo Lesson via WhatsApp sesuai jarak kediaman Anda. Tagihan resmi akan diterbitkan oleh Admin sesudah kesepakatan tercapai.
                             </p>

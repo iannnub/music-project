@@ -2,10 +2,10 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
         /* Custom styling agar Select2 serasi dengan SB Admin 2 */
-        .select2-container .select2-selection--single { height: 38px !important; border: 1px solid #d1d3e2 !important; }
-        .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 38px !important; color: #6e707e !important; }
-        .select2-container--default .select2-selection--single .select2-selection__arrow { height: 36px !important; }
-        .select2-dropdown { border: 1px solid #d1d3e2 !important; }
+        .select2-container .select2-selection--single { min-height: 46px !important; }
+        .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 44px !important; }
+        .select2-container--default .select2-selection--single .select2-selection__arrow { height: 44px !important; }
+
     </style>
 
     <div class="d-sm-flex align-items-center justify-content-between mb-4">

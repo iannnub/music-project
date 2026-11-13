@@ -126,8 +126,8 @@
                             </a>
                         </div>
                     </div>
-                    <div style="font-size:0.78rem;color:#8A8A96;margin-top:10px;line-height:1.4;">
-                        <i class="fas fa-info-circle" style="color:#FF8C24;margin-right:4px;" aria-hidden="true"></i>
+                    <div style="font-size:0.78rem;color:var(--text-muted);margin-top:10px;line-height:1.4;">
+                        <i class="fas fa-info-circle" style="color:var(--accent-orange);margin-right:4px;" aria-hidden="true"></i>
                         Pilihan cabang studio atau Home Course (guru datang ke rumah) dikonfirmasi pada Tahap 2 sesudah akun selesai didaftarkan.
                     </div>
                 </div>
@@ -257,7 +257,7 @@
                 <div class="field-group" style="margin-top:22px;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;flex-wrap:wrap;">
                         <span class="field-label" style="margin-bottom:0;">Wajib Baca: Tata Tertib Siswa &amp; Wali Murid <span class="req">*</span></span>
-                        <a href="<?= BASE_URL; ?>assets/docs/Tata_Tertib_Siswa_dan_Wali_Murid_KakYo_Lesson.pdf" download style="font-size:0.8rem;color:#FF8C24;font-weight:700;text-decoration:none;">
+                        <a href="<?= BASE_URL; ?>assets/docs/Tata_Tertib_Siswa_dan_Wali_Murid_KakYo_Lesson.pdf" download style="font-size:0.8rem;color:var(--accent-orange);font-weight:700;text-decoration:none;">
                             <i class="fas fa-file-pdf" aria-hidden="true"></i> Unduh PDF Resmi
                         </a>
                     </div>
@@ -268,13 +268,13 @@
 
                     <input type="hidden" name="tatib_scrolled" id="regTatibScrolled" value="0">
 
-                    <div id="regTatibScrollHint" style="font-size:0.82rem;font-weight:700;color:#FF8C24;margin-top:8px;">
+                    <div id="regTatibScrollHint" style="font-size:0.82rem;font-weight:700;color:var(--accent-orange);margin-top:8px;">
                         Gulir kotak Tata Tertib di atas hingga bagian paling bawah untuk membuka kotak persetujuan.
                     </div>
 
                     <div class="checkbox-agree-row">
                         <input type="checkbox" id="regAgreeCheckbox" name="agree_tatib" value="1" disabled required>
-                        <label for="regAgreeCheckbox" style="font-size:0.88rem;color:#FFFFFF;font-weight:600;cursor:pointer;">
+                        <label for="regAgreeCheckbox" style="font-size:0.88rem;color:var(--text-primary);font-weight:600;cursor:pointer;">
                             Saya selaku Siswa / Wali Murid telah membaca dari awal hingga akhir, memahami, dan bersedia mematuhi Tata Tertib KakYo Lesson.
                         </label>
                     </div>

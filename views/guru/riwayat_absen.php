@@ -174,6 +174,6 @@ $(document).ready(function() {
 
 <style>
     .btn-circle { width: 30px; height: 30px; padding: 6px 0; border-radius: 15px; text-align: center; font-size: 12px; }
-    .bg-light { background-color: #f8f9fc !important; }
+
     .table thead th { border: 0 !important; font-size: 11px; }
 </style>

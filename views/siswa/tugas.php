@@ -114,11 +114,11 @@
                 <div class="modal fade" id="modalKonfirmasi<?= $t['id']; ?>" tabindex="-1" role="dialog" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered" role="document">
                         <div class="modal-content border-0 shadow-lg">
-                            <div class="modal-header bg-dark text-white border-0">
+                            <div class="modal-header border-0">
                                 <h5 class="modal-title font-weight-bold">
                                     <i class="fas fa-clipboard-check mr-2 text-warning"></i> Konfirmasi Setoran
                                 </h5>
-                                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                             </div>
                             <form action="index.php?page=siswa_tugas&action=upload" method="POST">
                                 <div class="modal-body p-4 text-dark text-left">
@@ -132,7 +132,7 @@
                                     
                                     <div class="form-group">
                                         <label class="small font-weight-bold">CATATAN / LINK POSTINGAN (OPSIONAL)</label>
-                                        <textarea name="notes" class="form-control bg-light border-0" rows="3" 
+                                        <textarea name="notes" class="form-control" rows="3" 
                                                 placeholder="Contoh: Sudah saya upload di feed IG saya kak.."></textarea>
                                     </div>
                                 </div>
@@ -154,7 +154,7 @@
 <style>
     .tugas-card { transition: all 0.3s ease; border-radius: 15px; border-left-width: 6px !important; }
     .badge-success-soft { background-color: rgba(28, 200, 138, 0.1); }
-    .border-right-md { border-right: 1px solid #e3e6f0; }
+    .border-right-md { border-right: 1px solid var(--border-glass); }
     @media (max-width: 768px) { .border-right-md { border-right: none; } }
     .italic { font-style: italic; }
     .badge { font-size: 0.75rem; padding: 0.5rem 1rem; border-radius: 50px; }

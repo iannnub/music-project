@@ -10,7 +10,7 @@
         <div class="col-xl-4 col-lg-5 mb-4">
             <div class="card shadow-sm border-0 rounded-lg overflow-hidden">
                 <div class="card-header py-3 bg-info border-0">
-                    <h6 class="m-0 font-weight-bold text-white text-center">Identitas Siswa</h6>
+                    <h6 class="m-0 font-weight-bold text-primary text-center">Identitas Siswa</h6>
                 </div>
                 <div class="card-body text-center py-5">
                     <div class="mb-4">

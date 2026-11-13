@@ -121,7 +121,7 @@ $overallPct = (int)($curriculum['overall_percent'] ?? 0);
                                         <strong><?= date('H:i', strtotime($next_class['start_time'])); ?></strong> - <?= date('H:i', strtotime($next_class['end_time'])); ?> WIB
                                     </div>
                                     <span id="class-countdown" class="lg-badge lg-badge-orange"
-                                          data-start="<?= date('Y-m-d H:i:s', strtotime($next_class['start_time'])); ?>">
+                                          data-start="<?= date('Y-m-d\TH:i:s+07:00', strtotime($next_class['start_time'])); ?>">
                                         Menghitung waktu...
                                     </span>
                                 </div>
