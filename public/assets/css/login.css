@@ -61,7 +61,7 @@ html {
 body {
     min-height: 100dvh;
     background-color: var(--bg-canvas);
-    background-image: url('../img/bg-login.webp');
+    background-image: url('../img/bg.webp');
     background-size: cover;
     background-position: center center;
     background-attachment: fixed;
