@@ -2,12 +2,17 @@
 <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar">
 
     <li role="presentation">
-        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php?page=dashboard">
-            <div class="sidebar-brand-icon">
-                <img src="assets/img/logo-fix.png" alt="Logo KakYo Lesson" width="38" height="38" class="img-fluid">
-            </div>
-            <div class="sidebar-brand-text mx-2">KakYo Lesson</div>
-        </a>
+        <div class="sidebar-brand-row">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php?page=dashboard">
+                <div class="sidebar-brand-icon">
+                    <img src="assets/img/logo-fix.png" alt="Logo KakYo Lesson" width="38" height="38" class="img-fluid">
+                </div>
+                <div class="sidebar-brand-text mx-2">KakYo Lesson</div>
+            </a>
+            <button type="button" id="sidebarMobileClose" class="sidebar-mobile-close d-md-none" aria-label="Tutup menu navigasi">
+                <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
+        </div>
         <hr class="sidebar-divider my-0">
     </li>
 

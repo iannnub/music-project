@@ -80,8 +80,6 @@
     </div>
 </div>
 
-<script src="assets/sb-admin-2/vendor/datatables/jquery.dataTables.min.js"></script>
-<script src="assets/sb-admin-2/vendor/datatables/dataTables.bootstrap4.min.js"></script>
 <script>
 $(document).ready(function() {
     $('#dataTableValidasi').DataTable({

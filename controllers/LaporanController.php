@@ -17,8 +17,8 @@ class LaporanController {
     }
 
     public function keuangan() {
-        $bulan = isset($_GET['bulan']) ? $_GET['bulan'] : date('m');
-        $tahun = isset($_GET['tahun']) ? $_GET['tahun'] : date('Y');
+        $bulan = max(1, min(12, (int)($_GET['bulan'] ?? date('n'))));
+        $tahun = max(2020, min(2099, (int)($_GET['tahun'] ?? date('Y'))));
 
         $laporan = $this->laporanModel->getLaporanKeuangan($bulan, $tahun);
         $total_pemasukan = 0;
@@ -35,9 +35,9 @@ class LaporanController {
 
     public function absensi() {
         $dataKelas = $this->kelasModel->getAll();
-        $class_id = isset($_GET['class_id']) ? $_GET['class_id'] : '';
-        $bulan = isset($_GET['bulan']) ? $_GET['bulan'] : date('n');
-        $tahun = isset($_GET['tahun']) ? $_GET['tahun'] : date('Y');
+        $class_id = (isset($_GET['class_id']) && $_GET['class_id'] !== '') ? (int)$_GET['class_id'] : '';
+        $bulan = max(1, min(12, (int)($_GET['bulan'] ?? date('n'))));
+        $tahun = max(2020, min(2099, (int)($_GET['tahun'] ?? date('Y'))));
 
         $laporan = [];
         $nama_kelas = "";
@@ -61,13 +61,14 @@ class LaporanController {
 
         $user_role = $_SESSION['user']['role'];
         if ($user_role === 'guru') {
-            $teacher_id = $_SESSION['user']['id'];
+            $teacher_id = (int)$_SESSION['user']['id'];
         } else {
-            $teacher_id = isset($_GET['teacher_id']) ? $_GET['teacher_id'] : '';
+            $teacher_id = (isset($_GET['teacher_id']) && $_GET['teacher_id'] !== '') ? (int)$_GET['teacher_id'] : '';
         }
-        $bulan   = isset($_GET['bulan']) ? $_GET['bulan'] : date('n');
-        $tahun   = isset($_GET['tahun']) ? $_GET['tahun'] : date('Y');
-        $tanggal = isset($_GET['tanggal']) ? $_GET['tanggal'] : '';
+        $bulan   = max(1, min(12, (int)($_GET['bulan'] ?? date('n'))));
+        $tahun   = max(2020, min(2099, (int)($_GET['tahun'] ?? date('Y'))));
+        $rawTanggal = trim($_GET['tanggal'] ?? '');
+        $tanggal = preg_match('/^\d{4}-\d{2}-\d{2}$/', $rawTanggal) ? $rawTanggal : '';
 
         $laporan = $this->laporanModel->getLaporanAbsensiGuru($teacher_id, $bulan, $tahun, $tanggal);
         $adminSchedules = ($user_role === 'admin') ? $this->absensiModel->getAllActiveSchedulesForAdmin() : [];

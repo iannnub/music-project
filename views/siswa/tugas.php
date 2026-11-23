@@ -1,4 +1,4 @@
-<div class="container-fluid text-dark">
+<div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <div>
             <h1 class="h3 mb-1 text-gray-900 font-weight-bold">Tugas</h1>
@@ -52,11 +52,11 @@
                                     <div class="d-flex flex-wrap align-items-center">
                                         <div class="mr-4 mb-2">
                                             <small class="text-muted d-block font-weight-bold" style="font-size: 10px;">GURU PENGAMPU</small>
-                                            <span class="text-dark font-weight-bold"><i class="fas fa-user-tie text-primary mr-1"></i> <?= htmlspecialchars($t['teacher_name']); ?></span>
+                                            <span class="font-weight-bold"><i class="fas fa-user-tie text-primary mr-1"></i> <?= htmlspecialchars($t['teacher_name']); ?></span>
                                         </div>
                                         <div class="mb-2">
                                             <small class="text-muted d-block font-weight-bold" style="font-size: 10px;">BATAS WAKTU</small>
-                                            <span class="<?= ($is_late && $status == 'Belum Mengerjakan') ? 'text-danger font-weight-bold' : 'text-dark'; ?>">
+                                            <span class="<?= ($is_late && $status == 'Belum Mengerjakan') ? 'text-danger font-weight-bold' : ''; ?>">
                                                 <i class="fas fa-calendar-alt mr-1 text-warning"></i> <?= date('d M Y, H:i', $deadline); ?> WIB
                                             </span>
                                         </div>
@@ -121,7 +121,7 @@
                                 <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                             </div>
                             <form action="index.php?page=siswa_tugas&action=upload" method="POST">
-                                <div class="modal-body p-4 text-dark text-left">
+                                <div class="modal-body p-4 text-left">
                                     <input type="hidden" name="assignment_id" value="<?= $t['id']; ?>">
                                     <?= CsrfHelper::formField(); ?>
 

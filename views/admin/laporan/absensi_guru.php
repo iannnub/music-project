@@ -137,7 +137,7 @@ $isAdminRole = (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] ==
 
         <!-- Konten Utama Laporan -->
         <div class="card mb-4 report-container">
-            <div class="card-body p-4 p-md-5">
+            <div class="card-body p-3 p-md-5">
 
                 <!-- Kop Surat (Hanya muncul saat print A4) -->
                 <div class="d-none d-print-block text-center mb-4">

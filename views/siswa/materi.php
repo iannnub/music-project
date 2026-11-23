@@ -44,7 +44,7 @@
                                                     allowfullscreen></iframe>
                                         </div>
                                     </div>
-                                <?php elseif (!empty($m['video_url'])): ?>
+                                <?php elseif (!empty($m['video_url']) && preg_match('#^https?://#i', $m['video_url'])): ?>
                                     <div class="p-4 text-center mb-3 rounded" style="background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.16);">
                                         <i class="fas fa-link text-primary fa-2x mb-2"></i>
                                         <p class="small font-weight-bold mb-3">Materi Tautan Eksternal</p>

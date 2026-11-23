@@ -10,23 +10,55 @@
         // 1. Mobile Sidebar Default Closed on Small Viewports (< 768px)
         var sidebar = document.getElementById('accordionSidebar');
         var backdrop = document.getElementById('sidebarMobileBackdrop');
+        var closeBtn = document.getElementById('sidebarMobileClose');
+        var topToggleBtn = document.getElementById('sidebarToggleTop');
+
+        function closeMobileSidebar() {
+            if (!sidebar) return;
+            document.body.classList.add('sidebar-toggled');
+            document.body.classList.remove('mobile-drawer-open');
+            sidebar.classList.add('toggled');
+        }
+
+        function syncDrawerBodyLock() {
+            if (!sidebar) return;
+            if (window.innerWidth < 768 && !sidebar.classList.contains('toggled')) {
+                document.body.classList.add('mobile-drawer-open');
+            } else {
+                document.body.classList.remove('mobile-drawer-open');
+            }
+        }
 
         function syncMobileSidebarInit() {
             if (!sidebar) return;
             if (window.innerWidth < 768) {
                 document.body.classList.add('sidebar-toggled');
                 sidebar.classList.add('toggled');
+                document.body.classList.remove('mobile-drawer-open');
                 if (backdrop) backdrop.classList.add('is-mobile-ready');
+            } else {
+                document.body.classList.remove('mobile-drawer-open');
             }
         }
         syncMobileSidebarInit();
+        window.addEventListener('resize', syncDrawerBodyLock, { passive: true });
 
         if (backdrop && sidebar) {
-            backdrop.addEventListener('click', function () {
-                document.body.classList.add('sidebar-toggled');
-                sidebar.classList.add('toggled');
+            backdrop.addEventListener('click', closeMobileSidebar);
+        }
+        if (closeBtn && sidebar) {
+            closeBtn.addEventListener('click', closeMobileSidebar);
+        }
+        if (topToggleBtn && sidebar) {
+            topToggleBtn.addEventListener('click', function () {
+                setTimeout(syncDrawerBodyLock, 20);
             });
         }
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && window.innerWidth < 768 && sidebar && !sidebar.classList.contains('toggled')) {
+                closeMobileSidebar();
+            }
+        });
 
         // 2. Dynamic Island Live Clock & Tactile Expansion
         var island = document.getElementById('dynamicIslandPill');
@@ -79,7 +111,7 @@
                 }
                 if (hint) {
                     hint.textContent = 'Dokumen telah dibaca hingga akhir. Silakan centang kotak persetujuan.';
-                    hint.style.color = '#34D399';
+                    hint.style.color = 'var(--status-success)';
                 }
             }
 
@@ -115,7 +147,22 @@
         patchThirdPartyA11y();
         window.addEventListener('load', patchThirdPartyA11y);
         if (window.MutationObserver && document.body) {
-            new MutationObserver(patchThirdPartyA11y).observe(document.body, { childList: true, subtree: true });
+            var a11yScheduled = false;
+            new MutationObserver(function (mutations) {
+                var hasAdded = false;
+                for (var i = 0; i < mutations.length; i++) {
+                    if (mutations[i].addedNodes && mutations[i].addedNodes.length > 0) {
+                        hasAdded = true;
+                        break;
+                    }
+                }
+                if (!hasAdded || a11yScheduled) return;
+                a11yScheduled = true;
+                requestAnimationFrame(function () {
+                    a11yScheduled = false;
+                    patchThirdPartyA11y();
+                });
+            }).observe(document.body, { childList: true, subtree: true });
         }
         // 5. Dark Mode / Light Mode Tactile Switcher
         function getCurrentTheme() {

@@ -1,4 +1,4 @@
-<div class="container-fluid text-dark">
+<div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800 font-weight-bold">Riwayat Absensi Siswa</h1>
         <a href="index.php?page=guru_validasi" class="btn btn-primary btn-sm shadow-sm rounded-pill px-3">
@@ -13,7 +13,7 @@
                     <div class="form-group">
                         <label class="font-weight-bold">Cari Siswa:</label>
                         <div class="input-group">
-                            <input type="text" id="customSearch" class="form-control text-dark" placeholder="Ketik nama">
+                            <input type="text" id="customSearch" class="form-control" placeholder="Ketik nama">
                         </div>
                     </div>
                 </div>
@@ -21,7 +21,7 @@
                 <div class="col-md-3">
                     <div class="form-group">
                         <label class="font-weight-bold">Filter Kelas:</label>
-                        <select id="filterKelas" class="form-control text-dark">
+                        <select id="filterKelas" class="form-control">
                             <option value="">Semua Kelas</option>
                             <?php 
                             // Ambil list unik kelas dari data yang ada
@@ -54,7 +54,7 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered table-hover text-dark" id="dataTableRiwayat" width="100%" cellspacing="0">
+                <table class="table table-bordered table-hover" id="dataTableRiwayat" width="100%" cellspacing="0">
                     <thead class="bg-gray-100 text-center small font-weight-bold text-uppercase">
                         <tr>
                             <th>Nama Siswa</th>
@@ -116,9 +116,6 @@
         </div>
     </div>
 </div>
-
-<script src="assets/sb-admin-2/vendor/datatables/jquery.dataTables.min.js"></script>
-<script src="assets/sb-admin-2/vendor/datatables/dataTables.bootstrap4.min.js"></script>
 
 <script>
 $(document).ready(function() {

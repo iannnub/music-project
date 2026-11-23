@@ -61,7 +61,7 @@ html {
 body {
     min-height: 100dvh;
     background-color: var(--bg-canvas);
-    background-image: url('../img/bg.jpeg');
+    background-image: url('../img/bg-login.webp');
     background-size: cover;
     background-position: center center;
     background-attachment: fixed;
@@ -1221,4 +1221,18 @@ html:not([data-theme="light"]) .theme-icon-moon {
 
 [data-theme="light"] .branch-price-home {
     color: #047857;
+}
+
+@media (max-width: 767.98px) {
+    .login-card,
+    .register-card,
+    .branch-select-card,
+    .auth-top-action-bar,
+    .studio-feature-card {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+    body {
+        background-attachment: scroll;
+    }
 }

@@ -1,10 +1,11 @@
 # KakYo Lesson (Music Course & Development)
 
-> KakYo Lesson adalah lembaga kursus musik profesional di Kabupaten Jember, Jawa Timur (dikelola oleh Yanuar Yose Armando) yang melayani program les musik Private dan Reguler/Group Band di Studio 1 Balung serta Studio 2 Jember Kota untuk instrumen Vokal, Gitar, Bass, Piano/Keyboard, dan Drum dengan pemantauan kurikulum Bab/Subbab digital serta raport evaluasi siswa.
+> KakYo Lesson adalah lembaga kursus musik profesional di Kabupaten Jember, Jawa Timur (dikelola oleh Yanuar Yose Armando) yang melayani program les musik Private, Reguler/Group Band, dan Home Course (Guru Datang ke Rumah) di Studio 1 Balung serta Studio 2 Jember Kota untuk instrumen Vokal, Gitar, Bass, Piano/Keyboard, dan Drum dengan pemantauan kurikulum Bab/Subbab digital serta raport evaluasi siswa.
 
-## Lokasi Cabang Studio
+## Lokasi Cabang Studio & Layanan Belajar
 - **Studio 1 Balung**: Jl. Puger (Dekat Dira Balung), Kec. Balung, Kabupaten Jember, Jawa Timur. Fasilitas studio akustik lengkap & ber-AC. Rincian SPP dan tagihan perdana dikonfirmasi langsung saat pemilihan cabang studio pada formulir pendaftaran.
 - **Studio 2 Jember Kota**: Kawasan Antirogo, Jember Kota, Kabupaten Jember, Jawa Timur. Akses strategis pusat kota & jadwal fleksibel. Rincian SPP dan tagihan perdana dikonfirmasi langsung saat pemilihan cabang studio pada formulir pendaftaran.
+- **Home Course (Guru Datang ke Rumah)**: Layanan les privat langsung di rumah siswa. Tarif biaya SPP dan jadwal disepakati secara fleksibel berdasarkan jarak bersama Admin melalui WhatsApp (+62 851-7986-1126).
 
 ## Program & Instrumen Pembelajaran
 - **Program**: Kelas Private (1-on-1 bersama mentor) dan Kelas Group / Band Combo.

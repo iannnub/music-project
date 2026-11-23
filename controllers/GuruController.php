@@ -139,19 +139,12 @@ class GuruController {
             exit;
         }
 
-        $img = preg_replace('#^data:image/\w+;base64,#i', '', $photo_base64);
-        $img = str_replace(' ', '+', $img);
-        $dataFoto = base64_decode($img, true);
+        require_once '../helpers/ImageHelper.php';
+        $resImg = ImageHelper::saveBase64Image($photo_base64, '../public/uploads/absen_guru/', 'absen_guru_' . $teacher_id, 1024, 78);
 
-        $uploadDir = "../public/uploads/absen_guru/";
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
-        }
-
-        $fileName = "absen_guru_" . $teacher_id . "_" . time() . ".jpg";
-        $path = $uploadDir . $fileName;
-
-        if ($dataFoto !== false && file_put_contents($path, $dataFoto)) {
+        if (!empty($resImg['status'])) {
+            $fileName = $resImg['fileName'];
+            $path     = '../public/uploads/absen_guru/' . $fileName;
             $data = [
                 'teacher_id'    => $teacher_id,
                 'schedule_id'   => $req_schedule_id,
@@ -183,7 +176,7 @@ class GuruController {
                 $_SESSION['flash'] = ['status' => 'error', 'title' => 'Gagal Menyimpan', 'msg' => 'Terjadi kendala saat menyimpan presensi. Silakan coba lagi.'];
             }
         } else {
-            $_SESSION['flash'] = ['status' => 'error', 'title' => 'Gagal Menyimpan Foto', 'msg' => 'Sistem tidak dapat memproses foto kamera.'];
+            $_SESSION['flash'] = ['status' => 'error', 'title' => 'Gagal Menyimpan Foto', 'msg' => $resImg['msg'] ?? 'Sistem tidak dapat memproses foto kamera.'];
         }
 
         header("Location: index.php?page=guru_absen&schedule_id=" . $req_schedule_id);
@@ -489,6 +482,17 @@ class GuruController {
         require_once '../views/layouts/footer.php';
     }
 
+    private function sanitizeHttpUrl($rawUrl) {
+        $url = trim((string)$rawUrl);
+        if ($url === '') {
+            return '';
+        }
+        if (!preg_match('#^https?://#i', $url) || !filter_var($url, FILTER_VALIDATE_URL)) {
+            return null;
+        }
+        return $url;
+    }
+
     public function materi_store() {
         $this->requirePostAndCsrf();
         require_once '../models/GuruModel.php';
@@ -500,13 +504,20 @@ class GuruController {
             die("Akses ditolak: Anda tidak mengampu kelas ini.");
         }
 
+        $videoUrl = $this->sanitizeHttpUrl($_POST['video_url'] ?? '');
+        if ($videoUrl === null) {
+            $_SESSION['flash'] = ['status' => 'warning', 'title' => 'Tautan Tidak Valid', 'msg' => 'URL video/materi harus diawali http:// atau https:// yang sah.'];
+            header("Location: index.php?page=guru_materi");
+            exit();
+        }
+
         $student_id = (($_POST['student_id'] ?? 'all') === 'all') ? null : (int)$_POST['student_id'];
         $data = [
             'class_id'    => $class_id,
             'student_id'  => $student_id,
             'title'       => trim($_POST['title'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),
-            'video_url'   => trim($_POST['video_url'] ?? '')
+            'video_url'   => $videoUrl
         ];
 
         if ($guruModel->saveMaterial($data)) {
@@ -534,13 +545,20 @@ class GuruController {
             die("Akses ditolak.");
         }
 
+        $videoUrl = $this->sanitizeHttpUrl($_POST['video_url'] ?? '');
+        if ($videoUrl === null) {
+            $_SESSION['flash'] = ['status' => 'warning', 'title' => 'Tautan Tidak Valid', 'msg' => 'URL video/materi harus diawali http:// atau https:// yang sah.'];
+            header("Location: index.php?page=guru_materi");
+            exit();
+        }
+
         $student_id = (($_POST['student_id'] ?? 'all') === 'all') ? null : (int)$_POST['student_id'];
         $data = [
             'class_id'    => $class_id,
             'student_id'  => $student_id,
             'title'       => trim($_POST['title'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),
-            'video_url'   => trim($_POST['video_url'] ?? '')
+            'video_url'   => $videoUrl
         ];
 
         if ($guruModel->updateMaterial($id, $data)) {
@@ -612,10 +630,25 @@ class GuruController {
             exit;
         }
 
+        $teacher_id = (int)$_SESSION['user']['id'];
+        $student_id = (int)$_GET['student_id'];
+
+        // Anti-IDOR: Pastikan siswa terdaftar di kelas/band yang diampu guru ini
+        $stmtAuth = $this->db->prepare("
+            SELECT 1 FROM class_members cm
+            JOIN classes c ON cm.class_id = c.id
+            LEFT JOIN class_bands cb ON cm.band_id = cb.id
+            WHERE cm.student_id = ? AND COALESCE(cb.teacher_id, c.teacher_id) = ?
+            LIMIT 1
+        ");
+        $stmtAuth->execute([$student_id, $teacher_id]);
+        if (!$stmtAuth->fetchColumn()) {
+            http_response_code(403);
+            die("Akses ditolak: Siswa tidak terdaftar di kelas Anda.");
+        }
+
         require_once '../models/AbsensiModel.php';
         $absensiModel = new AbsensiModel($this->db);
-        $teacher_id = $_SESSION['user']['id'];
-        $student_id = (int)$_GET['student_id'];
 
         $history = $absensiModel->getAttendanceDetailByStudent($student_id, $teacher_id);
         $siswa   = $this->userModel->getById($student_id);

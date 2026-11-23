@@ -24,42 +24,54 @@ class ProfileController {
 
     public function update_profile() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            if (!CsrfHelper::verifyToken($_POST['csrf_token'])) {
+            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+                http_response_code(403);
                 die("Akses Ditolak: Token Security Tidak Valid!");
             }
             
-            $id = $_SESSION['user']['id'];
+            $id = (int)$_SESSION['user']['id'];
             $userOld = $this->userModel->getById($id);
 
-            // --- PERBAIKAN FASE 2: TAMBAHKAN gdrive_link ---
+            $rawIg = trim($_POST['ig_link'] ?? '');
+            $safeIg = '';
+            if ($rawIg !== '') {
+                if (preg_match('#^https?://#i', $rawIg) && filter_var($rawIg, FILTER_VALIDATE_URL)) {
+                    $safeIg = $rawIg;
+                } else {
+                    $safeIg = $userOld['ig_link'] ?? '';
+                }
+            }
+
             $data = [
-                'name' => $_POST['name'],
-                'email' => $_POST['email'],
-                'phone' => $_POST['phone'],
-                'parent_name' => $_POST['parent_name'] ?? null,
+                'name' => trim($_POST['name'] ?? $userOld['name']),
+                'email' => trim($_POST['email'] ?? $userOld['email']),
+                'phone' => trim($_POST['phone'] ?? ''),
+                'parent_name' => isset($_POST['parent_name']) ? trim($_POST['parent_name']) : null,
                 'photo' => $userOld['photo_profile'],
-                'ig_link' => $_POST['ig_link'] ?? $userOld['ig_link'] 
+                'ig_link' => $safeIg
             ];
 
-            // --- LOGIKA PROSES FOTO BASE64 (Sama seperti sebelumnya) ---
+            // Validasi & re-encode foto profil Base64 via GD (anti-polyfill / file upload spoofing)
             if (!empty($_POST['photo_base64'])) {
-                $base64Data = $_POST['photo_base64'];
-                list($type, $base64Data) = explode(';', $base64Data);
-                list(, $base64Data)      = explode(',', $base64Data);
-                $imageData = base64_decode($base64Data);
+                $resImg = ImageHelper::saveBase64Image($_POST['photo_base64'], '../public/uploads/profil/', 'profil_' . $id, 512, 82);
+                if (!empty($resImg['status'])) {
+                    $data['photo'] = $resImg['fileName'];
 
-                $fileName = "profil_" . $id . "_" . time() . ".jpg";
-                $targetPath = "../public/uploads/profil/" . $fileName;
-
-                if (file_put_contents($targetPath, $imageData)) {
-                    $data['photo'] = $fileName;
-
-                    if (!empty($userOld['photo_profile']) && !in_array($userOld['photo_profile'], ['default.png', 'default.svg'])) {
-                        $oldPath = "../public/uploads/profil/" . $userOld['photo_profile'];
+                    $oldBase = basename($userOld['photo_profile'] ?? '');
+                    if (!empty($oldBase) && !in_array($oldBase, ['default.png', 'default.svg'], true)) {
+                        $oldPath = '../public/uploads/profil/' . $oldBase;
                         if (file_exists($oldPath)) {
-                            unlink($oldPath);
+                            @unlink($oldPath);
                         }
                     }
+                } else {
+                    $_SESSION['flash'] = [
+                        'status' => 'warning',
+                        'title'  => 'Foto Profil Ditolak',
+                        'msg'    => $resImg['msg'] ?? 'Format gambar tidak valid.'
+                    ];
+                    header("Location: index.php?page=profile");
+                    exit;
                 }
             }
 
@@ -87,13 +99,24 @@ class ProfileController {
 
     public function change_password() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            if (!CsrfHelper::verifyToken($_POST['csrf_token'])) {
+            if (!CsrfHelper::verifyToken($_POST['csrf_token'] ?? '')) {
+                http_response_code(403);
                 die("Akses Ditolak: Token Security Tidak Valid!");
             }
-            $id = $_SESSION['user']['id'];
-            $old_pass = $_POST['old_password'];
-            $new_pass = $_POST['new_password'];
-            $confirm_pass = $_POST['confirm_password'];
+            $id = (int)$_SESSION['user']['id'];
+            $old_pass = $_POST['old_password'] ?? '';
+            $new_pass = $_POST['new_password'] ?? '';
+            $confirm_pass = $_POST['confirm_password'] ?? '';
+
+            if (strlen($new_pass) < 6) {
+                $_SESSION['flash'] = [
+                    'status' => 'warning',
+                    'title'  => 'Kata Sandi Terlalu Pendek',
+                    'msg'    => 'Kata sandi baru minimal 6 karakter.'
+                ];
+                header("Location: index.php?page=profile");
+                exit;
+            }
 
             // Validasi: Password baru & konfirmasi harus sama
             if ($new_pass !== $confirm_pass) {
@@ -107,6 +130,7 @@ class ProfileController {
             }
 
             if ($this->userModel->changePassword($id, $old_pass, $new_pass)) {
+                session_regenerate_id(true);
                 $_SESSION['flash'] = [
                     'status' => 'success',
                     'title'  => 'Sandi Berhasil Diubah',

@@ -77,5 +77,66 @@ class ImageHelper {
             return ['status' => false, 'msg' => 'Gagal menyimpan file ke server'];
         }
     }
+
+    /**
+     * Memvalidasi, mendekode, meresize, dan mengenkode ulang gambar Base64 menjadi JPEG bersih.
+     */
+    public static function saveBase64Image($base64Data, $targetDir, $namePrefix, $maxDim = 800, $quality = 80, $maxBytes = 2097152) {
+        if (!is_string($base64Data) || !preg_match('/^data:image\/(?:jpeg|jpg|png|webp);base64,/i', $base64Data)) {
+            return ['status' => false, 'msg' => 'Format data gambar Base64 tidak valid.'];
+        }
+
+        $commaPos = strpos($base64Data, ',');
+        $encoded  = str_replace(' ', '+', substr($base64Data, $commaPos + 1));
+        $binary   = base64_decode($encoded, true);
+
+        if ($binary === false || strlen($binary) === 0 || strlen($binary) > $maxBytes) {
+            return ['status' => false, 'msg' => 'Ukuran atau data gambar melebihi batas aman (maksimal 2 MB).'];
+        }
+
+        $info = @getimagesizefromstring($binary);
+        $allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
+        if (!$info || empty($info['mime']) || !in_array($info['mime'], $allowedMimes, true)) {
+            return ['status' => false, 'msg' => 'File tidak dikenali sebagai gambar JPEG, PNG, atau WebP yang sah.'];
+        }
+
+        $srcImg = @imagecreatefromstring($binary);
+        if (!$srcImg) {
+            return ['status' => false, 'msg' => 'Gambar rusak atau gagal diproses.'];
+        }
+
+        $origW = imagesx($srcImg);
+        $origH = imagesy($srcImg);
+        $newW  = $origW;
+        $newH  = $origH;
+
+        if ($maxDim > 0 && ($origW > $maxDim || $origH > $maxDim)) {
+            $scale = min($maxDim / $origW, $maxDim / $origH);
+            $newW  = max(1, (int)round($origW * $scale));
+            $newH  = max(1, (int)round($origH * $scale));
+        }
+
+        $dstImg = imagecreatetruecolor($newW, $newH);
+        $white  = imagecolorallocate($dstImg, 255, 255, 255);
+        imagefill($dstImg, 0, 0, $white);
+        imagecopyresampled($dstImg, $srcImg, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
+        imagedestroy($srcImg);
+
+        $targetDir = rtrim($targetDir, '/\\') . '/';
+        if (!is_dir($targetDir)) {
+            mkdir($targetDir, 0755, true);
+        }
+
+        $fileName   = $namePrefix . '_' . time() . '_' . bin2hex(random_bytes(4)) . '.jpg';
+        $targetFile = $targetDir . $fileName;
+        $saved      = imagejpeg($dstImg, $targetFile, $quality);
+        imagedestroy($dstImg);
+
+        if (!$saved) {
+            return ['status' => false, 'msg' => 'Gagal menyimpan hasil kompresi gambar ke server.'];
+        }
+
+        return ['status' => true, 'fileName' => $fileName];
+    }
 }
 ?>

@@ -44,12 +44,12 @@
                                 <?php endfor; ?>
                             </select>
                         </div>
-                        <div class="col-md-4 mb-2">
-                            <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm font-weight-bold mr-2">
+                        <div class="col-md-4 mb-2 d-flex flex-wrap" style="gap: 8px;">
+                            <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm font-weight-bold flex-fill">
                                 <i class="fas fa-search fa-sm mr-1"></i> Tampilkan
                             </button>
                             <?php if(!empty($laporan)): ?>
-                                <button type="button" onclick="window.print()" class="btn btn-success rounded-pill px-4 shadow-sm font-weight-bold">
+                                <button type="button" onclick="window.print()" class="btn btn-success rounded-pill px-4 shadow-sm font-weight-bold flex-fill">
                                     <i class="fas fa-print fa-sm mr-1"></i> Cetak Laporan
                                 </button>
                             <?php endif; ?>
@@ -88,7 +88,7 @@
         </div>
 
         <div class="card border-0 shadow-sm mb-4 report-container" style="border-radius: 15px;">
-            <div class="card-body p-4 p-md-5">
+            <div class="card-body p-3 p-md-5">
                 
                 <div class="d-none d-print-block text-center mb-4">
                     <h2 class="font-weight-bold mb-0" style="letter-spacing: 2px; color: #000 !important;">KAKYO LESSON</h2>
@@ -100,7 +100,7 @@
                 <div class="text-center mb-5 mt-2">
                     <h4 class="font-weight-bold text-uppercase text-gray-900 mb-1">Rekapitulasi Kehadiran Siswa</h4>
                     <h5 class="text-primary font-weight-bold mb-1"><?= htmlspecialchars($nama_kelas); ?></h5>
-                    <p class="text-muted">Periode Laporan: <?= date("F", mktime(0,0,0,$bulan,10)); ?> <?= $tahun; ?></p>
+                    <p class="text-muted">Periode Laporan: <?= date("F", mktime(0,0,0,(int)$bulan,10)); ?> <?= (int)$tahun; ?></p>
                 </div>
 
                 <div class="table-responsive">
@@ -141,8 +141,7 @@
                 </div>
 
                 <div class="row mt-5 pt-4">
-                    <div class="col-7"></div>
-                    <div class="col-5 text-center">
+                    <div class="col-12 col-sm-6 ml-auto text-center">
                         <p class="mb-1">Jember, <?= date('d F Y'); ?></p>
                         <p class="mb-5 font-weight-bold">Owner KakYo Lesson,</p>
                         <br><br>
@@ -158,7 +157,7 @@
             <div class="card-body">
                 <i class="fas fa-calendar-times fa-3x text-gray-200 mb-3"></i>
                 <h5 class="font-weight-bold text-gray-800">Data Tidak Ditemukan</h5>
-                <p class="text-muted small">Belum ada riwayat absensi untuk kelas <strong><?= $nama_kelas; ?></strong> pada periode ini.</p>
+                <p class="text-muted small">Belum ada riwayat absensi untuk kelas <strong><?= htmlspecialchars($nama_kelas); ?></strong> pada periode ini.</p>
             </div>
         </div>
     <?php endif; ?>

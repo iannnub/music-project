@@ -120,7 +120,7 @@
             <form action="index.php?page=siswa&action=add_schedule_item" method="POST">
                 <?= CsrfHelper::formField(); ?>
                 <div class="modal-body py-4">
-                    <input type="hidden" name="student_id" value="<?= $_GET['id']; ?>">
+                    <input type="hidden" name="student_id" value="<?= (int)($_GET['id'] ?? 0); ?>">
                     <div class="form-group">
                         <label class="font-weight-bold small">Pilih Kelas</label>
                         <select class="form-control" name="class_id" required>
@@ -169,7 +169,7 @@
                 <?= CsrfHelper::formField(); ?>
                 <div class="modal-body py-4">
                     <input type="hidden" name="id_member" id="id_member">
-                    <input type="hidden" name="student_id" value="<?= $_GET['id']; ?>">
+                    <input type="hidden" name="student_id" value="<?= (int)($_GET['id'] ?? 0); ?>">
                     <div class="form-group">
                         <label class="font-weight-bold small">Pilih Kelas</label>
                         <select class="form-control" name="class_id" id="val_class" required>

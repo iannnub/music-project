@@ -80,17 +80,24 @@ if ($needsTatibGate):
 <?php endif; ?>
 
 <script src="assets/sb-admin-2/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<?php
+$dtFooterPages = ['guru', 'jadwal', 'kelas', 'pembayaran', 'pembayaran_detail', 'siswa', 'dashboard_guru', 'guru_riwayat', 'guru_riwayat_detail', 'guru_validasi', 'guru_materi', 'guru_tugas'];
+if (in_array($_GET['page'] ?? '', $dtFooterPages, true)):
+?>
 <script src="assets/sb-admin-2/vendor/datatables/jquery.dataTables.min.js"></script>
 <script src="assets/sb-admin-2/vendor/datatables/dataTables.bootstrap4.min.js"></script>
-<script src="assets/sb-admin-2/vendor/jquery-easing/jquery.easing.min.js"></script>
-<script src="assets/sb-admin-2/js/sb-admin-2.min.js"></script>
+<?php endif; ?>
+<script src="assets/sb-admin-2/vendor/jquery-easing/jquery.easing.min.js" defer></script>
+<script src="assets/sb-admin-2/js/sb-admin-2.min.js" defer></script>
 <script src="assets/js/liquid-morph.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
 
 <script>
     <?php if (!empty($needsTatibGate)): ?>
-    $(function () {
-        $('#modalMandatoryTatib').modal({ backdrop: 'static', keyboard: false, show: true });
+    window.addEventListener('DOMContentLoaded', function () {
+        if (window.jQuery && $.fn.modal) {
+            $('#modalMandatoryTatib').modal({ backdrop: 'static', keyboard: false, show: true });
+        }
     });
     <?php endif; ?>
 
@@ -101,7 +108,7 @@ if ($needsTatibGate):
         $flashMsg   = $_SESSION['flash']['msg'] ?? '';
         unset($_SESSION['flash']);
     ?>
-    (function () {
+    window.addEventListener('DOMContentLoaded', function () {
         var fIcon  = <?= json_encode($flashIcon, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
         var fTitle = <?= json_encode($flashTitle, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
         var fMsg   = <?= json_encode($flashMsg, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
@@ -118,15 +125,17 @@ if ($needsTatibGate):
             }, 3400);
         }
 
-        Swal.fire({
-            icon: fIcon,
-            title: fTitle,
-            text: fMsg,
-            showConfirmButton: false,
-            timer: 2400,
-            timerProgressBar: true
-        });
-    })();
+        if (window.Swal) {
+            Swal.fire({
+                icon: fIcon,
+                title: fTitle,
+                text: fMsg,
+                showConfirmButton: false,
+                timer: 2400,
+                timerProgressBar: true
+            });
+        }
+    });
     <?php endif; ?>
 
     $(document).on('click', '.btn-delete', function (e) {

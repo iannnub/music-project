@@ -2,12 +2,16 @@
 date_default_timezone_set('Asia/Jakarta');
 
 // Security Headers (OWASP ASVS V14.4)
+header_remove('X-Powered-By');
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: SAMEORIGIN');
 header('Referrer-Policy: strict-origin-when-cross-origin');
+header('Permissions-Policy: camera=(self), geolocation=(self), microphone=()');
 
-// Hardened Session Configuration (OWASP ASVS V3.4)
-$isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+// Hardened Session Configuration (OWASP ASVS V3.4) - Proxy & InfinityFree SSL aware
+$isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+    || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https')
+    || (isset($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443);
 if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.use_strict_mode', '1');
     ini_set('session.cookie_httponly', '1');
@@ -46,9 +50,13 @@ $_SESSION['LAST_ACTIVITY'] = time();
 
 CsrfHelper::generateToken();
 
-// Auto-reset foto absen guru setiap tanggal 1 (hanya dieksekusi 1x per bulan via app_settings)
-$globalAbsensiCleanup = new AbsensiModel($db);
-$globalAbsensiCleanup->cleanupMonthlyTeacherPhotos(false);
+// Auto-reset foto absen guru setiap tanggal 1 (hanya dieksekusi 1x per bulan saat user login)
+$cleanupKey = 'monthly_cleanup_checked_' . date('Y-m');
+if (isset($_SESSION['user']) && empty($_SESSION[$cleanupKey])) {
+    $globalAbsensiCleanup = new AbsensiModel($db);
+    $globalAbsensiCleanup->cleanupMonthlyTeacherPhotos(false);
+    $_SESSION[$cleanupKey] = true;
+}
 
 $page   = $_POST['page'] ?? $_GET['page'] ?? 'auth';
 $action = $_POST['action'] ?? $_GET['action'] ?? 'index';
