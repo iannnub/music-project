@@ -97,9 +97,15 @@ if ($branch === 'Jember') {
         <?php else: ?>
             <?php foreach ($pembayaran as $p):
                 $today = date('Y-m-d');
-                $is_late = ($p['status'] === 'Belum Lunas' && $today > $p['end_date']);
+                $hasStart = !empty($p['start_date']) && $p['start_date'] !== '0000-00-00';
+                $hasEnd   = !empty($p['end_date']) && $p['end_date'] !== '0000-00-00';
+                $is_late  = ($p['status'] === 'Belum Lunas' && $hasEnd && $today > $p['end_date']);
                 $borderCls = ($p['status'] === 'Lunas') ? 'border-left-success' : ($is_late ? 'border-left-danger' : 'border-left-warning');
                 $badgeCls  = ($p['status'] === 'Lunas') ? 'lg-badge-green' : ($is_late ? 'lg-badge-red' : 'lg-badge-orange');
+                $startFmtSlash = $hasStart ? date('d/m/Y', strtotime($p['start_date'])) : '-';
+                $endFmtSlash   = $hasEnd ? date('d/m/Y', strtotime($p['end_date'])) : '-';
+                $startFmtLong  = $hasStart ? date('d M Y', strtotime($p['start_date'])) : '-';
+                $endFmtLong    = $hasEnd ? date('d M Y', strtotime($p['end_date'])) : '-';
             ?>
                 <div class="col-xl-4 col-md-6 mb-4">
                     <div class="card h-100 <?= $borderCls; ?>">
@@ -113,8 +119,11 @@ if ($branch === 'Jember') {
                                         <?= htmlspecialchars($is_late ? 'Jatuh Tempo' : $p['status']); ?>
                                     </span>
                                 </div>
-                                <div class="h4 font-weight-bold text-primary mb-2" style="font-variant-numeric: tabular-nums;">
+                                <div class="h4 font-weight-bold text-primary mb-1" style="font-variant-numeric: tabular-nums;">
                                     Rp <?= number_format($p['amount'], 0, ',', '.'); ?>
+                                </div>
+                                <div class="small text-muted font-weight-bold mb-2" style="font-variant-numeric: tabular-nums;">
+                                    <i class="far fa-calendar-alt text-primary mr-1"></i><?= $startFmtSlash; ?> s/d <?= $endFmtSlash; ?>
                                 </div>
                                 <?php if (!empty($p['notes'])): ?>
                                     <p class="small text-muted mb-3">
@@ -123,15 +132,19 @@ if ($branch === 'Jember') {
                                 <?php endif; ?>
                             </div>
 
-                            <div class="pt-3 border-top small" style="border-color: rgba(255,255,255,0.08) !important;">
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span class="text-muted">Batas Pembayaran:</span>
-                                    <span class="font-weight-bold" style="font-variant-numeric: tabular-nums;"><?= date('d M Y', strtotime($p['end_date'])); ?></span>
+                            <div class="pt-3 border-top small" style="border-color: var(--border-glass) !important;">
+                                <div class="d-flex justify-content-between mb-1" style="gap: 8px;">
+                                    <span class="text-muted">Tanggal Awal:</span>
+                                    <span class="font-weight-bold text-right" style="font-variant-numeric: tabular-nums;"><?= $startFmtLong; ?></span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1" style="gap: 8px;">
+                                    <span class="text-muted">Tanggal Akhir / Batas Bayar:</span>
+                                    <span class="font-weight-bold text-right" style="font-variant-numeric: tabular-nums;"><?= $endFmtLong; ?></span>
                                 </div>
                                 <?php if ($p['status'] === 'Lunas'): ?>
-                                    <div class="d-flex justify-content-between">
+                                    <div class="d-flex justify-content-between" style="gap: 8px;">
                                         <span class="text-muted">Tercatat Lunas:</span>
-                                        <span class="text-success font-weight-bold"><?= date('d M Y', strtotime($p['payment_date'] ?? $p['created_at'])); ?></span>
+                                        <span class="text-success font-weight-bold text-right" style="font-variant-numeric: tabular-nums;"><?= date('d M Y', strtotime($p['payment_date'] ?? $p['created_at'])); ?></span>
                                     </div>
                                 <?php endif; ?>
                             </div>
