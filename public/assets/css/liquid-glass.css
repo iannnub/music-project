@@ -352,7 +352,7 @@ a:hover {
     border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: var(--radius-pill);
     padding: 7px 16px;
-    min-height: 38px;
+    min-height: 44px;
     max-width: 260px;
     color: var(--text-primary);
     font-size: 0.8rem;
@@ -1112,6 +1112,9 @@ body.mobile-drawer-open {
         min-height: 44px;
         white-space: normal;
         line-height: 1.3;
+    }
+    .btn-sm {
+        min-height: 44px;
     }
     .sidebar-backdrop {
         position: fixed;

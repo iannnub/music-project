@@ -5,7 +5,7 @@
         <div class="sidebar-brand-row">
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php?page=dashboard">
                 <div class="sidebar-brand-icon">
-                    <img src="assets/img/logo-fix.png" alt="Logo KakYo Lesson" width="38" height="38" class="img-fluid">
+                    <img src="assets/img/logo-sm.webp" alt="Logo KakYo Lesson" width="38" height="38" class="img-fluid">
                 </div>
                 <div class="sidebar-brand-text mx-2">KakYo Lesson</div>
             </a>
@@ -18,7 +18,7 @@
 
     <?php $page = $_GET['page'] ?? ''; ?>
 
-    <!-- ======================= SIDEBAR ADMIN ======================= -->
+    <!-- Sidebar Admin -->
     <?php if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'admin'): ?>
 
         <li class="nav-item <?= ($page === 'dashboard') ? 'active' : ''; ?>">
@@ -81,7 +81,7 @@
         </li>
     <?php endif; ?>
 
-    <!-- ======================= SIDEBAR GURU ======================= -->
+    <!-- Sidebar Guru -->
     <?php if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'guru'): ?>
 
         <li class="nav-item <?= ($page === 'dashboard_guru') ? 'active' : ''; ?>">
@@ -150,7 +150,7 @@
         </li>
     <?php endif; ?>
 
-    <!-- ======================= SIDEBAR SISWA ======================= -->
+    <!-- Sidebar Siswa -->
     <?php if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'siswa'): ?>
 
         <li class="nav-item <?= ($page === 'dashboard_siswa') ? 'active' : ''; ?>">

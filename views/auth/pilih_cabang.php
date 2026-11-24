@@ -6,8 +6,16 @@
     $customPageTitle = 'Pilih Lokasi Cabang Studio | KakYo Lesson';
     require_once __DIR__ . '/../layouts/head_meta.php';
     ?>
-    <link rel="stylesheet" href="<?= BASE_URL; ?>assets/sb-admin-2/vendor/fontawesome-free/css/all.min.css">
-    <link rel="stylesheet" href="<?= BASE_URL; ?>assets/css/login.css">
+    <link rel="stylesheet" href="<?= BASE_URL; ?>assets/sb-admin-2/vendor/fontawesome-free/css/all.min.css" media="print" data-defer-css>
+    <noscript><link rel="stylesheet" href="<?= BASE_URL; ?>assets/sb-admin-2/vendor/fontawesome-free/css/all.min.css"></noscript>
+    <?php
+    $loginCssPath = dirname(__DIR__, 2) . '/public/assets/css/login.min.css';
+    if (is_file($loginCssPath)) {
+        echo '<style>' . str_replace('../img/', BASE_URL . 'assets/img/', file_get_contents($loginCssPath)) . '</style>' . "\n";
+    } else {
+        echo '<link rel="stylesheet" href="' . BASE_URL . 'assets/css/login.min.css">' . "\n";
+    }
+    ?>
 </head>
 
 <body>
@@ -24,7 +32,7 @@
         <div class="branch-select-card">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
                 <div class="brand-pill" style="margin-bottom:0;">
-                    <img src="<?= BASE_URL; ?>assets/img/logo-fix.png" alt="Logo KakYo Lesson" width="30" height="30" fetchpriority="high">
+                    <img src="<?= BASE_URL; ?>assets/img/logo-sm.webp" alt="Logo KakYo Lesson" width="30" height="30" fetchpriority="high">
                     <span>KAKYO LESSON &bull; TAHAP 2</span>
                 </div>
                 <div style="font-size:0.82rem;color:var(--text-muted);">

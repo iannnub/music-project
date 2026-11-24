@@ -11,13 +11,20 @@ $pageTitleMap = [
     'siswa_tatib'          => 'Tata Tertib Siswa & Wali Murid | KakYo Lesson'
 ];
 $activePageKey = $_GET['page'] ?? 'auth';
-$resolvedTitle = $customPageTitle ?? ($pageTitleMap[$activePageKey] ?? 'KakYo Lesson | Kursus Musik Private & Band di Jember');
+$resolvedTitle = $customPageTitle ?? ($pageTitleMap[$activePageKey] ?? 'KakYo Lesson | Kursus Musik Jember');
 $canonicalUrl  = BASE_URL . ($activePageKey === 'register' ? 'index.php?page=register' : 'index.php?page=auth');
+$isPublicRoute = in_array($activePageKey, ['auth', 'register'], true);
+$metaRobots    = $isPublicRoute ? 'index, follow' : 'noindex, nofollow';
+$metaDesc      = ($activePageKey === 'register')
+    ? 'Daftar kursus musik Private, Band Combo, atau Home Course KakYo Lesson di Studio 1 Balung & Studio 2 Jember Kota. Pilih instrumen dan jadwal lesmu.'
+    : 'Kursus musik Private, Band Combo, & Home Course di Balung dan Jember Kota untuk Vokal, Gitar, Bass, Piano, serta Drum bersama mentor berpengalaman.';
+$ogImageUrl    = BASE_URL . 'assets/img/og-share.jpg?v=2';
 ?>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= htmlspecialchars($resolvedTitle); ?></title>
-<meta name="description" content="KakYo Lesson menyediakan kursus musik Private, Band Combo, dan Home Course (Guru ke Rumah) di Studio 1 Balung & Studio 2 Jember Kota untuk Vokal, Gitar, Bass, Piano, dan Drum.">
+<meta name="description" content="<?= htmlspecialchars($metaDesc); ?>">
+<meta name="robots" content="<?= $metaRobots; ?>">
 <meta name="keywords" content="kursus musik jember, les musik balung, les musik jember kota, kakyo lesson, belajar gitar jember, les vokal jember, les piano jember">
 <meta name="author" content="Yanuar Yose Armando - KakYo Lesson">
 <meta name="theme-color" content="#09090B" id="metaThemeColor">
@@ -40,18 +47,18 @@ $canonicalUrl  = BASE_URL . ($activePageKey === 'register' ? 'index.php?page=reg
 <meta property="og:url" content="<?= htmlspecialchars($canonicalUrl); ?>">
 <meta property="og:site_name" content="KakYo Lesson">
 <meta property="og:title" content="<?= htmlspecialchars($resolvedTitle); ?>">
-<meta property="og:description" content="Daftar kursus musik Private, Band Combo, dan Home Course di Studio 1 Balung dan Studio 2 Jember Kota. Pantau jadwal, kurikulum Bab/Subbab, dan raport latihan dalam satu portal.">
-<meta property="og:image" content="<?= BASE_URL; ?>assets/img/logo-fix.png">
-<meta property="og:image:secure_url" content="<?= BASE_URL; ?>assets/img/logo-fix.png">
-<meta property="og:image:width" content="256">
-<meta property="og:image:height" content="256">
-<meta property="og:image:type" content="image/png">
-<meta property="og:image:alt" content="Logo Resmi KakYo Lesson Kursus Musik Jember">
+<meta property="og:description" content="<?= htmlspecialchars($metaDesc); ?>">
+<meta property="og:image" content="<?= htmlspecialchars($ogImageUrl); ?>">
+<meta property="og:image:secure_url" content="<?= htmlspecialchars($ogImageUrl); ?>">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:alt" content="KakYo Lesson Kursus Musik Balung & Jember Kota">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="<?= htmlspecialchars($resolvedTitle); ?>">
-<meta name="twitter:description" content="Kursus musik Private, Band Combo, dan Home Course di Balung & Jember Kota bersama mentor berpengalaman.">
-<meta name="twitter:image" content="<?= BASE_URL; ?>assets/img/logo-fix.png">
+<meta name="twitter:description" content="<?= htmlspecialchars($metaDesc); ?>">
+<meta name="twitter:image" content="<?= htmlspecialchars($ogImageUrl); ?>">
 
 <link rel="icon" type="image/png" sizes="32x32" href="<?= BASE_URL; ?>assets/img/logo-fix.png">
 <link rel="apple-touch-icon" sizes="180x180" href="<?= BASE_URL; ?>assets/img/logo-fix.png">
@@ -60,8 +67,9 @@ $canonicalUrl  = BASE_URL . ($activePageKey === 'register' ? 'index.php?page=reg
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=optional" rel="stylesheet" media="print" data-defer-css>
+<noscript><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=optional" rel="stylesheet"></noscript>
+<script>window.addEventListener('load',function(){document.querySelectorAll('link[data-defer-css]').forEach(function(l){l.media='all';});});</script>
 
 <script type="application/ld+json">
 {

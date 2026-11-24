@@ -88,7 +88,7 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'siswa') {
 
 switch ($page) {
 
-    // --------------------------- auth & registrasi siswa baru ---------------------------
+    // Auth & registrasi siswa baru
     case 'auth':
         require_once '../controllers/AuthController.php';
         $controller = new AuthController($db);
@@ -137,7 +137,7 @@ switch ($page) {
         }
         break;
 
-    // --------------------------- profile ---------------------------
+    // Profile
     case 'profile':
         if (!isset($_SESSION['user'])) {
             header("Location: index.php?page=auth");
@@ -151,7 +151,7 @@ switch ($page) {
         else $controller->index();
         break;
 
-    // --------------------------- dashboard & admin settings ---------------------------
+    // Dashboard & admin settings
     case 'dashboard':
         if (!isset($_SESSION['user'])) {
             header("Location: index.php?page=auth");
@@ -172,7 +172,7 @@ switch ($page) {
         $controller->saveSettings();
         break;
 
-    // --------------------------- guru (admin CRUD) ---------------------------
+    // Guru (admin CRUD)
     case 'guru':
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
             header("Location: index.php?page=auth");
@@ -192,7 +192,7 @@ switch ($page) {
         }
         break;
 
-    // --------------------------- siswa (admin CRUD) ---------------------------
+    // Siswa (admin CRUD)
     case 'siswa':
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
             header("Location: index.php?page=auth");
@@ -228,7 +228,7 @@ switch ($page) {
         $controller->manage_jadwal();
         break;
 
-    // --------------------------- kelas & manajemen band ---------------------------
+    // Kelas & manajemen band
     case 'kelas':
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
             header("Location: index.php?page=auth");
@@ -264,7 +264,7 @@ switch ($page) {
         }
         break;
 
-    // --------------------------- jadwal ---------------------------
+    // Jadwal
     case 'jadwal':
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
             header("Location: index.php?page=auth");
@@ -284,7 +284,7 @@ switch ($page) {
         }
         break;
 
-    // --------------------------- pembayaran ---------------------------
+    // Pembayaran
     case 'pembayaran':
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
             header("Location: index.php?page=auth");
@@ -311,7 +311,7 @@ switch ($page) {
         $controller->detail();
         break;
 
-    // --------------------------- area siswa ---------------------------
+    // Area siswa
     case 'dashboard_siswa':
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'siswa') {
             header("Location: index.php?page=auth");
@@ -399,7 +399,7 @@ switch ($page) {
         $controller->cetak_raport();
         break;
 
-    // --------------------------- area guru ---------------------------
+    // Area guru
     case 'dashboard_guru':
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'guru') {
             header("Location: index.php?page=auth");
@@ -569,7 +569,7 @@ switch ($page) {
         }
         break;
 
-    // --------------------------- laporan ---------------------------
+    // Laporan
     case 'laporan_keuangan':
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
             header("Location: index.php?page=auth");

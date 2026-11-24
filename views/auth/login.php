@@ -3,11 +3,19 @@
 
 <head>
     <?php
-    $customPageTitle = 'KakYo Lesson | Kursus Musik Private & Band di Balung dan Jember Kota';
+    $customPageTitle = 'Kursus Musik Private & Band Jember | KakYo Lesson';
     require_once __DIR__ . '/../layouts/head_meta.php';
     ?>
-    <link rel="stylesheet" href="<?= BASE_URL; ?>assets/sb-admin-2/vendor/fontawesome-free/css/all.min.css">
-    <link rel="stylesheet" href="<?= BASE_URL; ?>assets/css/login.css">
+    <link rel="stylesheet" href="<?= BASE_URL; ?>assets/sb-admin-2/vendor/fontawesome-free/css/all.min.css" media="print" data-defer-css>
+    <noscript><link rel="stylesheet" href="<?= BASE_URL; ?>assets/sb-admin-2/vendor/fontawesome-free/css/all.min.css"></noscript>
+    <?php
+    $loginCssPath = dirname(__DIR__, 2) . '/public/assets/css/login.min.css';
+    if (is_file($loginCssPath)) {
+        echo '<style>' . str_replace('../img/', BASE_URL . 'assets/img/', file_get_contents($loginCssPath)) . '</style>' . "\n";
+    } else {
+        echo '<link rel="stylesheet" href="' . BASE_URL . 'assets/css/login.min.css">' . "\n";
+    }
+    ?>
 </head>
 
 <body>
@@ -25,7 +33,7 @@
             <div class="showcase-bg-photo" aria-hidden="true"></div>
             <div class="showcase-content">
                 <div class="brand-pill">
-                    <img src="<?= BASE_URL; ?>assets/img/logo-fix.png" alt="Logo KakYo Lesson" width="34" height="34" fetchpriority="high">
+                    <img src="<?= BASE_URL; ?>assets/img/logo-sm.webp" alt="Logo KakYo Lesson" width="34" height="34" fetchpriority="high">
                     <span>KAKYO LESSON</span>
                 </div>
 

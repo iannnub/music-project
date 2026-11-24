@@ -61,7 +61,7 @@ html {
 body {
     min-height: 100dvh;
     background-color: var(--bg-canvas);
-    background-image: url('../img/bg.webp');
+    background-image: url('../img/bg-mobile.webp');
     background-size: cover;
     background-position: center center;
     background-attachment: fixed;
@@ -72,6 +72,12 @@ body {
     -webkit-font-smoothing: antialiased;
     overflow-x: clip;
     position: relative;
+}
+
+@media (min-width: 768px) {
+    body {
+        background-image: url('../img/bg.webp');
+    }
 }
 
 /* Translucent solid dark backdrop tint over the wallpaper (Zero Gradients) */
@@ -1228,7 +1234,9 @@ html:not([data-theme="light"]) .theme-icon-moon {
     .register-card,
     .branch-select-card,
     .auth-top-action-bar,
-    .studio-feature-card {
+    .studio-feature-card,
+    .showcase-panel,
+    .brand-pill {
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
     }
