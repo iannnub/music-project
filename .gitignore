@@ -28,3 +28,8 @@ Thumbs.db
 
 # Root working PDF source (served copy lives in public/assets/docs/)
 /Tata_Tertib_Siswa_dan_Wali_Murid_KakYo_Lesson.pdf
+
+# User uploaded files (private user data - keep directory structure & .htaccess only)
+public/uploads/*/*
+!public/uploads/*/.gitkeep
+!public/uploads/.htaccess
